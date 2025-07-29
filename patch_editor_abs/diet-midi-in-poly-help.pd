@@ -1,0 +1,13 @@
+#N canvas 410 170 752 548 10;
+#X obj 24 328 cnv 15 400 30 empty empty OUTPUTS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 21 190 cnv 15 400 30 empty empty CONTROLS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 21 261 cnv 15 400 30 empty empty INPUTS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 20 17 cnv 15 400 30 empty empty MIDI-IN: 20 12 0 14 #90d4b0 #fcfcfc 0;
+#X text 25 228 /none/;
+#X text 25 297 /none/;
+#X text 25 370 NOTE - MIDI note output;
+#X text 25 396 GATE - MIDI gate output;
+#X text 25 428 VEL - MIDI velocity output;
+#X obj 432 17 diet-midi-in-poly;
+#X text 20 64 The "MIDI-IN" module receives MIDI note \, gate and velocity signals from MIDI channel 1 and outputs them as Automatonism signals. Remember that all external MIDI gear must be connected before launching PD and selected in the PD MIDI Settings. If you want to read from another MIDI channel than channel 1 \, open the module and change the object [notein 1] to [notein yournumber].;
+#X text 20 154 NOTE: This is a polyphonic modification of the original Automatism module.;

@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=jackpd
+Exec=/home/johann/pdstart2.sh
+Terminal=true
+Type=Application
