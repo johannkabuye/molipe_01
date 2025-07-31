@@ -3,14 +3,15 @@
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;
 #X declare -path ../patch_editor_abs/controller;
+#X declare -path ../patch_editor_abs/airwindows;
 #X obj 2 59 diet-clock 1;
 #X obj 210 60 diet-drum-seq 2;
-#X obj 2 642 diet-saturation 22;
+#X obj 34 671 diet-saturation 22;
 #X obj 733 350 cmbcym;
-#X obj 2 753 diet-audio-to-mixer 34;
-#X obj 226 734 diet-audio-to-mixer 35;
+#X obj -8 783 diet-audio-to-mixer 34;
+#X obj 226 750 diet-audio-to-mixer 35;
 #X obj 226 632 diet-saturation 26;
-#X obj 479 634 diet-audio-to-mixer 36;
+#X obj 479 758 diet-audio-to-mixer 36;
 #X obj 733 623 diet-audio-to-mixer 38;
 #X obj 956 629 diet-audio-to-mixer 39;
 #X obj 1653 685 diet-audio-to-mixer 40;
@@ -31,6 +32,7 @@
 #X obj 367 122 s patch-path;
 #X obj 367 46 r update-path;
 #X obj 425 65 loadbang;
+#X obj 46 119 declare -path ../patch_editor_abs/airwindows;
 #X connect 4 0 6 0;
 #X connect 5 0 4 0;
 #X connect 6 0 7 0;
@@ -46,6 +48,7 @@
 #X obj 956 342 fmperc;
 #X obj 836 38 mymembrane-kick 1;
 #X obj 1161 111 basic-lfo 21;
+#X obj 20 278 xfade 4;
 #X connect 0 0 1 0;
 #X connect 0 2 1 1;
 #X connect 0 3 1 4;
@@ -58,7 +61,6 @@
 #X connect 1 5 18 0;
 #X connect 1 6 19 0;
 #X connect 1 7 12 0;
-#X connect 2 0 4 0;
 #X connect 3 0 8 0;
 #X connect 6 0 5 0;
 #X connect 11 0 7 0;
@@ -68,8 +70,11 @@
 #X connect 15 0 2 0;
 #X connect 18 0 20 0;
 #X connect 19 0 21 0;
+#X connect 19 0 13 0;
 #X connect 22 0 13 0;
 #X connect 23 0 9 0;
-#X connect 24 0 2 0;
+#X connect 24 0 26 1;
 #X connect 25 3 24 1;
 #X connect 25 3 19 1;
+#X connect 26 0 2 0;
+#X connect 26 0 4 0;

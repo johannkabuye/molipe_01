@@ -5564,11 +5564,11 @@
 #X text 611 465 DIET-Modification:;
 #X msg 784 534 1;
 #N canvas 186 55 1172 623 mixer 1;
-#X obj 12 11 big-mixer;
+#X obj 13 27 big-mixer;
 #X obj 3 470 audio-recorder 5;
-#X obj 201 428 e_mcompressor;
+#X obj 785 397 e_mcompressor;
 #X obj 210 632 diet-saturation 1;
-#X obj 394 539 diet-saturation 2;
+#X obj 396 630 diet-saturation 2;
 #X obj 304 898 dac~ 3 4;
 #X obj 384 897 dac~ 5 6;
 #X obj 471 897 dac~ 7 8;
@@ -5580,11 +5580,7 @@
 #X connect 0 1 4 0;
 #X connect 2 0 3 0;
 #X connect 2 1 4 0;
-#X connect 3 0 8 1;
 #X connect 3 0 9 0;
-#X connect 3 0 8 0;
-#X connect 9 0 5 0;
-#X connect 9 0 5 1;
 #X restore 784 487 pd mixer;
 #X obj 784 512 r open-mixer!;
 #X msg 784 556 \; pd-mixer vis \$1;
