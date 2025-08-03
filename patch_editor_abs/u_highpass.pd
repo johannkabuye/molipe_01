@@ -1,4 +1,4 @@
-#N canvas 186 118 956 732 10;
+#N canvas 155 82 956 732 10;
 #N canvas 0 0 786 513 b0 0;
 #X obj 101 245 outlet;
 #X obj 424 96 r \$0-Q;
@@ -165,8 +165,7 @@
 #X restore 351 206 pd /a0;
 #X obj 351 157 t a a a a a;
 #X obj 283 132 t b b;
-#X text 329 46 all coefficient inlets are cold inlets. Activate them
-with a bang into first inlet.;
+#X text 329 46 all coefficient inlets are cold inlets. Activate them with a bang into first inlet.;
 #X obj 351 247 * -1;
 #X obj 410 247 * -1;
 #X connect 0 0 24 1;
@@ -197,11 +196,10 @@ with a bang into first inlet.;
 #X connect 37 0 0 0;
 #X connect 38 0 0 1;
 #X restore 85 541 pd biquad6 -------;
-#X obj 668 262 hradio 15 1 0 2 empty empty bw/Q 0 -8 1 10 -262144 -1
--1 0;
-#X floatatom 494 230 5 0 0 2 BW - -;
-#X floatatom 602 256 5 0 0 2 Q - -;
-#X floatatom 437 257 5 0 0 0 freq - -;
+#X obj 668 262 hradio 15 1 0 2 empty empty bw/Q 0 -8 1 10 #fcfcfc #000000 #000000 0;
+#X floatatom 494 230 5 0 0 2 BW - - 0;
+#X floatatom 602 256 5 0 0 2 Q - - 0;
+#X floatatom 437 257 5 0 0 0 freq - - 0;
 #X text 717 256 <(default: BW);
 #X obj 602 276 t b a;
 #X obj 493 249 t b a;
@@ -263,10 +261,8 @@ with a bang into first inlet.;
 #X obj 617 65 r \$0-BW;
 #X obj 617 422 s \$0-alpha;
 #X obj 947 365 spigot 0;
-#X obj 1000 341 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1
-0 1;
-#X obj 670 374 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
-1;
+#X obj 1000 341 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 670 374 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 635 130 log;
 #X msg 635 109 2;
 #X obj 635 87 loadbang;
@@ -325,9 +321,8 @@ with a bang into first inlet.;
 #X msg 819 136 0 1;
 #X text 785 43 Bandwith or Q;
 #X obj 617 398 spigot 1;
-#X floatatom 552 459 8 0 0 0 - - -;
-#X text 721 452 alpha = sin(w0)*sinh( ln(2)/2 * BW * w0/sin(w0) ) (case:
-BW);
+#X floatatom 552 459 8 0 0 0 - - - 0;
+#X text 721 452 alpha = sin(w0)*sinh( ln(2)/2 * BW * w0/sin(w0) ) (case: BW);
 #X obj 205 267 spigot 1;
 #X obj 110 132 t b a;
 #X obj 965 317 t b a;
@@ -391,21 +386,13 @@ BW);
 #X obj 84 116 t b a;
 #X obj 147 119 t b a;
 #N canvas 172 83 586 377 LICENSE-GPL 0;
-#X text 57 88 This program is free software: you can redistribute it
-and/or modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation \, either version 3 of
-the License \, or (at your option) any later version.;
-#X text 58 168 This program is distributed in the hope that it will
-be useful \, but WITHOUT ANY WARRANTY \; without even the implied warranty
-of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.;
-#X text 57 261 You should have received a copy of the GNU General Public
-License along with this program. If not \, see <http://www.gnu.org/licenses/>.
-;
+#X text 57 88 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation \, either version 3 of the License \, or (at your option) any later version.;
+#X text 58 168 This program is distributed in the hope that it will be useful \, but WITHOUT ANY WARRANTY \; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.;
+#X text 57 261 You should have received a copy of the GNU General Public License along with this program. If not \, see <http://www.gnu.org/licenses/>.;
 #X text 61 54 Copyright (C) 2009 \, Reality Jockey Ltd.;
-#X text 60 325 See the file LICENSE.txt for the full license text.
-;
+#X text 60 325 See the file LICENSE.txt for the full license text.;
 #X restore 522 59 pd LICENSE-GPL;
+#X floatatom 245 277 37 0 0 0 - - - 0;
 #X connect 0 0 6 4;
 #X connect 1 0 6 5;
 #X connect 2 0 6 6;
@@ -436,5 +423,6 @@ License along with this program. If not \, see <http://www.gnu.org/licenses/>.
 #X connect 27 0 7 0;
 #X connect 28 0 6 0;
 #X connect 28 1 16 0;
+#X connect 28 1 31 0;
 #X connect 29 0 6 0;
 #X connect 29 1 13 0;
