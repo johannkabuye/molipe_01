@@ -1,5 +1,0 @@
-Welcome to Modular Live Performer - a live performance patch environment patched in pure data. 
-To start: Please open the mother.pd
-
-
-
