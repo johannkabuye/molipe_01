@@ -25,7 +25,7 @@
 #X obj -145 418 r \$0-samplelength;
 #X obj -165 457 f;
 #X obj 428 420 * 4;
-#X obj 114 203 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r BARS 133 7 0 10 #fcfcfc #000000 #000000 8800 1;
+#X obj 114 203 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r BARS 133 7 0 10 #fcfcfc #000000 #000000 1000 1;
 #X obj 552 261 / 127;
 #X floatatom 552 324 5 0 0 0 - - - 0;
 #X obj 552 344 i;
@@ -70,7 +70,7 @@
 #X obj 237 276 bng 16 250 50 0 empty empty Reload\ Library 20 8 0 10 #fcfcfc #000000 #000000;
 #X obj 747 183 text get \$0-library, f 22;
 #X obj 748 122 text define -k \$0-library;
-#A set 1loop0 3.36147e+06 \; 1loop1 685775 \; 2loop2 44100 \; 1loop3 325757 \; 1loop4 2.49035e+06 \;;
+#A set 1loop0 3.36147e+06 \; 1loop1 685775 \; 2loop2 44100 \; 1loop3 325757 \; 1loop4 2.49035e+06 \; tzf 1;
 #X f 27;
 #X obj 536 723 text set \$0-library, f 22;
 #X msg 509 533 loop\$1;
@@ -92,7 +92,7 @@
 #X obj 748 293 f \$0;
 #X msg 748 313 \; \$1-sample-editor edit 0;
 #X obj 781 506 r patch-path;
-#X msg 744 615 read /Volumes/MODFORMER/patch1/loops/1loop2.wav 1-sample-editor;
+#X msg 744 615 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/loops/2loop3.wav 2-sample-editor;
 #X obj 764 485 s update-path;
 #X obj 743 507 f;
 #X obj 743 528 t b f;
@@ -120,6 +120,10 @@
 #X obj 208 537 f \$1;
 #X obj 1220 559 f \$1;
 #X obj 324 432 f \$1;
+#X msg 1048 135 click;
+#X obj 1048 157 text define -k \$1-library;
+#A set test1;
+#X f 27;
 #X connect 1 0 68 0;
 #X connect 2 0 30 0;
 #X connect 3 0 38 0;
@@ -190,6 +194,7 @@
 #X connect 66 0 32 1;
 #X connect 67 0 36 2;
 #X connect 68 0 37 0;
+#X connect 69 0 70 0;
 #X coords 0 -1 1 1 600 280 1 100 100;
 #X restore 5 8 pd sample-editor;
 #X restore 640 400 pd \$0-editor;
@@ -216,7 +221,7 @@
 #X msg 562 392 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/1-diet-looper-ss.txt;
 #X obj 376 88 s update-path;
 #X obj 327 47 t b b b;
-#X msg 135 600 write /Volumes/MODFORMER/patch1/statesave/1-diet-looper-ss.txt;
+#X msg 135 600 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/1-diet-looper-ss.txt;
 #X obj 573 353 pack f s;
 #X obj 190 539 r patch-path;
 #X obj 145 559 pack f s;
@@ -554,7 +559,7 @@
 #X msg -161 696 0 1;
 #X obj -186 402 del 1;
 #X obj -202 348 del 1;
-#X obj 114 143 hsl 128 15 0 127 0 1 \$0-1-s \$0-1-r LOOP 133 7 0 10 #fcfcfc #000000 #000000 700 1;
+#X obj 114 143 hsl 128 15 0 127 0 1 \$0-1-s \$0-1-r LOOP 133 7 0 10 #fcfcfc #000000 #000000 5800 1;
 #X floatatom 212 128 5 0 0 0 - - - 0;
 #X obj 324 21 / 127;
 #X floatatom 324 84 5 0 0 0 - - - 0;

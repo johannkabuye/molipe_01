@@ -5,7 +5,7 @@
 #X declare -path ../patch_editor_abs/controller;
 #X declare -path ../patch_editor_abs/airwindows;
 #X obj 2 59 diet-clock 1;
-#X obj 204 59 diet-drum-seq 2;
+#X obj 205 61 diet-drum-seq 2;
 #X obj 34 671 diet-saturation 22;
 #X obj 733 350 cmbcym;
 #X obj -8 783 diet-audio-to-mixer 34;
@@ -46,8 +46,9 @@
 #X obj 1417 621 diet-audio-to-mixer 42;
 #X obj 1654 492 diet-saturation 28;
 #X obj 956 342 fmperc;
-#X obj 836 38 mymembrane-kick 1;
-#X obj 1161 111 basic-lfo 21;
+#X obj 709 62 mymembrane-kick 1;
+#X obj 1170 202 basic-lfo 21;
+#X obj 1518 129 diet-looper 2;
 #X connect 0 0 1 0;
 #X connect 0 2 1 1;
 #X connect 0 3 1 4;
@@ -73,6 +74,7 @@
 #X connect 19 0 21 0;
 #X connect 22 0 13 0;
 #X connect 23 0 9 0;
+#X connect 25 1 18 1;
 #X connect 25 3 19 1;
 #X connect 25 3 19 2;
 #X connect 25 3 24 1;
