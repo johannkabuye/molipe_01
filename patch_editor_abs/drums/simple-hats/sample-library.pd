@@ -208,6 +208,10 @@
 #X obj 549 21 sample-loader kick0;
 #X obj 549 41 sample-loader kick1;
 #X obj 549 61 sample-loader kick2;
+#X obj 430 22 sample-loader hat0;
+#X obj 430 42 sample-loader hat1;
+#X obj 430 62 sample-loader hat2;
+#X obj 430 82 sample-loader hat3;
 #X obj 307 22 sample-loader clap0;
 #X obj 307 42 sample-loader clap1;
 #X obj 307 62 sample-loader clap2;
@@ -226,6 +230,10 @@
 #X obj 307 122 sample-loader clap5;
 #X obj 307 142 sample-loader clap6;
 #X obj 307 162 sample-loader clap7;
+#X obj 430 102 sample-loader hat4;
+#X obj 430 122 sample-loader hat5;
+#X obj 430 142 sample-loader hat6;
+#X obj 430 162 sample-loader hat7;
 #X obj 232 185 sample-loader shaker0;
 #X obj 232 205 sample-loader shaker1;
 #X obj 232 225 sample-loader shaker2;
@@ -284,8 +292,8 @@
 #A set;
 #X msg 723 305 symbol array;
 #X floatatom 601 258 5 0 0 0 - - - 0;
-#X connect 2 0 48 0;
+#X connect 2 0 56 0;
 #X connect 3 0 4 0;
 #X connect 5 0 6 0;
-#X connect 50 0 48 1;
-#X connect 51 0 48 0;
+#X connect 58 0 56 1;
+#X connect 59 0 56 0;

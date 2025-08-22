@@ -7090,7 +7090,7 @@
 #X text 345 -72 <-- for now removed from gui - when corrected it will be added again.;
 #X obj 196 119 tgl 15 1 \$0-clock-on-off-s empty ON/OFF 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 746 539 metro 100;
-#X obj 199 137 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 7500 1;
+#X obj 199 137 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 2700 1;
 #X floatatom 297 122 5 0 0 1 BPM - - 10;
 #X obj 528 590 / 127;
 #X obj 528 728 t f f;
