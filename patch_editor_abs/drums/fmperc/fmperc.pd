@@ -72,15 +72,15 @@
 #X msg 42 380 \$1 100;
 #X floatatom 62 254 5 0 0 0 - - - 0;
 #X obj 158 999 outlet~;
-#X obj 120 178 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r FMOD 133 7 0 10 #fcfcfc #000000 #000000 6400 1;
+#X obj 120 178 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r FMOD 133 7 0 10 #fcfcfc #000000 #000000 9200 1;
 #X obj 120 159 hsl 128 15 0 127 0 1 \$0-1-cv-s \$0-1-cv-r PITCH-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 120 144 hsl 128 15 0 127 0 1 \$0-1-s \$0-1-r PITCH 133 7 0 10 #fcfcfc #000000 #000000 4800 1;
+#X obj 120 144 hsl 128 15 0 127 0 1 \$0-1-s \$0-1-r PITCH 133 7 0 10 #fcfcfc #000000 #000000 2900 1;
 #X obj 120 193 hsl 128 15 0 127 0 1 \$0-2-cv-s \$0-2-cv-r FMOD-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 120 212 hsl 128 15 0 127 0 1 \$0-3-s \$0-3-r INDICE 133 7 0 10 #fcfcfc #000000 #000000 1800 1;
+#X obj 120 212 hsl 128 15 0 127 0 1 \$0-3-s \$0-3-r INDICE 133 7 0 10 #fcfcfc #000000 #000000 1000 1;
 #X obj 120 227 hsl 128 15 0 127 0 1 \$0-3-cv-s \$0-3-cv-r INDICE-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 120 246 hsl 128 15 0 127 0 1 \$0-4-s \$0-4-r CRELEASE 133 7 0 10 #fcfcfc #000000 #000000 400 1;
+#X obj 120 246 hsl 128 15 0 127 0 1 \$0-4-s \$0-4-r CRELEASE 133 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 120 261 hsl 128 15 0 127 0 1 \$0-4-cv-s \$0-4-cv-r CREL-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 120 280 hsl 128 15 0 127 0 1 \$0-5-s \$0-5-r MRELEASE 133 7 0 10 #fcfcfc #000000 #000000 2900 1;
+#X obj 120 280 hsl 128 15 0 127 0 1 \$0-5-s \$0-5-r MRELEASE 133 7 0 10 #fcfcfc #000000 #000000 9400 1;
 #X obj 120 295 hsl 128 15 0 127 0 1 \$0-5-cv-s \$0-5-cv-r MREL-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
 #X obj 115 131 cnv 5 5 5 empty empty FMPERC 0 0 0 12 #fcfcfc #404040 0;
 #X obj 161 131 cnv 5 5 5 empty \$0-instance-num 0 0 0 0 12 #fcfcfc #404040 0;
@@ -139,7 +139,7 @@
 #X obj 454 272 f;
 #X obj 454 293 t b f;
 #X obj 500 72 s update-path;
-#X msg 454 358 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch2/statesave/0-mymembrane-ss.txt;
+#X msg 454 358 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/0-mymembrane-ss.txt;
 #X obj 461 48 t b b b;
 #X msg 465 337 set read \$2/statesave/\$1-mymembrane-ss.txt;
 #X obj 172 562 r patch-path;
@@ -1953,4 +1953,4 @@
 #X connect 100 0 98 1;
 #X connect 103 0 48 0;
 #X connect 104 0 103 1;
-#X coords 0 -1 1 1 220 280 2 100 100;
+#X coords 0 -1 1 1 220 270 2 100 100;
