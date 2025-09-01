@@ -3,7 +3,7 @@
 #X obj 122 153 hsl 128 15 0 127 0 1 \$0-diet-audio-to-mix-channel-s \$0-diet-audio-to-mix-channel-r CHANNEL -3 -7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 105 109 cnv 5 5 5 empty empty IN 0 0 0 8 #fcfcfc #404040 0;
 #X obj 119 125 cnv 5 5 5 empty empty DIET-AUDIO-TO-MIX 0 0 0 12 #fcfcfc #404040 0;
-#N canvas -12 25 749 735 state-saving-multiple-instances 0;
+#N canvas 0 25 749 735 state-saving-multiple-instances 0;
 #X obj 223 18 loadbang;
 #X obj 422 480 textfile;
 #X msg 613 463 rewind;

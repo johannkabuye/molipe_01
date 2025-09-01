@@ -77,8 +77,8 @@
 #X obj 449 526 simple-hats 1;
 #X obj 876 222 xfade 4;
 #X obj 1193 511 fmperc;
-#X obj 670 417 basic-lfo 22;
 #X obj 225 535 basic-lfo 24;
+#X obj 676 405 basic-lfo 24;
 #X connect 0 0 4 0;
 #X connect 2 0 22 0;
 #X connect 7 0 15 0;
@@ -88,8 +88,8 @@
 #X connect 10 2 23 1;
 #X connect 10 3 7 1;
 #X connect 10 3 23 4;
-#X connect 12 0 14 0;
 #X connect 12 0 22 0;
+#X connect 12 0 14 0;
 #X connect 15 0 8 0;
 #X connect 17 3 12 1;
 #X connect 19 0 9 4;
@@ -101,10 +101,9 @@
 #X connect 22 0 14 0;
 #X connect 23 0 9 0;
 #X connect 23 1 12 0;
-#X connect 23 1 21 0;
 #X connect 23 2 24 0;
 #X connect 23 3 0 0;
 #X connect 23 7 7 0;
 #X connect 24 0 3 0;
-#X connect 27 3 0 2;
-#X connect 28 3 12 2;
+#X connect 27 3 12 2;
+#X connect 28 3 0 2;
