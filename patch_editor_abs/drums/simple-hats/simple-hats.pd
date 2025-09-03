@@ -266,8 +266,8 @@
 #X obj 171 512 t b b;
 #X msg 187 793 0 15 \, 1 50 1;
 #X obj 172 954 *~;
-#X obj 127 257 hsl 128 15 0 127 0 1 \$0-attack-s \$0-attack-r ATTACK 133 7 0 10 #fcfcfc #000000 #000000 3900 1;
-#X obj 127 272 hsl 128 15 0 127 0 1 \$0-decay-s \$0-decay-r DECAY 133 7 0 10 #fcfcfc #000000 #000000 4500 1;
+#X obj 127 257 hsl 128 15 0 127 0 1 \$0-attack-s \$0-attack-r ATTACK 133 7 0 10 #fcfcfc #000000 #000000 2400 1;
+#X obj 127 272 hsl 128 15 0 127 0 1 \$0-decay-s \$0-decay-r DECAY 133 7 0 10 #fcfcfc #000000 #000000 2300 1;
 #N canvas 328 128 611 487 envelope 0;
 #X obj 95 268 / 127;
 #X obj 95 294 t a a;
@@ -1049,7 +1049,7 @@
 #X connect 22 0 23 0;
 #X connect 24 0 6 0;
 #X restore 167 694 pd fade;
-#X obj 127 214 hsl 128 15 0 127 0 1 \$0-xfade-s \$0-xfade-r XFADE 133 7 0 10 #fcfcfc #000000 #000000 5800 1;
+#X obj 127 214 hsl 128 15 0 127 0 1 \$0-xfade-s \$0-xfade-r XFADE 133 7 0 10 #fcfcfc #000000 #000000 6400 1;
 #X obj 502 -10 / 127;
 #X obj 502 52 i;
 #X floatatom 502 73 5 0 0 0 - - - 0;
