@@ -1,5 +1,5 @@
 #N canvas 0 36 1280 747 10;
-#N canvas 447 25 993 631 patch-editor-do-not-delete 1;
+#N canvas 447 25 993 631 patch-editor-do-not-delete 0;
 #X msg 26 128 \; pd dsp 0;
 #X obj 26 -26 loadbang;
 #X obj 26 103 delay 1;
@@ -5082,7 +5082,7 @@
 #X msg 604 320 \; pd-external-msg vis \$1;
 #X text 611 465 DIET-Modification:;
 #X msg 784 534 1;
-#N canvas 186 55 733 422 mixer 0;
+#N canvas 186 55 733 422 mixer 1;
 #X obj 13 16 big-mixer;
 #X restore 784 487 pd mixer;
 #X obj 784 512 r open-mixer!;
