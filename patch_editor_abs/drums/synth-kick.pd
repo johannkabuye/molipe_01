@@ -500,14 +500,14 @@
 #X connect 93 0 55 0;
 #X connect 94 0 84 2;
 #X restore 409 -144 pd bassdrum;
-#X obj 116 228 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r SQUARE 133 7 0 10 #fcfcfc #000000 #000000 0 1;
-#X obj 116 168 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r FREQ2 133 7 0 10 #fcfcfc #000000 #000000 7300 1;
-#X obj 116 258 hsl 128 15 0 127 0 1 \$0-param-9-s \$0-param-9-r NOISE 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
-#X obj 116 138 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ1 133 7 0 10 #fcfcfc #000000 #000000 4600 1;
-#X obj 116 288 hsl 128 15 0 127 0 1 \$0-param-11-s \$0-param-11-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 11100 1;
+#X obj 116 213 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r SQUARE 133 7 0 10 #fcfcfc #000000 #000000 9900 1;
+#X obj 116 163 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r FREQ2 133 7 0 10 #fcfcfc #000000 #000000 5900 1;
+#X obj 116 238 hsl 128 15 0 127 0 1 \$0-param-9-s \$0-param-9-r NOISE 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
+#X obj 116 138 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ1 133 7 0 10 #fcfcfc #000000 #000000 5800 1;
+#X obj 116 263 hsl 128 15 0 127 0 1 \$0-param-11-s \$0-param-11-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
 #X obj 444 344 hsl 128 15 0 127 0 1 \$0-flam-prob-s \$0-flam-prob-r GAIN 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
-#X obj 116 317 hsl 128 15 0 127 0 1 \$0-param-13-s \$0-param-13-r DECAY 133 7 0 10 #fcfcfc #000000 #000000 1500 1;
-#X obj 116 198 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r CURVE-TIME 133 7 0 10 #fcfcfc #000000 #000000 3900 1;
+#X obj 116 288 hsl 128 15 0 127 0 1 \$0-param-13-s \$0-param-13-r DECAY 133 7 0 10 #fcfcfc #000000 #000000 5800 1;
+#X obj 116 188 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r CURVE-TIME 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
 #X text 635 335 NOTE: This patch is a simple modification of the hardoff kick-patch. And part of the DIY2 collection of modules.;
 #X text 389 -315 TRIGGER-INPUT;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
@@ -1218,7 +1218,7 @@
 #X obj 623 -84 * 1;
 #X obj 646 -51 t b f;
 #X text 624 -302 FREQ1-;
-#X obj 116 153 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r FREQ1-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
+#X obj 361 107 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r FREQ1-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
 #X floatatom 623 142 5 0 0 0 - - - 0;
 #X obj 802 -4 / 127;
 #X obj 802 43 pack 0 50;
@@ -1241,9 +1241,9 @@
 #X obj 826 -51 t b f;
 #X text 804 -302 FREQ1-;
 #X floatatom 803 142 5 0 0 0 - - - 0;
-#X obj 116 183 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r FREQ2-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 116 213 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r CURVE-/+ 133 7 0 10 #90d3b0 #000000 #000000 9600 1;
-#X obj 116 243 hsl 128 15 0 127 0 1 \$0-param-8-s \$0-param-8-r SQUARE-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
+#X obj 361 126 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r FREQ2-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
+#X obj 361 145 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r CURVE-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
+#X obj 361 165 hsl 128 15 0 127 0 1 \$0-param-8-s \$0-param-8-r SQUARE-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
 #X obj 992 -4 / 127;
 #X obj 992 43 pack 0 50;
 #X obj 1058 -187 / 127;
@@ -1306,8 +1306,8 @@
 #X obj 1343 -84 * 1;
 #X obj 1366 -51 t b f;
 #X floatatom 1343 142 5 0 0 0 - - - 0;
-#X obj 116 273 hsl 128 15 0 127 0 1 \$0-param-10-s \$0-param-10-r NOISE-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
-#X obj 116 303 hsl 128 15 0 127 0 1 \$0-param-12-s \$0-param-12-r LOWP-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
+#X obj 362 187 hsl 128 15 0 127 0 1 \$0-param-10-s \$0-param-10-r NOISE-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
+#X obj 363 207 hsl 128 15 0 127 0 1 \$0-param-12-s \$0-param-12-r LOWP-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
 #X obj 1522 -4 / 127;
 #X obj 1522 43 pack 0 50;
 #X obj 1588 -187 / 127;
@@ -1330,7 +1330,7 @@
 #X floatatom 1523 142 5 0 0 0 - - - 0;
 #X text 1344 -302 Noise;
 #X text 1524 -302 lowpass;
-#X obj 116 332 hsl 128 15 0 127 0 1 \$0-param-14-s \$0-param-14-r DECAY-/+ 133 7 0 10 #90d3b0 #000000 #000000 0 1;
+#X obj 363 227 hsl 128 15 0 127 0 1 \$0-param-14-s \$0-param-14-r DECAY-/+ 133 7 0 10 #90d3b0 #000000 #000000 12700 1;
 #X obj 1712 -4 / 127;
 #X obj 1712 43 pack 0 50;
 #X obj 1778 -187 / 127;
@@ -2928,7 +2928,7 @@
 #X obj 230 202 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 230 179 r SAVE-S;
 #X obj 631 291 r patch-path;
-#X msg 575 350 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/31-basic-lfo-ss.txt;
+#X msg 575 350 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/31-synth-kick-ss.txt;
 #X obj 272 92 s update-path;
 #X obj 223 51 t b b b;
 #X msg 230 350 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/31-synth-kick-ss.txt;
@@ -5566,6 +5566,7 @@
 #X connect 23 0 19 0;
 #X connect 24 0 5 0;
 #X restore 957 592 pd scene-out-pm16;
+#X floatatom 749 -162 5 0 0 0 - - - 0;
 #X connect 17 0 199 0;
 #X connect 34 0 35 0;
 #X connect 35 0 49 0;
@@ -5754,4 +5755,5 @@
 #X connect 229 0 146 0;
 #X connect 230 0 167 0;
 #X connect 231 0 169 0;
+#X connect 234 0 36 0;
 #X coords 0 -1 1 1 220 270 2 100 100;

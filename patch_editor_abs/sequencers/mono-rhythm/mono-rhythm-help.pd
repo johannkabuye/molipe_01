@@ -1,0 +1,17 @@
+#N canvas 121 30 1081 708 10;
+#X obj 26 473 cnv 15 400 30 empty empty OUTPUTS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 23 171 cnv 15 400 30 empty empty CONTROLS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 26 279 cnv 15 400 30 empty empty INPUTS: 20 12 0 14 #9898dc #fcfcfc 0;
+#X obj 20 17 cnv 15 400 30 empty empty DIET-DRUM-SEQ 20 12 0 14 #90d4b0 #fcfcfc 0;
+#X text 24 206 STEPS1-8 - individual sliders to set the voltage level of each step;
+#X text 24 248 SCALE - choose scale for quantization;
+#X text 25 313 CLOCK-IN- trigger/gate/clock input;
+#X text 25 341 CV(PRE-Q) - modulation input. CV added to the sequence before quantization.;
+#X text 25 382 CV(POST-Q) - modulation input. CV added to the sequence after quantization.;
+#X text 26 513 Q-OUT - quantized output;
+#X text 26 543 OUT2 - un-quantized output that outputs the full voltage range. This output is often more useful if you're using the sequencer to modulate other parameters than pitch of an oscillator.;
+#X text 25 423 RESET - trigger/gate input to force reset the sequencer to step 1;
+#X text 26 612 S1 - trigger/gate signal at start of sequence loop;
+#X obj 453 17 diet-drum-seq;
+#X text 23 52 The "DIET-DRUM-SEQ" module is a drum sequencer with a focus on live performing preprepared patterns. It has mute funktions for each instrument and a stutter effect. It has eight instruments.;
+#X text 23 102 NOTE: The patterns are saved and loaded from the main patch. Many instances of the "DIET-DRUM-SEQ" can be loaded but they all use the same patterns. If a pattern is changed in one instances it also changes the patterns for all the other instances.;
