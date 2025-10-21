@@ -1,4 +1,4 @@
-#N canvas 119 125 744 531 10;
+#N canvas 478 277 744 531 10;
 #X declare -path patch_editor_abs/controller;
 #X declare -path patch_editor_abs;
 #X declare -path patch_editor_abs/test;
@@ -615,7 +615,7 @@
 #X text 726 241 - Scens-Mode einführen? damit zwischen Parametern gefaded werden kann? Dann würde in jeder Text-Datei einfach ein zweiter Faderwert gespeichert werden zwischen denen dann gefaded werden kann.;
 #X text 726 121 ---> hier an den Elektron Scenes orientieren aka für jedes Modul z.B. 6 Spreicherungen ablegen zwischen denen gefaded werden kann...;
 #X restore 8 208 pd TO-DO;
-#N canvas 209 175 1099 553 patchloader 1;
+#N canvas 209 175 1099 553 patchloader 0;
 #X obj 356 273 pdcontrol;
 #X msg 356 250 dir;
 #X obj 356 320 pack s s s;
@@ -1920,9 +1920,17 @@
 #X connect 34 0 35 0;
 #X coords 0 -1 1 1 200 120 2 100 100;
 #X restore 201 190 pd patchloader;
-#N canvas 121 146 462 311 network-communicator 0;
-#X floatatom 330 127 5 0 0 0 BPM - - 0;
-#X floatatom 331 196 5 0 0 0 IP-ADRESS....\  - - 0;
+#N canvas 121 146 929 521 network-communicator 1;
+#X obj 104 98 cnv 5 5 5 empty empty DISPLAY-COMMUNICATOR: 0 12 0 10 #fcfcfc #404040 0;
+#X msg 410 138 connect localhost 9001;
+#X obj 410 198 netsend -u;
+#X obj 410 95 loadbang;
+#X obj 410 116 del 500;
+#X obj 421 163 r display-message;
+#X connect 1 0 2 0;
+#X connect 3 0 4 0;
+#X connect 4 0 1 0;
+#X connect 5 0 2 0;
 #X coords 0 -1 1 1 280 120 1 100 100;
 #X restore 407 190 pd network-communicator;
 #X obj 201 8 cnv 5 5 5 empty empty >>>KEEP\ THIS\ PATCH\ OPEN!<<< 0 12 0 25 #ffffff #ff0400 0;
@@ -2013,7 +2021,7 @@
 #X connect 35 0 34 0;
 #X connect 36 0 33 0;
 #X coords 0 -1 1 1 280 60 2 100 100;
-#X restore 407 337 pd audio-to-hw;
+#X restore 407 317 pd audio-to-hw;
 #X text 200 51 MOLIPE is a collection of patches that can be combined like a modular synth. It is based on the incredible AUTOMATISM MODULAR but also has some significant differences.;
 #X text 199 122 1 Opens and closes performance patches \; 2 Loads and keeps the sample library \; 3 Establishes sync over network (not yet) \; 4 Sends audio to hardware \; 5 Manages modes of the Midi Controller (Push MK1);
 #N canvas 63 88 1310 567 MIDI-to-hw 0;
@@ -2037,4 +2045,4 @@
 #X connect 8 0 9 0;
 #X connect 9 0 10 0;
 #X coords 0 -1 1 1 280 60 2 100 100;
-#X restore 407 437 pd MIDI-to-hw;
+#X restore 407 385 pd MIDI-to-hw;

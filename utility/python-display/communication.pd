@@ -1,4 +1,4 @@
-#N canvas 885 102 933 569 12;
+#N canvas 759 175 933 569 12;
 #X msg 37 303 connect localhost 9001;
 #X obj 163 530 netsend -u;
 #X floatatom 110 176 5 0 0 0 - - - 0;
@@ -14,7 +14,7 @@
 #X msg 379 68 7 0 #ffffff black \$1;
 #X floatatom 585 19 5 0 0 0 - - - 0;
 #X msg 366 288 0 2 #ffffff black IIII;
-#X msg 112 86 0 1 #000000 white FREQ;
+#X msg 213 165 0 1 #000000 white FREQ;
 #X msg 295 119 3 1 #000000 white FILTR;
 #X obj 167 424 sel 0;
 #X obj 332 421 sel 1;
@@ -29,7 +29,9 @@
 #X msg 533 486 2 10 #000000 white HAT;
 #X msg 748 434 3 10 #ffffff black CYMBL;
 #X msg 719 481 3 10 #000000 white CYMBL;
-#X msg 98 35 0 0 #ffffff black SON \, mnG:;
+#X msg 79 79 3 4 #ff00ff #000000 left SON \, mnG:;
+#X floatatom 5 57 5 0 0 0 - - - 0;
+#X msg 58 26 1 \$1 #ff00ff #000000 center IIIIIIIIII;
 #X connect 0 0 1 0;
 #X connect 2 0 3 0;
 #X connect 3 0 1 0;
@@ -70,3 +72,5 @@
 #X connect 28 0 1 0;
 #X connect 29 0 1 0;
 #X connect 30 0 1 0;
+#X connect 31 0 32 0;
+#X connect 32 0 1 0;
