@@ -1,4 +1,4 @@
-#N canvas 730 25 1440 832 10;
+#N canvas 0 40 1440 832 10;
 #X declare -path ../000-SAMPLE-LIBRARY;
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;
@@ -20,6 +20,7 @@
 #X declare -path ../patch_editor_abs/utility/scene-conductor;
 #X declare -path ../patch_editor_abs/effects/delay;
 #X declare -path ../patch_editor_abs/sequencers/mono-rhythm;
+#X declare -path ../patch_editor_abs/shared-objects;
 #X obj 671 1055 cmbcym;
 #X obj 2 1330 diet-audio-to-mixer 34;
 #X obj 1408 1126 diet-saturation 26;
@@ -29,9 +30,9 @@
 #X obj 1554 950 diet-audio-to-mixer 40;
 #X obj 1795 523 diet-looper 1;
 #X obj 1795 782 mixer2 6;
-#X obj -1 1053 synth-kick 31;
+#X obj -1 1052 synth-kick 31;
 #X obj 88 7 menu;
-#N canvas 279 183 979 649 do-not-delete 0;
+#N canvas 279 183 979 649 do-not-delete 1;
 #X obj 100 182 declare -path ../000-SAMPLE-LIBRARY;
 #X obj 100 201 declare -path ../patch_editor_abs;
 #X obj 100 239 declare -path ../patch_editor_abs/test;
@@ -61,6 +62,7 @@
 #X obj 110 498 declare -path ../patch_editor_abs/utility/scene-conductor;
 #X obj 110 458 declare -path ../patch_editor_abs/effects/delay;
 #X obj 110 418 declare -path ../patch_editor_abs/sequencers/mono-rhythm;
+#X obj 100 598 declare -path ../patch_editor_abs/shared-objects;
 #X connect 4 0 6 0;
 #X connect 5 0 4 0;
 #X connect 6 0 7 0;
@@ -68,14 +70,14 @@
 #X connect 9 0 5 0;
 #X coords 0 -1 1 1 85 70 2 100 100;
 #X restore 1 7 pd do-not-delete;
-#X obj 225 1053 mymembrane 38;
+#X obj 225 1054 mymembrane 38;
 #X obj 1344 799 diet-audio-to-mixer 41;
 #X obj 225 1329 diet-audio-to-mixer 42;
 #X obj 1795 679 diet-saturation 28;
 #X obj 226 818 basic-lfo 21;
 #X obj 1441 11 diet-looper 2;
 #X obj 2 937 basic-lfo 22;
-#X obj 469 886 basic-lfo 23;
+#X obj 452 938 basic-lfo 23;
 #X obj 1407 1005 perk-clap-mod;
 #X obj 1442 172 rhythm-designer 2;
 #X obj 449 1055 simple-hats 1;
