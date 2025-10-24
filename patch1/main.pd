@@ -1,4 +1,4 @@
-#N canvas 8 33 1425 832 10;
+#N canvas 730 25 1440 832 10;
 #X declare -path ../000-SAMPLE-LIBRARY;
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;
@@ -80,7 +80,7 @@
 #X obj 1442 172 rhythm-designer 2;
 #X obj 449 1055 simple-hats 1;
 #X obj 225 933 basic-lfo 24;
-#X obj 973 134 scene-conductor;
+#X obj 965 135 scene-conductor;
 #X obj 1354 649 catch~ send1;
 #X obj 1345 499 catch~ send2;
 #X obj 1345 521 stereo-delay 6;
@@ -95,7 +95,7 @@
 #X obj 453 132 mono-rhythm 1;
 #X obj 231 132 mono-rhythm 2;
 #X obj 2 817 basic-lfo 1;
-#X obj 4 559 mute-group 1;
+#X obj 5 550 mute-group 1;
 #X obj 4 637 repeater-group 1;
 #X obj 5 132 mono-rhythm 3;
 #X obj 679 131 mono-rhythm 4;
@@ -115,9 +115,12 @@
 #X connect 12 0 14 0;
 #X connect 15 0 8 0;
 #X connect 18 0 9 4;
+#X connect 18 3 9 2;
 #X connect 19 0 22 1;
 #X connect 19 0 9 7;
+#X connect 19 0 9 1;
 #X connect 19 3 22 2;
+#X connect 19 3 9 3;
 #X connect 22 0 3 0;
 #X connect 25 0 30 0;
 #X connect 26 0 27 0;

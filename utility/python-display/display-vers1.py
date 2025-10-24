@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, socket, threading, time, subprocess
+import os, sys, socket, threading
 from queue import Queue, Empty
 os.environ["TK_SILENCE_DEPRECATION"] = "1"
 
@@ -8,30 +8,24 @@ from tkinter import font as tkfont
 
 # ---------------- Configuration ----------------
 HOST, PORT = "0.0.0.0", 9001
-DEFAULT_ROWS = 12                 # total number of rows
-# Row 0: 8 cells; rows 1..7: 4 cells each; rows 8..11: 8 cells each
-COLS_PER_ROW = [8] + [4]*7 + [8]*4
+
+# --- FIXED GRID (13 rows) ---
+# Row indices are 0-based here; comments show your 1-based plan.
+# 1:8s, 2:4B, 3:4s, 4:8s, 5:4s, 6:1s, 7:4B, 8:4s, 9:8s, 10:4s, 11:1s, 12:8B, 13:8B
+DEFAULT_ROWS = 13
+COLS_PER_ROW = [8, 4, 4, 4, 4, 1, 4, 4, 4, 4, 1, 8, 8]
+BIG_FONT_ROWS = {1, 6, 11, 12}  # (0-based) rows 2,7,12,13 are BIG
+
+# --- FONT SIZE CONTROL (edit these) ---
+SMALL_FONT_PT = 25      # base small font size
+BIG_FONT_PT   = 28      # base big font size
+HEAD_ROW_BONUS_PT = -8   # +2 pt for the first row (row 0) as requested
 
 POLL_INTERVAL_MS = 10             # drain + paint every 10 ms (~100 Hz)
 MAX_APPLIES_PER_TICK = 512        # safety cap per frame
 
 def is_linux():
     return sys.platform.startswith("linux")
-
-# ---------------- Shutdown helper ----------------
-def request_shutdown(delay_seconds: int = 0):
-    """Power off the machine after an optional delay (seconds)."""
-    def _worker():
-        try:
-            if delay_seconds > 0:
-                time.sleep(max(0, int(delay_seconds)))
-            if os.geteuid() == 0:
-                subprocess.run(["/bin/systemctl", "poweroff", "--no-wall"], check=False)
-            else:
-                subprocess.run(["sudo", "/bin/systemctl", "poweroff", "--no-wall"], check=False)
-        except Exception as e:
-            print(f"[shutdown] failed: {e}", flush=True)
-    threading.Thread(target=_worker, daemon=True).start()
 
 # ---------------- UDP Listener ----------------
 def start_udp_listener(out_queue: Queue):
@@ -40,11 +34,12 @@ def start_udp_listener(out_queue: Queue):
       ("SET", r, c, fg_color, bg_color, align, text)  # align may be None if omitted
       ("BG_CELL", r, c, bg_color)
       ("ALIGN_CELL", r, c, align)                     # 'left' | 'center' | 'right'
-      ("GRID", rows, default_cols)
-      ("RCFG", row, cols)
-      ("SYS_SHUTDOWN", delay_seconds)
+
     Colors can be any Tk color string, e.g. "#000000", "#ff00ff", "white".
+
+    NOTE: Flexible grid commands (GRID/RCFG) were removed by request.
     """
+    import socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1 << 20)
@@ -65,35 +60,6 @@ def start_udp_listener(out_queue: Queue):
                     continue
 
                 head = parts[0].upper()
-
-                # ---- SYSTEM ----
-                if head == "SYS" and len(parts) >= 2 and parts[1].upper() == "SHUTDOWN":
-                    delay = 0
-                    if len(parts) >= 3:
-                        try:
-                            delay = int(float(parts[2]))
-                        except ValueError:
-                            delay = 0
-                    out_queue.put(("SYS_SHUTDOWN", delay))
-                    continue
-
-                # ---- PER-ROW COLUMN CONFIG ----
-                if head == "RCFG" and len(parts) >= 3:
-                    try:
-                        row = int(parts[1]); cols = int(parts[2])
-                        out_queue.put(("RCFG", row, max(1, cols)))
-                    except ValueError:
-                        pass
-                    continue
-
-                # ---- GRID SIZE (reinitialize) ----
-                if head == "GRID" and len(parts) >= 3:
-                    try:
-                        rows = int(parts[1]); dcols = int(parts[2])
-                        out_queue.put(("GRID", max(1, rows), max(1, dcols)))
-                    except ValueError:
-                        pass
-                    continue
 
                 # ---- ALIGN only ----
                 # ALIGN row col align
@@ -152,9 +118,15 @@ class Display:
     def __init__(self, root, rows=DEFAULT_ROWS, cols_per_row=None):
         self.root = root
         self.rows = rows
-        self.cols_per_row = list(cols_per_row or ([8] * rows))
-        self.head_font = tkfont.Font(family="DejaVu Sans", size=12, weight="bold")
-        self.body_font = tkfont.Font(family="DejaVu Sans", size=12, weight="bold")
+        # FIXED: use provided cols_per_row exactly
+        self.cols_per_row = list(cols_per_row or COLS_PER_ROW)
+
+        # Fonts: small, big, and header (small + bonus)
+        self.small_font = tkfont.Font(family="DejaVu Sans", size=SMALL_FONT_PT, weight="bold")
+        self.big_font   = tkfont.Font(family="DejaVu Sans", size=BIG_FONT_PT,   weight="bold")
+        self.head_font  = tkfont.Font(family="DejaVu Sans",
+                                      size=SMALL_FONT_PT + HEAD_ROW_BONUS_PT,
+                                      weight="bold")
 
         self.vars, self.labels, self.cell_frames, self.row_frames = [], [], [], []
         self._build_ui()
@@ -171,9 +143,9 @@ class Display:
 
     def _build_ui(self):
         if is_linux():
-            self.root.geometry("640x360+50+50")
+            self.root.geometry("800x480+0+0")  # typical for the 5" RPi display
         else:
-            self.root.geometry("640x360+100+100")
+            self.root.geometry("800x480+100+100")
 
         self.root.configure(bg="black")
 
@@ -181,9 +153,9 @@ class Display:
         self.container.pack(expand=True, fill="both")
 
         self.container.columnconfigure(0, weight=1, uniform="outer_col")
-        self.container.rowconfigure(0, weight=1, uniform="outer_row")
-        for r in range(1, self.rows):
-            self.container.rowconfigure(r, weight=2, uniform="outer_row")
+        for r in range(self.rows):
+            # Let Tk auto-distribute; weights can be tuned if you want different heights
+            self.container.rowconfigure(r, weight=1, uniform="outer_row")
 
         self.vars.clear(); self.labels.clear(); self.cell_frames.clear(); self.row_frames.clear()
 
@@ -209,12 +181,20 @@ class Display:
                 var = tk.StringVar(value="")
                 row_vars.append(var)
 
+                # Choose font for this row:
+                if r == 0:
+                    fnt = self.head_font               # small + bonus (+2pt)
+                elif r in BIG_FONT_ROWS:
+                    fnt = self.big_font                # BIG rows
+                else:
+                    fnt = self.small_font              # small rows
+
                 lbl = tk.Label(
                     cell, textvariable=var,
                     bg="black", fg="white",
                     anchor="w", padx=0, pady=0, bd=0, highlightthickness=0
                 )
-                lbl.configure(font=self.head_font if r == 0 else self.body_font)
+                lbl.configure(font=fnt)
                 lbl.pack(fill="both", expand=True)
                 row_labels.append(lbl)
 
@@ -222,9 +202,7 @@ class Display:
             self.labels.append(row_labels)
             self.cell_frames.append(row_cells)
 
-        self.root.bind("<Configure>", lambda e: self._autosize_fonts())
-        self.root.after(50, self._autosize_fonts)
-
+        # Fullscreen toggle + exit
         self.root.bind("<F11>", lambda e: self.root.attributes(
             "-fullscreen", not self.root.attributes("-fullscreen")))
         self.root.bind("<Escape>", lambda e: self.root.destroy())
@@ -232,30 +210,6 @@ class Display:
         self.root.lift()
         self.root.attributes("-topmost", True)
         self.root.after(300, lambda: self.root.attributes("-topmost", False))
-
-    # --- Font autosize helpers ---
-    def _fit_font_to_height(self, font_obj: tkfont.Font, target_px: int):
-        if target_px <= 4:
-            font_obj.configure(size=4); return
-        lo, hi = 4, 512
-        while lo < hi:
-            mid = (lo + hi + 1) // 2
-            font_obj.configure(size=mid)
-            ls = font_obj.metrics("linespace")
-            if ls <= target_px: lo = mid
-            else: hi = mid - 1
-        font_obj.configure(size=lo)
-
-    def _autosize_fonts(self):
-        if not self.row_frames: return
-        try:
-            h0 = self.row_frames[0].winfo_height()
-            h1 = self.row_frames[min(1, self.rows-1)].winfo_height()
-        except Exception:
-            return
-        if h0 <= 0 or h1 <= 0: return
-        self._fit_font_to_height(self.head_font, max(4, h0 - 2))
-        self._fit_font_to_height(self.body_font, max(4, h1 - 2))
 
     @staticmethod
     def _map_anchor(align: str | None):
@@ -300,27 +254,6 @@ class Display:
                 except tk.TclError:
                     pass
 
-    def reconfigure_row(self, row: int, cols: int):
-        if row < 0: return
-        if row >= self.rows:
-            extra = row + 1 - self.rows
-            for _ in range(extra):
-                self.cols_per_row.append(self.cols_per_row[-1] if self.cols_per_row else 8)
-            self.rows = row + 1
-        self.cols_per_row[row] = max(1, cols)
-        for w in self.root.winfo_children():
-            w.destroy()
-        self._build_ui()
-        self._init_caches()
-
-    def rebuild_grid(self, rows: int, default_cols: int):
-        self.rows = max(1, rows)
-        self.cols_per_row = [max(1, default_cols)] * self.rows
-        for w in self.root.winfo_children():
-            w.destroy()
-        self._build_ui()
-        self._init_caches()
-
 # ---------------- Main ----------------
 def main():
     root = tk.Tk()
@@ -341,24 +274,6 @@ def main():
                 break
 
             kind = msg[0]
-
-            if kind == "SYS_SHUTDOWN":
-                _, delay = msg
-                print(f"[SYS] shutdown requested in {delay}s (euid={os.geteuid()})", flush=True)
-                request_shutdown(delay)
-                continue
-
-            if kind == "GRID":
-                _, rows, dcols = msg
-                ui.rebuild_grid(rows, dcols)
-                pending_latest.clear()
-                continue
-
-            if kind == "RCFG":
-                _, row, cols = msg
-                ui.reconfigure_row(row, cols)
-                pending_latest.clear()
-                continue
 
             if kind == "BG_CELL":
                 _, r, c, bg = msg

@@ -1,4 +1,4 @@
-#N canvas 759 175 933 569 12;
+#N canvas 661 152 933 569 12;
 #X msg 37 303 connect localhost 9001;
 #X obj 163 530 netsend -u;
 #X floatatom 110 176 5 0 0 0 - - - 0;
@@ -31,7 +31,7 @@
 #X msg 719 481 3 10 #000000 white CYMBL;
 #X msg 79 79 3 4 #ff00ff #000000 left SON \, mnG:;
 #X floatatom 5 57 5 0 0 0 - - - 0;
-#X msg 58 26 1 \$1 #ff00ff #000000 center IIIIIIIIII;
+#X msg 58 26 1 0 #ff00ff #000000 center FREQUENCY;
 #X connect 0 0 1 0;
 #X connect 2 0 3 0;
 #X connect 3 0 1 0;
