@@ -1,4 +1,4 @@
-#N canvas 887 25 1425 832 10;
+#N canvas 15 40 1425 832 10;
 #X declare -path ../000-SAMPLE-LIBRARY;
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;

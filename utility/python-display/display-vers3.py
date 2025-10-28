@@ -24,7 +24,7 @@ HEAD_ROW_BONUS_PT = -8
 
 # --- ROW HEIGHTS (pixels) ---
 # Set a pixel height for each of the 11 rows. Adjust to your layout.
-ROW_HEIGHTS = [48, 200, 30, 30, 200, 72, 64, 64, 40, 30, 30]
+ROW_HEIGHTS = [60, 200, 30, 30, 30, 200, 30, 30, 40, 30, 30]
 
 POLL_INTERVAL_MS = 10
 MAX_APPLIES_PER_TICK = 512
@@ -392,7 +392,7 @@ class Display:
         ring = self.rings[r][c]
         if ring is None:
             ring = DualRing(holder, size=size_px, fg_outer=fg_out, fg_inner=fg_in,
-                            bg=bg, w_outer=w_out, w_inner=w_in, text_color="#ffffff")
+                            bg=bg, w_outer=w_out, w_inner=w_in, text_color="#e3e3e3")
             ring.pack(fill="both", expand=True)
             self.rings[r][c] = ring
         else:
