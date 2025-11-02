@@ -1,4 +1,4 @@
-#N canvas 840 40 1425 832 10;
+#N canvas 0 25 1440 847 10;
 #X declare -path ../000-SAMPLE-LIBRARY;
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;
@@ -116,7 +116,6 @@
 #X connect 15 0 8 0;
 #X connect 19 0 22 1;
 #X connect 19 3 22 2;
-#X connect 19 3 9 2;
 #X connect 22 0 3 0;
 #X connect 25 0 29 0;
 #X connect 26 0 27 0;
