@@ -1,6 +1,6 @@
 #N canvas 0 25 737 694 10;
 #X obj 311 64 inlet~;
-#X obj 122 153 hsl 128 15 0 127 0 1 \$0-diet-audio-to-mix-channel-s \$0-diet-audio-to-mix-channel-r CHANNEL -3 -7 0 10 #fcfcfc #000000 #000000 12700 1;
+#X obj 122 153 hsl 128 15 0 127 0 1 \$0-diet-audio-to-mix-channel-s \$0-diet-audio-to-mix-channel-r CHANNEL -3 -7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 105 109 cnv 5 5 5 empty empty IN 0 0 0 8 #fcfcfc #404040 0;
 #X obj 119 125 cnv 5 5 5 empty empty DIET-AUDIO-TO-MIX 0 0 0 12 #fcfcfc #404040 0;
 #N canvas 0 25 749 735 state-saving-multiple-instances 0;
@@ -27,7 +27,7 @@
 #X obj 135 308 r \$0-diet-audio-to-mix-channel-s;
 #X floatatom 169 365 5 0 0 0 - - - 0;
 #X obj 478 343 r patch-path;
-#X msg 422 402 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/40-diet-audio-to-mix-ss.txt;
+#X msg 422 402 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/34-diet-audio-to-mix-ss.txt;
 #X obj 272 92 s update-path;
 #X obj 223 51 t b b b;
 #X msg 135 600 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/34-diet-audio-to-mix-ss.txt;
@@ -89,7 +89,7 @@
 #X restore 399 86 pd state-saving-multiple-instances;
 #X obj 399 163 s \$0-instance-num;
 #X obj 399 115 makefilename %d;
-#X obj 241 125 cnv 5 5 5 empty \$0-instance-num 40 0 0 0 12 #fcfcfc #404040 0;
+#X obj 241 125 cnv 5 5 5 empty \$0-instance-num 34 0 0 0 12 #fcfcfc #404040 0;
 #X msg 399 140 label \$1;
 #N canvas 81 22 1117 745 state-saving-via-preset-manager-module 0;
 #X obj 477 349 textfile;
@@ -438,4 +438,4 @@
 #X connect 29 0 18 0;
 #X connect 30 0 14 0;
 #X connect 31 0 15 0;
-#X coords 0 -1 1 1 175 80 2 100 100;
+#X coords 0 -1 1 1 220 80 2 100 100;
