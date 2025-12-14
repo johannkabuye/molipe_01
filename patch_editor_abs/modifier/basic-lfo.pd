@@ -4,12 +4,12 @@
 #X floatatom 204 114 5 0 0 1 Hz - - 0;
 #X obj 77 520 +~;
 #X obj 947 67 *~ 127;
-#X obj 106 128 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ 135 7 0 10 #fcfcfc #000000 #000000 3000 1;
+#X obj 106 128 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ 135 7 0 10 #5e9a1a #000000 #000000 3000 1;
 #X obj 269 109 cnv 5 5 5 empty empty SYNC 0 0 0 8 #fcfcfc #dc4c90 0;
 #X obj 77 572 +~;
 #X obj 103 121 cnv 5 5 5 empty empty BASIC-LFO 0 0 0 12 #fcfcfc #404040 0;
 #X obj 77 470 pack 0 50;
-#X obj 106 143 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r P-WIDTH 135 7 0 10 #fcfcfc #000000 #000000 3600 1;
+#X obj 106 143 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r P-WIDTH 135 7 0 10 #4f8d16 #000000 #000000 3600 1;
 #N canvas 63 88 833 418 sinewave 0;
 #X obj 231 28 r \$0-basic-lfo-sync!;
 #X obj 209 58 inlet~;
@@ -458,9 +458,9 @@
 #X floatatom 478 555 5 0 0 0 - - - 0;
 #X obj 526 47 text define -k \$0-modul-settings;
 #A set LFO \; FREQ \; P-WIDTH \; DEPTH \; SHAPE \; SLIDE \; SPEED \; \; \; LFO \; 4 \; #5e9a1a \; #4f8d16 \; #3c6b14 \; #6a5b1e \; #996328 \; #3a4735 \; #b79a6f \; #d7c6ab \;;
-#X obj 106 189 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r SHAPE 135 7 0 10 #fcfcfc #000000 #000000 4300 1;
+#X obj 106 189 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r SHAPE 135 7 0 10 #6a5b1e #000000 #000000 4300 1;
 #X listbox 192 175 9 0 0 0 - \$0-lfo-waveform-gui-r - 8;
-#X obj 106 229 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r SLIDE 135 7 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 106 229 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r SLIDE 135 7 0 10 #996328 #000000 #000000 0 1;
 #X obj 341 216 tgl 16 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 359 216 tgl 16 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 377 216 tgl 16 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0 1;
