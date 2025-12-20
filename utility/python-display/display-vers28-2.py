@@ -42,7 +42,7 @@ BAR_ROWS = {3, 7}  # Rows 4 and 8 (kept for message compatibility, but 0px heigh
 SMALL_FONT_PT = 27
 BIG_FONT_PT = 35
 HEAD_ROW_BONUS_PT = 0
-FONT_FAMILY_PRIMARY = "Ojuju"
+FONT_FAMILY_PRIMARY = "Sunflower"
 FONT_FAMILY_FALLBACK = "TkDefaultFont"
 
 # Row heights (pixels) - 11 rows total
