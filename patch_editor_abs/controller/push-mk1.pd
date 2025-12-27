@@ -39,7 +39,7 @@
 #X floatatom 1045 65 5 0 0 0 - - - 0;
 #X floatatom 1009 97 5 0 0 0 - - - 0;
 #X msg 728 39 64 -1;
-#N canvas 106 33 1424 832 akai-apc-key 0;
+#N canvas 16 33 1424 832 akai-apc-key 1;
 #X obj 32 39 inlet;
 #X obj 32 63 s apc-key-status;
 #X obj 176 61 s enc1;
