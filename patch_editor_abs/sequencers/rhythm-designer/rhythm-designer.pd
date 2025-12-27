@@ -57,7 +57,7 @@
 #X obj 294 372 r \$0-midi-channel-out-s;
 #X obj 817 293 s \$0-midi-channel-out-r;
 #X obj 683 73 r patch-path;
-#X msg 627 132 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/2-diet-drum-seq-ss.txt;
+#X msg 627 132 read /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/0-diet-drum-seq-ss.txt;
 #X obj 638 92 pack f s;
 #X obj 627 51 f;
 #X obj 627 72 t b f;
@@ -140,7 +140,7 @@
 #X restore -216 46 pd state-saving-multiple-instances;
 #X obj -205 101 s \$0-instance-num;
 #X obj -206 64 makefilename %d;
-#X obj 256 141 cnv 5 5 5 empty \$0-instance-num 2 0 0 0 12 #fcfcfc #404040 0;
+#X obj 256 141 cnv 5 5 5 empty \$0-instance-num 0 0 0 0 12 #fcfcfc #404040 0;
 #X msg -205 83 label \$1;
 #X obj 1481 -12 threshold~ 0.99 0 1 0;
 #N canvas 297 27 863 513 parameter-nudging-system 0;
@@ -2471,7 +2471,7 @@
 #X msg 54 199 set write \$4/statesave/patterns/\$3diet-drum-seq-pattern\$1.txt \$2-pattern, f 28;
 #X msg 36 269 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/2diet-drum-seq-pattern1.txt 1347-pattern, f 31;
 #X obj 447 61 s update-path;
-#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/2diet-drum-seq-pattern1.txt 1347-pattern, f 34;
+#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/0diet-drum-seq-pattern0.txt 3297-pattern, f 34;
 #X obj 430 169 pack f f f s;
 #X obj 499 148 r patch-path;
 #X msg 430 196 set read -ascii -resize \$4/statesave/patterns/\$3diet-drum-seq-pattern\$1.txt \$2-pattern, f 31;
@@ -2650,7 +2650,7 @@
 #X obj -212 320 loadbang;
 #X text -214 302 Set Size for Pattern-Array;
 #X obj 213 119 cnv 5 5 5 empty empty CLOCK-IN 0 0 0 8 #fcfcfc #dc4c90 0;
-#N canvas 66 65 1244 616 push-controll 0;
+#N canvas 66 65 1244 616 push-controll 1;
 #N canvas 0 25 1440 789 push-display 0;
 #X obj 64 88 t b;
 #X obj 65 301 push-mk1-display 27;
@@ -3549,7 +3549,7 @@
 #X connect 59 0 15 6;
 #X connect 60 0 15 7;
 #X restore 22 80 pd repeat-group;
-#N canvas 9 25 1407 789 seq-groupd 0;
+#N canvas 9 25 1407 789 seq-groupd 1;
 #X obj 19 340 s \$0-r-step-edit0;
 #X obj 28 294 r \$0-step-edit0;
 #N canvas 429 135 871 625 selector 0;
@@ -7040,9 +7040,9 @@
 #X restore -216 234 pd push-controll;
 #X obj 669 256 r SAVE-S;
 #X obj 668 319 del 2;
-#X obj 397 158 hsl 128 15 0 127 0 1 \$0-pattern-length-s \$0-pattern-length-r PTRN-LENGTH 133 7 0 10 #fcfcfc #000000 #000000 3200 1;
+#X obj 397 158 hsl 128 15 0 127 0 1 \$0-pattern-length-s \$0-pattern-length-r PTRN-LENGTH 133 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 684 187 hsl 128 15 0 127 0 1 \$0-decay-s \$0-decay-r SWING 133 7 0 10 #fcfcfc #000000 #000000 5000 1;
-#X obj 397 213 hsl 128 15 0 127 0 1 \$0-offset-s \$0-offset-r OFFSET+/- 133 7 0 10 #fcfcfc #000000 #000000 5500 1;
+#X obj 397 213 hsl 128 15 0 127 0 1 \$0-offset-s \$0-offset-r OFFSET+/- 133 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 367 8 old function:;
 #X obj 1 1132 outlet;
 #X msg 1 1075 60;
@@ -7336,7 +7336,7 @@
 #X restore 1 745 pd clock-chaos;
 #X obj 544 431 r \$0-offset-s;
 #X obj 544 502 s \$0-offset-r;
-#X obj 397 228 hsl 128 15 0 127 0 1 \$0-velo-rndm-s \$0-velo-rndm-r VELO-RNDM 133 7 0 10 #fcfcfc #000000 #000000 6800 1;
+#X obj 397 228 hsl 128 15 0 127 0 1 \$0-velo-rndm-s \$0-velo-rndm-r VELO-RNDM 133 7 0 10 #fcfcfc #000000 #000000 0 1;
 #N canvas 393 100 716 627 load-velo-rndm 0;
 #X obj 127 282 +;
 #X obj 127 262 t b f;

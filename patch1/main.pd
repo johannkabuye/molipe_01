@@ -1,4 +1,4 @@
-#N canvas 7 33 1425 832 10;
+#N canvas 15 25 1425 832 10;
 #X declare -path ../000-SAMPLE-LIBRARY;
 #X declare -path ../patch_editor_abs;
 #X declare -path ../patch_editor_abs/test;
@@ -90,13 +90,13 @@
 #X obj 227 47 mono-rhythm 2;
 #X obj 5 373 mute-group 1;
 #X obj 4 426 repeater-group 1;
-#X obj 4 47 mono-rhythm 3;
+#X obj 5 47 mono-rhythm 3;
 #X obj 672 48 mono-rhythm 4;
 #X obj 2 527 basic-lfo 1;
 #X obj 2 719 basic-lfo 2;
 #X obj 222 527 basic-lfo 3;
 #X obj 222 719 basic-lfo 4;
-#X obj 438 530 basic-lfo 5;
+#X obj 443 528 basic-lfo 5;
 #X obj 438 722 basic-lfo 6;
 #X obj 664 528 basic-lfo 7;
 #X obj 664 722 basic-lfo 8;
