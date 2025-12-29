@@ -1880,7 +1880,7 @@
 #X obj 124 148 r patch-path;
 #X msg 36 269 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/3mono-rhythm-pattern0.txt 1239-pattern, f 31;
 #X obj 447 61 s update-path;
-#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/3mono-rhythm-pattern0.txt 1511-pattern, f 34;
+#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave/patterns/3mono-rhythm-pattern0.txt 9286-pattern, f 34;
 #X obj 430 169 pack f f f s;
 #X obj 499 148 r patch-path;
 #X text 767 6 Not done:;
