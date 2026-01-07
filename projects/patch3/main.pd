@@ -1,4 +1,4 @@
-#N canvas 428 25 1425 832 10;
+#N canvas 15 25 1425 832 10;
 #X declare -path ../../patch_editor_abs/drums/simple-hats;
 #X declare -path ../../000-SAMPLE-LIBRARY;
 #X declare -path ../../patch_editor_abs;
@@ -26,7 +26,7 @@
 #X obj 1959 1022 diet-saturation 26;
 #X obj 447 1486 diet-audio-to-mixer 36;
 #X obj 668 1487 diet-audio-to-mixer 38;
-#X obj 891 1487 diet-audio-to-mixer 39;
+#X obj 891 1485 diet-audio-to-mixer 39;
 #X obj 1790 1500 diet-audio-to-mixer 40;
 #X obj 1344 914 diet-looper 1;
 #X obj 1968 833 mixer2 6;
@@ -70,11 +70,11 @@
 #X obj 223 1191 channel 2;
 #X obj 446 1192 channel 3;
 #X obj 668 1191 channel 4;
-#X obj 888 1191 channel 5;
+#X obj 891 1190 channel 5;
 #X obj 1116 1188 channel 6;
 #X obj 1568 529 basic-lfo 15;
 #X obj 1567 722 basic-lfo 16;
-#X obj 1342 1188 channel 7;
+#X obj 1344 1210 channel 7;
 #X obj 1116 911 perk-clap-mod 1;
 #X obj 890 914 fmperc 1;
 #X obj 667 912 cmbcym 1;
@@ -118,6 +118,8 @@
 #X connect 5 0 1 0;
 #X coords 0 -1 1 1 1780 40 2 100 100;
 #X restore 4 3 pd do-not-delete;
+#X connect 6 0 52 0;
+#X connect 6 0 48 0;
 #X connect 9 0 45 0;
 #X connect 12 0 7 0;
 #X connect 13 0 46 0;
@@ -140,6 +142,7 @@
 #X connect 24 2 13 0;
 #X connect 24 3 55 0;
 #X connect 24 4 54 0;
+#X connect 24 4 6 0;
 #X connect 24 5 53 0;
 #X connect 25 0 23 0;
 #X connect 26 0 23 3;
@@ -171,5 +174,4 @@
 #X connect 51 0 17 2;
 #X connect 51 0 18 2;
 #X connect 53 0 49 0;
-#X connect 54 0 48 0;
 #X connect 55 0 47 0;

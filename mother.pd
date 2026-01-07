@@ -1422,6 +1422,6 @@
 #X connect 323 0 322 0;
 #X coords 0 -1 1 1 220 115 2 100 100;
 #X restore 234 103 pd network-communicator;
-#X obj 130 377 cnv 5 5 5 empty empty KEEP\ THIS\ WINDOW\ OPEN! 0 12 0 25 #ffffff #ff0400 0;
+#X obj 130 377 cnv 5 5 5 empty empty KEEP\ THIS\ WINDOW\ OPEN! 0 12 0 25 #ffffff #404040 0;
 #X obj 11 103 patch_loader 1;
 #X obj 234 223 push-mk1;
