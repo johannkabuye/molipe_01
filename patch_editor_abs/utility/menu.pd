@@ -7051,7 +7051,7 @@
 #X obj 721 135 s patch-path;
 #X obj 721 19 r update-path;
 #X obj 721 167 r patch-path;
-#X msg 721 208 /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/patch1/statesave;
+#X msg 721 208 /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/projects/patch9/statesave;
 #X msg 721 188 set \$1/statesave;
 #X obj 88 73 delay 1000;
 #X text 126 -1 <--disabled;
@@ -7079,7 +7079,7 @@
 #X text 663 -137 <-- for now removed from gui - when corrected it will be added again.;
 #X obj 126 245 tgl 45 1 \$0-clock-on-off-s empty PLAY/STOP 0 -7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 1226 539 metro 100;
-#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 3100 1;
+#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 3700 1;
 #X floatatom 845 130 5 0 0 1 BPM - - 10;
 #X obj 1008 590 / 127;
 #X obj 1008 728 t f f;
@@ -7174,7 +7174,7 @@
 #X obj 756 601 s play-r;
 #X obj 1998 692 outlet;
 #X obj 128 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r CLOCK-OUT 133 7 0 10 #e86b0d #000000 #000000 7900 1;
-#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 3100 1;
+#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 3700 1;
 #X obj 128 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r CLK-DL-MS 133 7 0 10 #e25511 #000000 #000000 4800 1;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
 #X obj 125 127 cnv 5 5 5 empty \$0-modul-name CLOCK 0 0 0 12 #fcfcfc #404040 0;
