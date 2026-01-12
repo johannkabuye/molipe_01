@@ -1,4 +1,4 @@
-#N canvas 713 40 1425 832 10;
+#N canvas 15 40 1425 832 10;
 #X obj 1101 353 outlet~;
 #X obj 120 512 hsl 60 10 0 1 0 0 \$0-h \$0-rh gain -2 -7 0 10 #003880 #fcfcfc #001488 0 0;
 #X obj 100 510 cnv 12 15 13 empty empty 7 1 6 0 12 #202020 #fcfcfc 0;
@@ -494,14 +494,14 @@
 #X connect 94 0 95 0;
 #X connect 95 0 26 0;
 #X restore 1101 217 pd bassdrum;
-#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r DIST 133 7 0 10 #db3e14 #000000 #000000 4900 1;
-#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r FREQ2 133 7 0 10 #e86b0d #000000 #000000 7800 1;
+#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r DIST 133 7 0 10 #db3e14 #000000 #000000 3500 1;
+#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r FREQ2 133 7 0 10 #e86b0d #000000 #000000 8600 1;
 #X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r NOISE 133 7 0 10 #d22616 #000000 #000000 12700 1;
-#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ1 133 7 0 10 #ed8008 #000000 #000000 12700 1;
-#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r LOPASS 133 7 0 10 #c91917 #000000 #000000 12700 1;
+#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r FREQ1 133 7 0 10 #ed8008 #000000 #000000 3600 1;
+#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r LOPASS 133 7 0 10 #c91917 #000000 #000000 1300 1;
 #X obj 105 538 hsl 128 15 0 127 0 1 \$0-flam-prob-s \$0-flam-prob-r GAIN 133 7 0 10 #fcfcfc #000000 #000000 12700 1;
-#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r DECAY 133 7 0 10 #c01718 #000000 #000000 7000 1;
-#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r CURVE 133 7 0 10 #e25511 #000000 #000000 9500 1;
+#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r DECAY 133 7 0 10 #c01718 #000000 #000000 7600 1;
+#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r CURVE 133 7 0 10 #e25511 #000000 #000000 4900 1;
 #X text 99 13 NOTE: This patch is a simple modification of the hardoff kick-patch. And part of the DIY2 collection of modules.;
 #X text 1098 91 TRIGGER-INPUT;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;

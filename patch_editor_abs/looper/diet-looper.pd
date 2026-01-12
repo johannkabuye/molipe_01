@@ -7,7 +7,7 @@
 #X listbox 1102 347 19 0 0 0 - - - 0;
 #X obj 1102 392 s \$0-sample-name;
 #X obj 1102 370 symbol;
-#X obj 1437 618 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r BARS 133 7 0 10 #fcfcfc #000000 #000000 8100 1;
+#X obj 1437 618 hsl 128 15 0 127 0 1 \$0-2-s \$0-2-r BARS 133 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X floatatom 235 175 5 0 0 0 - - - 0;
 #X msg 1586 303 1;
 #X obj 1542 304 f \$0;
@@ -191,7 +191,7 @@
 #X obj 1101 111 + 0;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
 #X obj 134 127 cnv 5 5 5 empty \$0-modul-name LOOPER 0 0 0 12 #fcfcfc #404040 0;
-#X obj 186 127 cnv 5 5 5 empty \$0-instance-num 1 0 0 0 12 #fcfcfc #404040 0;
+#X obj 186 127 cnv 5 5 5 empty \$0-instance-num 2 0 0 0 12 #fcfcfc #404040 0;
 #X obj 103 382 cnv 5 5 5 empty empty OUT 0 0 0 8 #fcfcfc #000000 0;
 #X obj 199 109 cnv 5 5 5 empty empty MOD1 0 0 0 8 #fcfcfc #404040 0;
 #X obj 308 378 bng 10 250 50 0 \$0-options-button \$0-options-button-r OPTIONS -45 5 0 10 #fcfcfc #000000 #000000;
@@ -270,9 +270,9 @@
 #X text 336 165 Modul Core:;
 #X text 337 400 Value Display Representation:;
 #X obj 137 432 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r - 133 7 0 10 #a1ad56 #000000 #000000 0 1;
-#X obj 137 190 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r WNDW-SZ 133 7 0 10 #d1d9a3 #000000 #000000 8400 1;
+#X obj 137 190 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r WNDW-SZ 133 7 0 10 #d1d9a3 #000000 #000000 5700 1;
 #X obj 137 463 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r - 133 7 0 10 #88983f #000000 #000000 0 1;
-#X obj 137 149 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r LOOP 133 7 0 10 #e6ebc8 #000000 #000000 11600 1;
+#X obj 137 149 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r LOOP 133 7 0 10 #e6ebc8 #000000 #000000 0 1;
 #X obj 137 494 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r - 133 7 0 10 #6f7f32 #000000 #000000 0 1;
 #X obj 137 525 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r - 133 7 0 10 #556628 #000000 #000000 0 1;
 #X obj 137 231 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r PTICH 133 7 0 10 #b9c37c #000000 #000000 3900 1;
@@ -423,7 +423,7 @@
 #X msg 571 146 1 \, 0 1;
 #X msg 573 305 set \$1;
 #X obj 574 264 r \$0-sample-name;
-#X msg 597 383 1loop6;
+#X msg 597 383 1loop0;
 #X obj 23 431 tabread4~ 1loop1;
 #X obj 249 449 tabread4~ 1loop1;
 #X connect 0 0 1 0;
