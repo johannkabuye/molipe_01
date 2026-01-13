@@ -55,32 +55,44 @@ class ControlScreen(tk.Frame):
         for i in range(3):
             container.columnconfigure(i, weight=1, uniform="button_col")
         
-        # PROJECTS / RESUME button (dynamic)
-        button_text = "▶ RESUME" if self.app.pd_manager.is_running() else "▶ PROJECTS"
+        # Row 1: PROJECTS, RESUME (if PD running), UPDATE/SHUTDOWN
+        
+        # PROJECTS button (always goes to browser)
         self.projects_button = self._create_button(
-            container, button_text, self.on_projects_clicked
+            container, "▶ PROJECTS", self.on_projects_clicked
         )
         self.projects_button.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
         
-        # UPDATE button (if internet available)
+        # RESUME button (only visible when PD is running)
+        self.resume_button = self._create_button(
+            container, "▶ RESUME", self.on_resume_clicked
+        )
+        if self.app.pd_manager.is_running():
+            self.resume_button.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        else:
+            self.resume_button.grid_forget()
+        
+        # UPDATE button (if internet available) or SHUTDOWN
         if self.has_internet:
             self.update_button = self._create_button(
                 container, "↻ UPDATE", self.update_molipe
             )
-            self.update_button.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+            self.update_button.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
         else:
-            self.no_internet_label = tk.Label(
-                container, text="NO\nINTERNET",
-                font=self.app.fonts.button,
-                bg="#000000", fg="#303030",
-                cursor="none", bd=0, relief="flat", padx=20, pady=20
-            )
-            self.no_internet_label.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+            self._create_button(
+                container, "⏻ SHUTDOWN", self.shutdown
+            ).grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
         
-        # SHUTDOWN button
+        # Row 2: QUIT and SHUTDOWN (if UPDATE was shown)
+        if self.has_internet:
+            self._create_button(
+                container, "⏻ SHUTDOWN", self.shutdown
+            ).grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        
+        # QUIT button (closes GUI, keeps PD running)
         self._create_button(
-            container, "⏻ SHUTDOWN", self.shutdown
-        ).grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+            container, "✕ QUIT GUI", self.quit_gui
+        ).grid(row=2, column=1 if self.has_internet else 0, columnspan=2 if not self.has_internet else 1, padx=10, pady=10, sticky="nsew")
     
     def _create_button(self, parent, text, command):
         """Create a custom button using Label"""
@@ -95,21 +107,28 @@ class ControlScreen(tk.Frame):
         return btn
     
     def on_projects_clicked(self):
-        """Handle PROJECTS/RESUME button click"""
+        """Handle PROJECTS button click - always go to browser"""
+        self.app.show_screen('browser')
+    
+    def on_resume_clicked(self):
+        """Handle RESUME button click - go back to patch display"""
         if self.app.pd_manager.is_running():
-            # Resume - go back to patch display
             self.app.show_screen('patch')
-        else:
-            # Open browser
-            self.app.show_screen('browser')
+    
+    def quit_gui(self):
+        """Quit GUI but leave Pure Data running"""
+        self.update_status("CLOSING GUI...")
+        # Do NOT call pd_manager.cleanup() - let PD keep running
+        self.after(500, lambda: self.app.root.destroy())
     
     def refresh_button_state(self):
-        """Update PROJECTS/RESUME button based on PD state"""
-        if self.projects_button:
-            if self.app.pd_manager.is_running():
-                self.projects_button.config(text="▶ RESUME")
-            else:
-                self.projects_button.config(text="▶ PROJECTS")
+        """Update RESUME button visibility based on PD state"""
+        if self.app.pd_manager.is_running():
+            # Show RESUME button
+            self.resume_button.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        else:
+            # Hide RESUME button
+            self.resume_button.grid_forget()
     
     def check_internet(self, host="8.8.8.8", port=53, timeout=3):
         """Check if internet connection is available"""
