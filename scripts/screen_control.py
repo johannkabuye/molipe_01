@@ -269,10 +269,9 @@ class ControlScreen(tk.Frame):
             # Clean up Pure Data
             self.app.pd_manager.cleanup()
             
-            # Shutdown system
+            # Shutdown system (we're on Raspberry Pi, always Linux)
             try:
-                if self.app.platform == "linux":
-                    subprocess.run(["sudo", "shutdown", "now"], check=False)
+                subprocess.run(["sudo", "shutdown", "now"], check=False)
             except Exception as e:
                 print(f"Shutdown error: {e}")
         
