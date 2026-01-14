@@ -3,6 +3,12 @@ Browser Screen - Page-based navigation
 """
 import tkinter as tk
 import os
+import sys
+
+# Import project duplicator
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, script_dir)
+from project_duplicator import duplicate_project
 
 # Grid configuration (same as patch display and control panel)
 DEFAULT_ROWS = 11
@@ -31,6 +37,7 @@ class BrowserScreen(tk.Frame):
         self.project_labels = []
         self.page_label = None
         self.load_button = None
+        self.duplicate_button = None
         self.prev_button = None
         self.next_button = None
         
@@ -104,10 +111,12 @@ class BrowserScreen(tk.Frame):
                 elif r == 1:
                     proj_label = tk.Label(
                         cell, text="",
-                        bg="black", fg="#606060",
-                        anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
+                        bg="black", fg="#ffffff",  # White text always
+                        anchor="center", padx=5, pady=5, bd=0, highlightthickness=0,
                         font=self.app.fonts.big,
-                        cursor="hand2"
+                        cursor="hand2",
+                        wraplength=280,  # Wrap text if too long
+                        justify="center"  # Center multi-line text
                     )
                     proj_label.pack(fill="both", expand=True)
                     proj_label.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
@@ -117,10 +126,12 @@ class BrowserScreen(tk.Frame):
                 elif r == 5:
                     proj_label = tk.Label(
                         cell, text="",
-                        bg="black", fg="#606060",
-                        anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
+                        bg="black", fg="#ffffff",  # White text always
+                        anchor="center", padx=5, pady=5, bd=0, highlightthickness=0,
                         font=self.app.fonts.big,
-                        cursor="hand2"
+                        cursor="hand2",
+                        wraplength=280,  # Wrap text if too long
+                        justify="center"  # Center multi-line text
                     )
                     proj_label.pack(fill="both", expand=True)
                     proj_label.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx))
@@ -148,6 +159,16 @@ class BrowserScreen(tk.Frame):
                         )
                         self.next_button.bind("<Button-1>", lambda e: self.next_page())
                         self.next_button.pack(fill="both", expand=True)
+                    elif c == 6:
+                        # DUPLICATE button
+                        self.duplicate_button = tk.Label(
+                            cell, text="⊕ DUPLICATE",
+                            font=self.app.fonts.small,
+                            bg="#000000", fg="#303030",  # Start dark grey (disabled)
+                            cursor="hand2", bd=0, relief="flat"
+                        )
+                        self.duplicate_button.bind("<Button-1>", lambda e: self.duplicate_selected_project())
+                        self.duplicate_button.pack(fill="both", expand=True)
                     elif c == 7:
                         # LOAD button (last column)
                         self.load_button = tk.Label(
@@ -230,14 +251,33 @@ class BrowserScreen(tk.Frame):
                 project = self.projects[project_idx]
                 project_name = project['name']
                 
-                # Highlight if selected
+                # All text is white, selected gets underlined
                 if self.selected_project_index == project_idx:
-                    self.project_labels[i].config(text=project_name, fg="#ffffff", bg="#303030")
+                    # Selected: white text with underline
+                    self.project_labels[i].config(
+                        text=project_name, 
+                        fg="#ffffff", 
+                        bg="black",
+                        font=(self.app.fonts.big.actual()['family'], 
+                              self.app.fonts.big.actual()['size'], 
+                              "bold underline")
+                    )
                 else:
-                    self.project_labels[i].config(text=project_name, fg="#909090", bg="black")
+                    # Unselected: white text, no underline
+                    self.project_labels[i].config(
+                        text=project_name, 
+                        fg="#ffffff", 
+                        bg="black",
+                        font=self.app.fonts.big
+                    )
             else:
                 # Empty cell
-                self.project_labels[i].config(text="", fg="#606060", bg="black")
+                self.project_labels[i].config(
+                    text="", 
+                    fg="#606060", 
+                    bg="black",
+                    font=self.app.fonts.big
+                )
         
         # Update LOAD button appearance
         self.update_load_button()
@@ -246,14 +286,19 @@ class BrowserScreen(tk.Frame):
         self.update_nav_buttons()
     
     def update_load_button(self):
-        """Update LOAD button color based on selection"""
-        if self.load_button:
-            if self.selected_project_index is not None:
-                # Something selected - white text (enabled)
+        """Update LOAD and DUPLICATE button colors based on selection"""
+        if self.selected_project_index is not None:
+            # Something selected - white text (enabled)
+            if self.load_button:
                 self.load_button.config(fg="#ffffff")
-            else:
-                # Nothing selected - dark grey text (disabled)
+            if self.duplicate_button:
+                self.duplicate_button.config(fg="#ffffff")
+        else:
+            # Nothing selected - dark grey text (disabled)
+            if self.load_button:
                 self.load_button.config(fg="#303030")
+            if self.duplicate_button:
+                self.duplicate_button.config(fg="#303030")
     
     def update_nav_buttons(self):
         """Update PREV/NEXT button states"""
@@ -322,6 +367,46 @@ class BrowserScreen(tk.Frame):
             self.after(500, lambda: self.app.show_screen('patch'))
         else:
             print("Failed to load project")
+    
+    def duplicate_selected_project(self):
+        """Duplicate the selected project with Zettelkasten-style naming"""
+        # Only duplicate if something is selected
+        if self.selected_project_index is None:
+            print("No project selected")
+            return
+        
+        if not self.projects:
+            return
+        
+        selected_project = self.projects[self.selected_project_index]
+        source_name = selected_project['name']
+        
+        # Remove the " (!)" suffix if present
+        if source_name.endswith(" (!)"):
+            source_name = source_name[:-4]
+        
+        print(f"Duplicating: {source_name}")
+        
+        # Call duplicator
+        projects_dir = os.path.join(self.app.molipe_root, "projects")
+        success, result = duplicate_project(projects_dir, source_name)
+        
+        if success:
+            print(f"✓ Duplicated successfully: {result}")
+            # Refresh the browser to show new project
+            self.refresh_projects()
+            
+            # Try to find and select the new project
+            for i, proj in enumerate(self.projects):
+                if proj['name'] == result:
+                    self.selected_project_index = i
+                    # Calculate which page it's on
+                    self.current_page = i // PATCHES_PER_PAGE
+                    break
+            
+            self.update_display()
+        else:
+            print(f"✗ Duplication failed: {result}")
     
     def go_home(self):
         """Return to control panel"""
