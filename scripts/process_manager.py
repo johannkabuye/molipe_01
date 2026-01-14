@@ -48,13 +48,14 @@ class ProcessManager:
             
             # Build command based on platform
             if sys.platform.startswith("linux"):
-                # Linux - Open BOTH patches in same PD instance
-                # puredata -nogui -send ";pd dsp 1" mother.pd /path/to/project/main.pd
+                # Linux - Open BOTH patches in same PD instance with 8 audio outputs
+                # puredata -nogui -send ";pd dsp 1" -outchannels 8 mother.pd /path/to/project/main.pd
                 cmd = [
                     'puredata',
                     '-stderr',              # Show errors
                     '-nogui',               # No GUI
                     '-send', ';pd dsp 1',   # Enable audio DSP
+                    '-outchannels', '8',    # 8 audio outputs (HiFiBerry HAT)
                     mother_path,            # First patch: mother.pd (full path)
                     patch_path              # Second patch: project's main.pd (full path)
                 ]
