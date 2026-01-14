@@ -29,6 +29,7 @@ class ControlScreen(tk.Frame):
         
         # UI references
         self.patch_button = None
+        self.status_label = None
         self.cell_frames = []
         
         self._build_ui()
@@ -89,6 +90,18 @@ class ControlScreen(tk.Frame):
                     else:
                         self.patch_button.pack(fill="both", expand=True)
                 
+                # Row 0, Cell 3: Status label (upper right)
+                elif r == 0 and c == 3:
+                    status_text = "READY" if self.has_internet else "OFFLINE MODE"
+                    self.status_label = tk.Label(
+                        cell,
+                        text=status_text,
+                        bg="black", fg="#606060",
+                        anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
+                        font=self.app.fonts.status
+                    )
+                    self.status_label.pack(fill="both", expand=True)
+                
                 # Row 1 (big font row): Main buttons
                 elif r == 1:
                     if c == 0:
@@ -134,7 +147,13 @@ class ControlScreen(tk.Frame):
             bg="#000000", fg="#ffffff",
             cursor="hand2", bd=0, relief="flat", padx=20, pady=20
         )
-        btn.bind("<Button-1>", lambda e: command())
+        
+        def on_click(e):
+            print(f"Button clicked: {text}")
+            command()
+        
+        btn.bind("<Button-1>", on_click)
+        print(f"Created button: {text}")
         return btn
     
     def refresh_button_state(self):
@@ -182,7 +201,9 @@ class ControlScreen(tk.Frame):
     
     def update_status(self, message, error=False):
         """Update status message"""
-        # Could add a status cell if needed, for now just print
+        if self.status_label:
+            color = "#e74c3c" if error else "#606060"
+            self.status_label.config(text=message.upper(), fg=color)
         print(f"Control Panel: {message}")
     
     def check_internet(self):
@@ -238,6 +259,7 @@ class ControlScreen(tk.Frame):
     
     def shutdown(self):
         """Shutdown the system"""
+        print("Shutdown button clicked!")
         self.update_status("SHUTTING DOWN...")
         
         def do_shutdown():
