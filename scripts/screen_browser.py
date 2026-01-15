@@ -1,10 +1,12 @@
 """
-Browser Screen - Page-based navigation with GitHub integration
+Browser Screen - Page-based navigation with GitHub integration and sorting
 """
 import tkinter as tk
 import os
 import sys
 import threading
+import json
+from datetime import datetime
 
 # Import project duplicator and github manager
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +21,7 @@ ROW_HEIGHTS = [60, 210, 50, 0, 0, 210, 50, 5, 20, 50, 50]
 PATCHES_PER_PAGE = 8
 
 class BrowserScreen(tk.Frame):
-    """Project browser with page-based navigation and GitHub sync"""
+    """Project browser with page-based navigation, GitHub sync, and sorting"""
     
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
@@ -35,14 +37,23 @@ class BrowserScreen(tk.Frame):
         self.selected_project_index = None  # None = nothing selected
         self.has_github_config = False  # Track if my_projects has github_config
         
+        # Sorting state
+        self.sort_mode = "recent"  # "name" or "recent"
+        self.sort_direction = "desc"  # "desc" or "asc"
+        
+        # Metadata file path (will be set in refresh_projects)
+        self.metadata_file = None
+        
         # UI references
         self.cell_frames = []
         self.project_labels = []
         self.page_label = None
-        self.sync_status_label = None  # NEW: Status indicator for sync operations
+        self.sync_status_label = None
+        self.sort_mode_button = None  # NEW: NAME/RECENT button
+        self.sort_dir_button = None   # NEW: ▼/▲ button
         self.load_button = None
         self.duplicate_button = None
-        self.sync_button = None  # NEW: GitHub sync button
+        self.sync_button = None
         self.prev_button = None
         self.next_button = None
         
@@ -92,7 +103,7 @@ class BrowserScreen(tk.Frame):
                 if r == 0 and c == 0:
                     menu_btn = tk.Label(
                         cell,
-                        text="////<MENU",
+                        text="////MENU",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.small,
@@ -101,8 +112,34 @@ class BrowserScreen(tk.Frame):
                     menu_btn.bind("<Button-1>", lambda e: self.go_home())
                     menu_btn.pack(fill="both", expand=True)
                 
-                # Row 0, Cell 2: Sync status indicator
+                # Row 0, Cell 1: NAME/RECENT toggle button
+                elif r == 0 and c == 1:
+                    self.sort_mode_button = tk.Label(
+                        cell,
+                        text="RECENT",  # Default
+                        bg="black", fg="white",
+                        anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
+                        font=self.app.fonts.small,
+                        cursor="hand2"
+                    )
+                    self.sort_mode_button.bind("<Button-1>", lambda e: self.toggle_sort_mode())
+                    self.sort_mode_button.pack(fill="both", expand=True)
+                
+                # Row 0, Cell 2: ▼/▲ direction button
                 elif r == 0 and c == 2:
+                    self.sort_dir_button = tk.Label(
+                        cell,
+                        text="▼",  # Default descending
+                        bg="black", fg="white",
+                        anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
+                        font=self.app.fonts.small,
+                        cursor="hand2"
+                    )
+                    self.sort_dir_button.bind("<Button-1>", lambda e: self.toggle_sort_direction())
+                    self.sort_dir_button.pack(fill="both", expand=True)
+                
+                # Row 0, Cell 3: Sync status indicator
+                elif r == 0 and c == 3:
                     self.sync_status_label = tk.Label(
                         cell,
                         text="",  # Empty by default
@@ -112,46 +149,73 @@ class BrowserScreen(tk.Frame):
                     )
                     self.sync_status_label.pack(fill="both", expand=True)
                 
-                # Row 0, Cell 3: Page indicator (e.g., "1/8")
-                elif r == 0 and c == 3:
-                    self.page_label = tk.Label(
-                        cell,
-                        text="1/1",
-                        bg="black", fg="#606060",
-                        anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
-                        font=self.app.fonts.small
-                    )
-                    self.page_label.pack(fill="both", expand=True)
-                
-                # Row 1: Project cells 0-3 (big font)
+                # Row 1: Project cells 0-3 (left-aligned with metadata)
                 elif r == 1:
-                    proj_label = tk.Label(
-                        cell, text="",
-                        bg="black", fg="#ffffff",  # White text always
-                        anchor="center", padx=5, pady=5, bd=0, highlightthickness=0,
+                    # Create a container frame for name + metadata
+                    proj_container = tk.Frame(cell, bg="black", bd=0, highlightthickness=0)
+                    proj_container.pack(fill="both", expand=True, padx=5, pady=5)
+                    proj_container.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Project name label (big font, left-aligned)
+                    proj_name = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#ffffff",
+                        anchor="w", padx=0, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.big,
                         cursor="hand2",
-                        wraplength=280,  # Wrap text if too long
-                        justify="center"  # Center multi-line text
+                        wraplength=270,
+                        justify="left"
                     )
-                    proj_label.pack(fill="both", expand=True)
-                    proj_label.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
-                    self.project_labels.append(proj_label)
+                    proj_name.pack(fill="x", anchor="nw")
+                    proj_name.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Metadata label (smaller font, grey, left-aligned)
+                    proj_meta = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#606060",
+                        anchor="w", padx=0, pady=0, bd=0, highlightthickness=0,
+                        font=(self.app.fonts.small.actual()['family'], 10),  # Explicit smaller size
+                        cursor="hand2"
+                    )
+                    proj_meta.pack(fill="x", anchor="nw")
+                    proj_meta.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Store both labels as a tuple
+                    self.project_labels.append((proj_name, proj_meta))
                 
-                # Row 5: Project cells 4-7 (big font)
+                # Row 5: Project cells 4-7 (left-aligned with metadata)
                 elif r == 5:
-                    proj_label = tk.Label(
-                        cell, text="",
-                        bg="black", fg="#ffffff",  # White text always
-                        anchor="center", padx=5, pady=5, bd=0, highlightthickness=0,
+                    # Create a container frame for name + metadata
+                    proj_container = tk.Frame(cell, bg="black", bd=0, highlightthickness=0)
+                    proj_container.pack(fill="both", expand=True, padx=5, pady=5)
+                    proj_container.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx))
+                    
+                    # Project name label (big font, left-aligned)
+                    proj_name = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#ffffff",
+                        anchor="w", padx=0, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.big,
                         cursor="hand2",
-                        wraplength=280,  # Wrap text if too long
-                        justify="center"  # Center multi-line text
+                        wraplength=270,
+                        justify="left"
                     )
-                    proj_label.pack(fill="both", expand=True)
-                    proj_label.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx))
-                    self.project_labels.append(proj_label)
+                    proj_name.pack(fill="x", anchor="nw")
+                    proj_name.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx))
+                    
+                    # Metadata label (smaller font, grey, left-aligned)
+                    proj_meta = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#606060",
+                        anchor="w", padx=0, pady=0, bd=0, highlightthickness=0,
+                        font=(self.app.fonts.small.actual()['family'], 10),  # Explicit smaller size
+                        cursor="hand2"
+                    )
+                    proj_meta.pack(fill="x", anchor="nw")
+                    proj_meta.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx))
+                    
+                    # Store both labels as a tuple
+                    self.project_labels.append((proj_name, proj_meta))
                 
                 # Row 9: Navigation buttons
                 elif r == 9:
@@ -175,8 +239,18 @@ class BrowserScreen(tk.Frame):
                         )
                         self.next_button.bind("<Button-1>", lambda e: self.next_page())
                         self.next_button.pack(fill="both", expand=True)
+                    elif c == 2:
+                        # Page indicator (moved from Row 0)
+                        self.page_label = tk.Label(
+                            cell,
+                            text="1/1",
+                            bg="black", fg="#606060",
+                            anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
+                            font=self.app.fonts.small
+                        )
+                        self.page_label.pack(fill="both", expand=True)
                     elif c == 5:
-                        # NEW: SYNC button
+                        # SYNC button
                         self.sync_button = tk.Label(
                             cell, text="↻ SYNC",
                             font=self.app.fonts.small,
@@ -208,6 +282,127 @@ class BrowserScreen(tk.Frame):
             
             self.cell_frames.append(row_cells)
     
+    def toggle_sort_mode(self):
+        """Toggle between NAME and RECENT sorting"""
+        if self.sort_mode == "name":
+            self.sort_mode = "recent"
+            self.sort_mode_button.config(text="RECENT")
+        else:
+            self.sort_mode = "name"
+            self.sort_mode_button.config(text="NAME")
+        
+        # Re-sort and refresh display
+        self.sort_projects()
+        self.update_display()
+    
+    def format_timestamp(self, timestamp_str):
+        """Format timestamp as human-readable relative time"""
+        if not timestamp_str:
+            return "never opened"
+        
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str)
+            now = datetime.now()
+            diff = now - timestamp
+            
+            # Calculate time differences
+            seconds = diff.total_seconds()
+            minutes = seconds / 60
+            hours = minutes / 60
+            days = diff.days
+            
+            # Format based on time ago
+            if seconds < 60:
+                return "just now"
+            elif minutes < 60:
+                m = int(minutes)
+                return f"{m} min ago" if m == 1 else f"{m} mins ago"
+            elif hours < 24:
+                h = int(hours)
+                return f"{h} hour ago" if h == 1 else f"{h} hours ago"
+            elif days < 7:
+                return f"{days} day ago" if days == 1 else f"{days} days ago"
+            elif days < 30:
+                weeks = days // 7
+                return f"{weeks} week ago" if weeks == 1 else f"{weeks} weeks ago"
+            else:
+                # For older items, show the date
+                return timestamp.strftime("%b %d, %Y")
+        except:
+            return "unknown"
+    
+    def toggle_sort_direction(self):
+        """Toggle between descending (▼) and ascending (▲)"""
+        if self.sort_direction == "desc":
+            self.sort_direction = "asc"
+            self.sort_dir_button.config(text="▲")
+        else:
+            self.sort_direction = "desc"
+            self.sort_dir_button.config(text="▼")
+        
+        # Re-sort and refresh display
+        self.sort_projects()
+        self.update_display()
+    
+    def load_metadata(self):
+        """Load metadata from .molipe_meta file"""
+        if not self.metadata_file or not os.path.exists(self.metadata_file):
+            return {}
+        
+        try:
+            with open(self.metadata_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading metadata: {e}")
+            return {}
+    
+    def save_metadata(self, metadata):
+        """Save metadata to .molipe_meta file"""
+        if not self.metadata_file:
+            return
+        
+        try:
+            with open(self.metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+        except Exception as e:
+            print(f"Error saving metadata: {e}")
+    
+    def update_project_timestamp(self, project_name):
+        """Update timestamp for a project when it's opened"""
+        metadata = self.load_metadata()
+        metadata[project_name] = datetime.now().isoformat()
+        self.save_metadata(metadata)
+    
+    def sort_projects(self):
+        """Sort projects based on current sort mode and direction"""
+        if not self.projects:
+            return
+        
+        if self.sort_mode == "name":
+            # Sort by name
+            self.projects.sort(key=lambda p: p['name'].lower())
+        else:
+            # Sort by recent (timestamp)
+            metadata = self.load_metadata()
+            
+            def get_timestamp(project):
+                project_name = project['name']
+                # Remove " (!)" suffix if present
+                if project_name.endswith(" (!)"):
+                    project_name = project_name[:-4]
+                
+                timestamp_str = metadata.get(project_name, "1970-01-01T00:00:00")
+                try:
+                    return datetime.fromisoformat(timestamp_str)
+                except:
+                    return datetime(1970, 1, 1)  # Default to epoch for projects never opened
+            
+            self.projects.sort(key=get_timestamp)
+        
+        # Reverse if descending
+        if self.sort_direction == "desc":
+            self.projects.reverse()
+    
     def refresh_projects(self):
         """Scan my_projects directory for project folders and check GitHub status"""
         self.projects = []
@@ -215,6 +410,9 @@ class BrowserScreen(tk.Frame):
         
         # Scan my_projects directory (inside molipe_root, same level as scripts)
         projects_dir = os.path.join(self.app.molipe_root, "my_projects")
+        
+        # Set metadata file path
+        self.metadata_file = os.path.join(projects_dir, ".molipe_meta")
         
         # Check if projects directory exists
         if not os.path.exists(projects_dir):
@@ -262,6 +460,9 @@ class BrowserScreen(tk.Frame):
         except Exception as e:
             print(f"Error scanning projects: {e}")
         
+        # Sort projects after loading
+        self.sort_projects()
+        
         # Calculate total pages
         if self.projects:
             self.total_pages = (len(self.projects) + PATCHES_PER_PAGE - 1) // PATCHES_PER_PAGE
@@ -284,19 +485,35 @@ class BrowserScreen(tk.Frame):
             page_display = f"{self.current_page + 1}/{self.total_pages}"
             self.page_label.config(text=page_display)
         
+        # Load metadata for timestamp display
+        metadata = self.load_metadata()
+        
         # Update project labels
         for i in range(PATCHES_PER_PAGE):
             project_idx = start_idx + i
             
+            # Get the label tuple (name_label, meta_label)
+            name_label, meta_label = self.project_labels[i]
+            
             if project_idx < len(self.projects):
                 project = self.projects[project_idx]
                 project_name = project['name']
-                display_name = project_name  # No emoji icon
+                display_name = project_name
                 
-                # All text is white, selected gets underlined
-                if self.selected_project_index == project_idx:
+                # Get clean name for metadata lookup (without "(!)" suffix)
+                clean_name = project_name[:-4] if project_name.endswith(" (!)") else project_name
+                
+                # Get timestamp metadata
+                timestamp_str = metadata.get(clean_name, None)
+                meta_text = self.format_timestamp(timestamp_str)
+                
+                # Determine if selected
+                is_selected = (self.selected_project_index == project_idx)
+                
+                # Update name label
+                if is_selected:
                     # Selected: white text with underline
-                    self.project_labels[i].config(
+                    name_label.config(
                         text=display_name, 
                         fg="#ffffff", 
                         bg="black",
@@ -306,20 +523,20 @@ class BrowserScreen(tk.Frame):
                     )
                 else:
                     # Unselected: white text, no underline
-                    self.project_labels[i].config(
+                    name_label.config(
                         text=display_name, 
                         fg="#ffffff", 
                         bg="black",
                         font=self.app.fonts.big
                     )
+                
+                # Update metadata label (always grey, smaller font)
+                meta_label.config(text=meta_text, fg="#606060")
+                
             else:
                 # Empty cell
-                self.project_labels[i].config(
-                    text="", 
-                    fg="#606060", 
-                    bg="black",
-                    font=self.app.fonts.big
-                )
+                name_label.config(text="", fg="#606060", bg="black", font=self.app.fonts.big)
+                meta_label.config(text="", fg="#606060", bg="black")
         
         # Update action buttons
         self.update_action_buttons()
@@ -410,6 +627,13 @@ class BrowserScreen(tk.Frame):
         if not os.path.exists(main_pd_path):
             print("main.pd file not found")
             return
+        
+        # Update timestamp for this project
+        project_name = selected_project['name']
+        # Remove " (!)" suffix if present
+        if project_name.endswith(" (!)"):
+            project_name = project_name[:-4]
+        self.update_project_timestamp(project_name)
         
         # Start Pure Data
         print(f"Loading: {selected_project['name']}")
