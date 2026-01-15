@@ -24,8 +24,8 @@ class ControlScreen(tk.Frame):
         self.rows = DEFAULT_ROWS
         self.cols_per_row = list(COLS_PER_ROW)
         
-        # Internet connectivity
-        self.has_internet = self.check_internet()
+        # Internet connectivity - store at app level for other screens to access
+        self.app.has_internet = self.check_internet()
         
         # UI references
         self.patch_button = None
@@ -92,7 +92,7 @@ class ControlScreen(tk.Frame):
                 
                 # Row 0, Cell 3: Status label (upper right)
                 elif r == 0 and c == 3:
-                    status_text = "READY" if self.has_internet else "OFFLINE MODE"
+                    status_text = "READY" if self.app.has_internet else "OFFLINE MODE"
                     self.status_label = tk.Label(
                         cell,
                         text=status_text,
@@ -110,7 +110,7 @@ class ControlScreen(tk.Frame):
                         btn.pack(fill="both", expand=True)
                     elif c == 1:
                         # UPDATE button (or OFFLINE)
-                        if self.has_internet:
+                        if self.app.has_internet:
                             btn = self._create_big_button(cell, "↻ UPDATE", self.update_molipe)
                             btn.pack(fill="both", expand=True)
                         else:
@@ -194,7 +194,7 @@ class ControlScreen(tk.Frame):
         if self.app.pd_manager.is_running():
             self.update_status("READY")
         else:
-            if self.has_internet:
+            if self.app.has_internet:
                 self.update_status("READY")
             else:
                 self.update_status("OFFLINE MODE")
@@ -215,15 +215,19 @@ class ControlScreen(tk.Frame):
             return False
     
     def check_connectivity_periodically(self):
-        """Check internet connectivity every 10 seconds"""
+        """Check internet connectivity every 10 seconds and update app-level status"""
         def check():
             while True:
                 import time
                 time.sleep(10)
                 has_internet = self.check_internet()
-                if has_internet != self.has_internet:
-                    self.has_internet = has_internet
-                    # Could update UI here if needed
+                if has_internet != self.app.has_internet:
+                    self.app.has_internet = has_internet
+                    # Update UI if needed
+                    if hasattr(self.app, 'browser_screen'):
+                        # Trigger browser button update if something is selected
+                        if self.app.browser_screen.selected_project_index is not None:
+                            self.app.browser_screen.after(0, self.app.browser_screen.update_action_buttons)
         
         thread = threading.Thread(target=check, daemon=True)
         thread.start()
@@ -267,7 +271,8 @@ class ControlScreen(tk.Frame):
                     self.after(0, lambda: self.update_status("UPDATE FAILED", error=True))
                     self.updating = False
             except Exception as e:
-                self.after(0, lambda: self.update_status(f"ERROR: {str(e)}", error=True))
+                error_msg = str(e)  # Capture error message before lambda
+                self.after(0, lambda: self.update_status(f"ERROR: {error_msg}", error=True))
                 self.updating = False
         
         threading.Thread(target=do_update, daemon=True).start()

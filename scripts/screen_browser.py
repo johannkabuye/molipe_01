@@ -1,14 +1,16 @@
 """
-Browser Screen - Page-based navigation
+Browser Screen - Page-based navigation with GitHub integration
 """
 import tkinter as tk
 import os
 import sys
+import threading
 
-# Import project duplicator
+# Import project duplicator and github manager
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 from project_duplicator import duplicate_project
+import github_manager
 
 # Grid configuration (same as patch display and control panel)
 DEFAULT_ROWS = 11
@@ -17,7 +19,7 @@ ROW_HEIGHTS = [60, 210, 50, 0, 0, 210, 50, 5, 20, 50, 50]
 PATCHES_PER_PAGE = 8
 
 class BrowserScreen(tk.Frame):
-    """Project browser with page-based navigation"""
+    """Project browser with page-based navigation and GitHub sync"""
     
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
@@ -31,13 +33,16 @@ class BrowserScreen(tk.Frame):
         self.current_page = 0
         self.total_pages = 0
         self.selected_project_index = None  # None = nothing selected
+        self.has_github_config = False  # Track if my_projects has github_config
         
         # UI references
         self.cell_frames = []
         self.project_labels = []
         self.page_label = None
+        self.sync_status_label = None  # NEW: Status indicator for sync operations
         self.load_button = None
         self.duplicate_button = None
+        self.sync_button = None  # NEW: GitHub sync button
         self.prev_button = None
         self.next_button = None
         
@@ -95,6 +100,17 @@ class BrowserScreen(tk.Frame):
                     )
                     menu_btn.bind("<Button-1>", lambda e: self.go_home())
                     menu_btn.pack(fill="both", expand=True)
+                
+                # Row 0, Cell 2: Sync status indicator
+                elif r == 0 and c == 2:
+                    self.sync_status_label = tk.Label(
+                        cell,
+                        text="",  # Empty by default
+                        bg="black", fg="#606060",
+                        anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
+                        font=self.app.fonts.small
+                    )
+                    self.sync_status_label.pack(fill="both", expand=True)
                 
                 # Row 0, Cell 3: Page indicator (e.g., "1/8")
                 elif r == 0 and c == 3:
@@ -159,6 +175,16 @@ class BrowserScreen(tk.Frame):
                         )
                         self.next_button.bind("<Button-1>", lambda e: self.next_page())
                         self.next_button.pack(fill="both", expand=True)
+                    elif c == 5:
+                        # NEW: SYNC button
+                        self.sync_button = tk.Label(
+                            cell, text="↻ SYNC",
+                            font=self.app.fonts.small,
+                            bg="#000000", fg="#303030",  # Start dark grey (disabled)
+                            cursor="hand2", bd=0, relief="flat"
+                        )
+                        self.sync_button.bind("<Button-1>", lambda e: self.sync_selected_project())
+                        self.sync_button.pack(fill="both", expand=True)
                     elif c == 6:
                         # DUPLICATE button
                         self.duplicate_button = tk.Label(
@@ -183,11 +209,12 @@ class BrowserScreen(tk.Frame):
             self.cell_frames.append(row_cells)
     
     def refresh_projects(self):
-        """Scan projects directory for project folders"""
+        """Scan my_projects directory for project folders and check GitHub status"""
         self.projects = []
         self.selected_project_index = None
         
-        projects_dir = os.path.join(self.app.molipe_root, "projects")
+        # Scan my_projects directory (inside molipe_root, same level as scripts)
+        projects_dir = os.path.join(self.app.molipe_root, "my_projects")
         
         # Check if projects directory exists
         if not os.path.exists(projects_dir):
@@ -197,10 +224,22 @@ class BrowserScreen(tk.Frame):
             self.update_display()
             return
         
-        # Scan for project folders
+        # Check if github_config exists at TOP level (my_projects/github_config)
+        has_github_top_level = github_manager.has_github_config(projects_dir)
+        self.has_github_config = has_github_top_level  # Store at browser level
+        
+        # Scan for project folders (subfolders with main.pd)
         try:
             for item in sorted(os.listdir(projects_dir)):
                 item_path = os.path.join(projects_dir, item)
+                
+                # Skip hidden folders and files (starting with .)
+                if item.startswith('.'):
+                    continue
+                
+                # Skip github_config file
+                if item == 'github_config':
+                    continue
                 
                 # Only include directories
                 if os.path.isdir(item_path):
@@ -210,13 +249,15 @@ class BrowserScreen(tk.Frame):
                     if os.path.exists(main_pd):
                         self.projects.append({
                             'name': item,
-                            'path': main_pd
+                            'path': main_pd,
+                            'folder_path': item_path
                         })
                     else:
                         # Show folder but mark as missing main.pd
                         self.projects.append({
                             'name': f"{item} (!)",
-                            'path': None
+                            'path': None,
+                            'folder_path': item_path
                         })
         except Exception as e:
             print(f"Error scanning projects: {e}")
@@ -250,12 +291,13 @@ class BrowserScreen(tk.Frame):
             if project_idx < len(self.projects):
                 project = self.projects[project_idx]
                 project_name = project['name']
+                display_name = project_name  # No emoji icon
                 
                 # All text is white, selected gets underlined
                 if self.selected_project_index == project_idx:
                     # Selected: white text with underline
                     self.project_labels[i].config(
-                        text=project_name, 
+                        text=display_name, 
                         fg="#ffffff", 
                         bg="black",
                         font=(self.app.fonts.big.actual()['family'], 
@@ -265,7 +307,7 @@ class BrowserScreen(tk.Frame):
                 else:
                     # Unselected: white text, no underline
                     self.project_labels[i].config(
-                        text=project_name, 
+                        text=display_name, 
                         fg="#ffffff", 
                         bg="black",
                         font=self.app.fonts.big
@@ -279,26 +321,36 @@ class BrowserScreen(tk.Frame):
                     font=self.app.fonts.big
                 )
         
-        # Update LOAD button appearance
-        self.update_load_button()
+        # Update action buttons
+        self.update_action_buttons()
         
         # Update navigation button states
         self.update_nav_buttons()
     
-    def update_load_button(self):
-        """Update LOAD and DUPLICATE button colors based on selection"""
+    def update_action_buttons(self):
+        """Update LOAD, DUPLICATE, and SYNC button colors based on selection and internet"""
+        # Use app-level internet status
+        has_internet = getattr(self.app, 'has_internet', True)
+        
         if self.selected_project_index is not None:
-            # Something selected - white text (enabled)
+            # Something selected - LOAD and DUPLICATE enabled
             if self.load_button:
                 self.load_button.config(fg="#ffffff")
             if self.duplicate_button:
                 self.duplicate_button.config(fg="#ffffff")
         else:
-            # Nothing selected - dark grey text (disabled)
+            # Nothing selected - LOAD and DUPLICATE disabled
             if self.load_button:
                 self.load_button.config(fg="#303030")
             if self.duplicate_button:
                 self.duplicate_button.config(fg="#303030")
+        
+        # SYNC is independent of selection - only depends on github_config and internet
+        if self.sync_button:
+            if self.has_github_config and has_internet:
+                self.sync_button.config(fg="#ffffff")  # Enabled (white)
+            else:
+                self.sync_button.config(fg="#303030")  # Disabled (dark grey)
     
     def update_nav_buttons(self):
         """Update PREV/NEXT button states"""
@@ -369,10 +421,11 @@ class BrowserScreen(tk.Frame):
             print("Failed to load project")
     
     def duplicate_selected_project(self):
-        """Duplicate the selected project with Zettelkasten-style naming"""
+        """Duplicate the selected project with Zettelkasten-style naming and visual feedback"""
         # Only duplicate if something is selected
         if self.selected_project_index is None:
             print("No project selected")
+            self.show_sync_status("NO PROJECT", error=True, duration=3000)
             return
         
         if not self.projects:
@@ -386,27 +439,97 @@ class BrowserScreen(tk.Frame):
             source_name = source_name[:-4]
         
         print(f"Duplicating: {source_name}")
+        self.show_sync_status("DUPLICATING...", syncing=True)
         
-        # Call duplicator
-        projects_dir = os.path.join(self.app.molipe_root, "projects")
-        success, result = duplicate_project(projects_dir, source_name)
+        # Call duplicator in background thread
+        projects_dir = os.path.join(self.app.molipe_root, "my_projects")
         
-        if success:
-            print(f"✓ Duplicated successfully: {result}")
-            # Refresh the browser to show new project
-            self.refresh_projects()
+        def do_duplicate():
+            success, result = duplicate_project(projects_dir, source_name)
             
-            # Try to find and select the new project
-            for i, proj in enumerate(self.projects):
-                if proj['name'] == result:
-                    self.selected_project_index = i
-                    # Calculate which page it's on
-                    self.current_page = i // PATCHES_PER_PAGE
-                    break
+            # Update UI from main thread
+            if success:
+                print(f"✓ Duplicated successfully: {result}")
+                self.after(0, lambda: self.show_sync_status("✓ DUPLICATED", error=False, duration=3000))
+                
+                # Refresh the browser to show new project
+                self.after(100, lambda: self.refresh_and_select_new_project(result))
+            else:
+                print(f"✗ Duplication failed: {result}")
+                error_msg = result[:20] if len(result) > 20 else result  # Truncate long errors
+                self.after(0, lambda: self.show_sync_status(f"FAILED", error=True, duration=5000))
+        
+        threading.Thread(target=do_duplicate, daemon=True).start()
+    
+    def refresh_and_select_new_project(self, new_project_name):
+        """Refresh browser and select the newly created project"""
+        self.refresh_projects()
+        
+        # Try to find and select the new project
+        for i, proj in enumerate(self.projects):
+            if proj['name'] == new_project_name:
+                self.selected_project_index = i
+                # Calculate which page it's on
+                self.current_page = i // PATCHES_PER_PAGE
+                break
+        
+        self.update_display()
+    
+    def sync_selected_project(self):
+        """Sync entire my_projects folder to GitHub with visual feedback"""
+        # Check internet connectivity (use app-level status)
+        has_internet = getattr(self.app, 'has_internet', True)
+        if not has_internet:
+            print("Cannot sync: No internet connection")
+            self.show_sync_status("OFFLINE", error=True, duration=3000)
+            return
+        
+        # Check if github_config exists at my_projects level
+        if not self.has_github_config:
+            print("No GitHub configuration found in my_projects folder")
+            self.show_sync_status("NO CONFIG", error=True, duration=3000)
+            return
+        
+        # Show syncing status
+        self.show_sync_status("SYNCING...", syncing=True)
+        
+        # Sync the ENTIRE my_projects folder (not individual project)
+        projects_dir = os.path.join(self.app.molipe_root, "my_projects")
+        
+        print(f"Syncing my_projects to GitHub...")
+        
+        # Run sync in background thread so UI doesn't freeze
+        def do_sync():
+            success, message = github_manager.sync_project(projects_dir)
             
-            self.update_display()
+            # Update UI from main thread
+            if success:
+                print(f"✓ {message}")
+                self.after(0, lambda: self.show_sync_status("✓ SYNCED", error=False, duration=3000))
+            else:
+                print(f"✗ Sync failed: {message}")
+                self.after(0, lambda: self.show_sync_status("SYNC FAILED", error=True, duration=5000))
+        
+        threading.Thread(target=do_sync, daemon=True).start()
+    
+    def show_sync_status(self, message, error=False, syncing=False, duration=None):
+        """Show sync status in upper right corner"""
+        if not self.sync_status_label:
+            return
+        
+        # Choose color based on status
+        if error:
+            color = "#e74c3c"  # Red for errors
+        elif syncing:
+            color = "#f39c12"  # Orange for in-progress
         else:
-            print(f"✗ Duplication failed: {result}")
+            color = "#27ae60"  # Green for success
+        
+        self.sync_status_label.config(text=message, fg=color)
+        
+        # Clear status after duration (if specified)
+        if duration:
+            self.after(duration, lambda: self.sync_status_label.config(text=""))
     
     def go_home(self):
         """Return to control panel"""
