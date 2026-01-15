@@ -1,2 +1,7 @@
 /archiv/
 /recorded_wavs/
+
+# Ignore user projects, but keep the folder structure
+my_projects/*
+
+!my_projects/.gitkeep
