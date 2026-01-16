@@ -52,6 +52,9 @@ class MolipeApp:
         
         # Keyboard bindings
         self.root.bind("<Escape>", lambda e: self.on_escape())
+        
+        # Enforce cursor hiding periodically (some systems re-enable it)
+        self._enforce_cursor_hiding()
     
     def _setup_window(self):
         """Setup main window properties"""
@@ -64,8 +67,15 @@ class MolipeApp:
         # Fullscreen setup
         self.root.overrideredirect(True)
         self.root.attributes("-fullscreen", True)
-        self.root.config(cursor="none")
+        self.root.attributes("-topmost", True)  # Always on top
+        self.root.config(cursor="none")  # Hide cursor
         self.root.configure(bg="#000000")
+    
+    def _enforce_cursor_hiding(self):
+        """Periodically enforce cursor hiding (touchscreens can re-enable it)"""
+        self.root.config(cursor="none")
+        # Re-check every 500ms
+        self.root.after(500, self._enforce_cursor_hiding)
     
     def _create_screens(self):
         """Create all screen instances"""
