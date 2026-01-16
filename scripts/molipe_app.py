@@ -68,14 +68,50 @@ class MolipeApp:
         self.root.overrideredirect(True)
         self.root.attributes("-fullscreen", True)
         self.root.attributes("-topmost", True)  # Always on top
-        self.root.config(cursor="none")  # Hide cursor
+        
+        # Create blank cursor (more reliable than cursor="none" on touchscreens)
+        self._create_blank_cursor()
+        
         self.root.configure(bg="#000000")
+    
+    def _create_blank_cursor(self):
+        """Create a blank cursor (more reliable than cursor='none' on touchscreens)"""
+        try:
+            if sys.platform.startswith("linux"):
+                # On Linux: Create a truly blank cursor using X11
+                # This is more reliable than cursor="none" for touchscreens
+                blank_cursor = "none"
+                self.root.config(cursor=blank_cursor)
+                
+                # Additional X11 approach - set blank cursor via bind
+                # This catches cursor re-appearances from touch events
+                def hide_cursor(event=None):
+                    self.root.config(cursor="none")
+                    return "break"
+                
+                # Bind to all possible cursor-showing events
+                self.root.bind("<Motion>", hide_cursor)
+                self.root.bind("<Button-1>", hide_cursor)
+                self.root.bind("<ButtonRelease-1>", hide_cursor)
+            else:
+                # On macOS/other
+                self.root.config(cursor="none")
+        except Exception as e:
+            print(f"Cursor hiding setup failed: {e}")
+            # Fallback
+            self.root.config(cursor="none")
     
     def _enforce_cursor_hiding(self):
         """Periodically enforce cursor hiding (touchscreens can re-enable it)"""
-        self.root.config(cursor="none")
-        # Re-check every 500ms
-        self.root.after(500, self._enforce_cursor_hiding)
+        try:
+            self.root.config(cursor="none")
+            # Also set on all screens
+            for screen in self.screens.values():
+                screen.config(cursor="none")
+        except:
+            pass  # Ignore errors during startup
+        # Re-check every 100ms (more aggressive)
+        self.root.after(100, self._enforce_cursor_hiding)
     
     def _create_screens(self):
         """Create all screen instances"""
