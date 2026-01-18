@@ -640,7 +640,7 @@ class PatchDisplayScreen(tk.Frame):
                 if r == 0 and c == 0:
                     lbl = tk.Label(
                         cell,
-                        text="////<MENU",
+                        text="////MENU",
                         bg="black", fg="white",  # Black background, white text
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.head_font,

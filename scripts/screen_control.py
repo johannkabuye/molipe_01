@@ -79,7 +79,7 @@ class ControlScreen(tk.Frame):
                         text="////PATCH",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
-                        font=self.app.fonts.small,  # Use small font (27pt) to match ////<MENU
+                        font=self.app.fonts.small,  # Use small font (27pt) to match ////MENU
                         cursor="hand2"
                     )
                     self.patch_button.bind("<Button-1>", lambda e: self.on_patch_clicked())
