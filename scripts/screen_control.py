@@ -6,6 +6,7 @@ import socket
 import subprocess
 import threading
 import os
+from confirmation_dialog import show_confirmation
 
 # Grid configuration (same as patch display)
 DEFAULT_ROWS = 11
@@ -237,6 +238,18 @@ class ControlScreen(tk.Frame):
         if self.updating:
             return
         
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message="Update Molipe from GitHub?\n\nThis will restart Molipe and stop\nany open project.",
+            timeout=10,
+            title="Update System"
+        )
+        
+        if not confirmed:
+            print("Update cancelled by user")
+            return
+        
         self.updating = True
         self.update_status("UPDATING...")
         
@@ -280,6 +293,19 @@ class ControlScreen(tk.Frame):
     def shutdown(self):
         """Shutdown the system"""
         print("Shutdown button clicked!")
+        
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message="Are you sure you want to shut down\nthe system?",
+            timeout=10,
+            title="Shutdown System"
+        )
+        
+        if not confirmed:
+            print("Shutdown cancelled by user")
+            return
+        
         self.update_status("SHUTTING DOWN...")
         
         def do_shutdown():

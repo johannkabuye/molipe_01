@@ -8,11 +8,12 @@ import threading
 import json
 from datetime import datetime
 
-# Import project duplicator and github manager
+# Import project duplicator, github manager, and confirmation dialog
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 from project_duplicator import duplicate_project
 import github_manager
+from confirmation_dialog import show_confirmation
 
 # Grid configuration (same as patch display and control panel)
 DEFAULT_ROWS = 11
@@ -671,6 +672,32 @@ class BrowserScreen(tk.Frame):
             print("main.pd file not found")
             return
         
+        # CHECK IF PATCH IS ALREADY RUNNING
+        if self.app.pd_manager.is_running():
+            # Get current patch name
+            current_patch = self.app.pd_manager.current_patch
+            if current_patch:
+                current_name = os.path.basename(os.path.dirname(current_patch))
+            else:
+                current_name = "current patch"
+            
+            new_name = selected_project['name']
+            # Remove " (!)" suffix if present
+            if new_name.endswith(" (!)"):
+                new_name = new_name[:-4]
+            
+            # SHOW CONFIRMATION DIALOG
+            confirmed = show_confirmation(
+                parent=self,
+                message=f"Close '{current_name}' and load\n'{new_name}'?",
+                timeout=10,
+                title="Load New Patch"
+            )
+            
+            if not confirmed:
+                print("Load cancelled by user")
+                return
+        
         # Update timestamp for this project
         project_name = selected_project['name']
         # Remove " (!)" suffix if present
@@ -704,6 +731,18 @@ class BrowserScreen(tk.Frame):
         # Remove the " (!)" suffix if present
         if source_name.endswith(" (!)"):
             source_name = source_name[:-4]
+        
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message=f"Are you sure you want to duplicate\n'{source_name}'?",
+            timeout=10,
+            title="Duplicate Project"
+        )
+        
+        if not confirmed:
+            print(f"Duplicate cancelled by user")
+            return
         
         print(f"Duplicating: {source_name}")
         self.show_sync_status("DUPLICATING...", syncing=True)
