@@ -40,10 +40,6 @@ class ConfirmationDialog:
         
         # Modal setup
         self.dialog.transient(parent)
-        self.dialog.grab_set()
-        
-        # Remove window decorations for cleaner look
-        self.dialog.overrideredirect(True)
         
         # Dialog styling
         self.dialog.configure(bg="#000000")
@@ -51,6 +47,9 @@ class ConfirmationDialog:
         # Dialog size (touchscreen-friendly)
         dialog_width = 800
         dialog_height = 400
+        
+        # Force window update before positioning (helps with RPi)
+        self.dialog.update_idletasks()
         
         # Center on screen
         screen_width = self.dialog.winfo_screenwidth()
@@ -68,6 +67,15 @@ class ConfirmationDialog:
         
         # Hide cursor on dialog too
         self.dialog.config(cursor="none")
+        
+        # CRITICAL FOR RPI: Force dialog to front and grab focus
+        self.dialog.attributes("-topmost", True)  # Always on top
+        self.dialog.lift()  # Raise to top
+        self.dialog.focus_force()  # Force keyboard focus
+        self.dialog.grab_set()  # Modal grab (after UI is built)
+        
+        # Force another update to ensure visibility on RPi
+        self.dialog.update_idletasks()
         
         # Start countdown
         self._update_countdown()
