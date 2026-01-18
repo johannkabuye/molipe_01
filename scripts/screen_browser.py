@@ -8,11 +8,11 @@ import threading
 import json
 from datetime import datetime
 
-# Import project duplicator, github manager, and confirmation dialog
+# Import project duplicator, deleter, and confirmation dialog
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 from project_duplicator import duplicate_project
-import github_manager
+from project_deleter import delete_project
 from confirmation_dialog import show_confirmation
 
 # Grid configuration (same as patch display and control panel)
@@ -22,7 +22,7 @@ ROW_HEIGHTS = [60, 210, 50, 0, 0, 210, 50, 5, 20, 50, 50]
 PATCHES_PER_PAGE = 8
 
 class BrowserScreen(tk.Frame):
-    """Project browser with page-based navigation, GitHub sync, and sorting"""
+    """Project browser with page-based navigation and sorting"""
     
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
@@ -36,7 +36,6 @@ class BrowserScreen(tk.Frame):
         self.current_page = 0
         self.total_pages = 0
         self.selected_project_index = None  # None = nothing selected
-        self.has_github_config = False  # Track if my_projects has github_config
         
         # Sorting state
         self.sort_mode = "recent"  # "name" or "recent"
@@ -50,11 +49,11 @@ class BrowserScreen(tk.Frame):
         self.project_labels = []
         self.page_label = None
         self.sync_status_label = None
-        self.sort_mode_button = None  # NEW: NAME/RECENT button
-        self.sort_dir_button = None   # NEW: ▼/▲ button
+        self.sort_mode_button = None  # NAME/RECENT button
+        self.sort_dir_button = None   # Sort direction button
         self.load_button = None
         self.duplicate_button = None
-        self.sync_button = None
+        self.delete_button = None
         self.prev_button = None
         self.next_button = None
         
@@ -126,11 +125,11 @@ class BrowserScreen(tk.Frame):
                     self.sort_mode_button.bind("<Button-1>", lambda e: self.toggle_sort_mode())
                     self.sort_mode_button.pack(fill="both", expand=True)
                 
-                # Row 0, Cell 2: ▼/▲ direction button
+                # Row 0, Cell 2: DESC/ASC direction button
                 elif r == 0 and c == 2:
                     self.sort_dir_button = tk.Label(
                         cell,
-                        text="▼",  # Default descending
+                        text="DESC",  # Default descending
                         bg="black", fg="white",
                         anchor="center", padx=5, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.small,
@@ -255,19 +254,19 @@ class BrowserScreen(tk.Frame):
                         )
                         self.page_label.pack(fill="both", expand=True)
                     elif c == 5:
-                        # SYNC button
-                        self.sync_button = tk.Label(
-                            cell, text="↻ SYNC",
+                        # DELETE button
+                        self.delete_button = tk.Label(
+                            cell, text="DELETE",
                             font=self.app.fonts.small,
                             bg="#000000", fg="#303030",  # Start dark grey (disabled)
                             cursor="hand2", bd=0, relief="flat"
                         )
-                        self.sync_button.bind("<Button-1>", lambda e: self.sync_selected_project())
-                        self.sync_button.pack(fill="both", expand=True)
+                        self.delete_button.bind("<Button-1>", lambda e: self.delete_selected_project())
+                        self.delete_button.pack(fill="both", expand=True)
                     elif c == 6:
                         # DUPLICATE button
                         self.duplicate_button = tk.Label(
-                            cell, text="⊕ DUPLICATE",
+                            cell, text="DUPLICATE",
                             font=self.app.fonts.small,
                             bg="#000000", fg="#303030",  # Start dark grey (disabled)
                             cursor="hand2", bd=0, relief="flat"
@@ -277,7 +276,7 @@ class BrowserScreen(tk.Frame):
                     elif c == 7:
                         # LOAD button (last column)
                         self.load_button = tk.Label(
-                            cell, text="▶ LOAD",
+                            cell, text="LOAD",
                             font=self.app.fonts.small,
                             bg="#000000", fg="#303030",  # Start dark grey (disabled)
                             cursor="hand2", bd=0, relief="flat"
@@ -358,13 +357,13 @@ class BrowserScreen(tk.Frame):
             return []
     
     def toggle_sort_direction(self):
-        """Toggle between descending (▼) and ascending (▲)"""
+        """Toggle between descending (DESC) and ascending (ASC)"""
         if self.sort_direction == "desc":
             self.sort_direction = "asc"
-            self.sort_dir_button.config(text="▲")
+            self.sort_dir_button.config(text="ASC")
         else:
             self.sort_direction = "desc"
-            self.sort_dir_button.config(text="▼")
+            self.sort_dir_button.config(text="DESC")
         
         # Re-sort and refresh display
         self.sort_projects()
@@ -430,7 +429,7 @@ class BrowserScreen(tk.Frame):
             self.projects.reverse()
     
     def refresh_projects(self):
-        """Scan my_projects directory for project folders and check GitHub status"""
+        """Scan my_projects directory for project folders"""
         self.projects = []
         self.selected_project_index = None
         
@@ -448,10 +447,6 @@ class BrowserScreen(tk.Frame):
             self.update_display()
             return
         
-        # Check if github_config exists at TOP level (my_projects/github_config)
-        has_github_top_level = github_manager.has_github_config(projects_dir)
-        self.has_github_config = has_github_top_level  # Store at browser level
-        
         # Scan for project folders (subfolders with main.pd)
         try:
             for item in sorted(os.listdir(projects_dir)):
@@ -461,8 +456,8 @@ class BrowserScreen(tk.Frame):
                 if item.startswith('.'):
                     continue
                 
-                # Skip github_config file
-                if item == 'github_config':
+                # Skip trash folder
+                if item == 'trash':
                     continue
                 
                 # Only include directories
@@ -589,29 +584,23 @@ class BrowserScreen(tk.Frame):
         self.update_nav_buttons()
     
     def update_action_buttons(self):
-        """Update LOAD, DUPLICATE, and SYNC button colors based on selection and internet"""
-        # Use app-level internet status
-        has_internet = getattr(self.app, 'has_internet', True)
-        
+        """Update LOAD, DUPLICATE, and DELETE button colors based on selection"""
         if self.selected_project_index is not None:
-            # Something selected - LOAD and DUPLICATE enabled
+            # Something selected - all buttons enabled
             if self.load_button:
                 self.load_button.config(fg="#ffffff")
             if self.duplicate_button:
                 self.duplicate_button.config(fg="#ffffff")
+            if self.delete_button:
+                self.delete_button.config(fg="#ffffff")
         else:
-            # Nothing selected - LOAD and DUPLICATE disabled
+            # Nothing selected - all buttons disabled
             if self.load_button:
                 self.load_button.config(fg="#303030")
             if self.duplicate_button:
                 self.duplicate_button.config(fg="#303030")
-        
-        # SYNC is independent of selection - only depends on github_config and internet
-        if self.sync_button:
-            if self.has_github_config and has_internet:
-                self.sync_button.config(fg="#ffffff")  # Enabled (white)
-            else:
-                self.sync_button.config(fg="#303030")  # Disabled (dark grey)
+            if self.delete_button:
+                self.delete_button.config(fg="#303030")
     
     def update_nav_buttons(self):
         """Update PREV/NEXT button states"""
@@ -781,42 +770,58 @@ class BrowserScreen(tk.Frame):
         
         self.update_display()
     
-    def sync_selected_project(self):
-        """Sync entire my_projects folder to GitHub with visual feedback"""
-        # Check internet connectivity (use app-level status)
-        has_internet = getattr(self.app, 'has_internet', True)
-        if not has_internet:
-            print("Cannot sync: No internet connection")
-            self.show_sync_status("OFFLINE", error=True, duration=3000)
+    def delete_selected_project(self):
+        """Delete the selected project (move to trash) with confirmation and visual feedback"""
+        # Only delete if something is selected
+        if self.selected_project_index is None:
+            print("No project selected")
+            self.show_sync_status("NO PROJECT", error=True, duration=3000)
             return
         
-        # Check if github_config exists at my_projects level
-        if not self.has_github_config:
-            print("No GitHub configuration found in my_projects folder")
-            self.show_sync_status("NO CONFIG", error=True, duration=3000)
+        if not self.projects:
             return
         
-        # Show syncing status
-        self.show_sync_status("SYNCING...", syncing=True)
+        selected_project = self.projects[self.selected_project_index]
+        project_name = selected_project['name']
         
-        # Sync the ENTIRE my_projects folder (not individual project)
+        # Remove the " (!)" suffix if present
+        if project_name.endswith(" (!)"):
+            project_name = project_name[:-4]
+        
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message=f"Are you sure you want to delete\n'{project_name}'?\n\nIt will be moved to trash.",
+            timeout=10,
+            title="Delete Project"
+        )
+        
+        if not confirmed:
+            print(f"Delete cancelled by user")
+            return
+        
+        print(f"Deleting: {project_name}")
+        self.show_sync_status("DELETING...", syncing=True)
+        
+        # Call deleter in background thread
         projects_dir = os.path.join(self.app.molipe_root, "my_projects")
         
-        print(f"Syncing my_projects to GitHub...")
-        
-        # Run sync in background thread so UI doesn't freeze
-        def do_sync():
-            success, message = github_manager.sync_project(projects_dir)
+        def do_delete():
+            success, result = delete_project(projects_dir, project_name)
             
             # Update UI from main thread
             if success:
-                print(f"✓ {message}")
-                self.after(0, lambda: self.show_sync_status("✓ SYNCED", error=False, duration=3000))
+                print(f"✓ Moved to trash: {result}")
+                self.after(0, lambda: self.show_sync_status("✓ DELETED", error=False, duration=3000))
+                
+                # Refresh the browser to remove deleted project
+                self.after(100, lambda: self.refresh_projects())
             else:
-                print(f"✗ Sync failed: {message}")
-                self.after(0, lambda: self.show_sync_status("SYNC FAILED", error=True, duration=5000))
+                print(f"✗ Deletion failed: {result}")
+                error_msg = result[:20] if len(result) > 20 else result  # Truncate long errors
+                self.after(0, lambda: self.show_sync_status(f"DELETE FAILED", error=True, duration=5000))
         
-        threading.Thread(target=do_sync, daemon=True).start()
+        threading.Thread(target=do_delete, daemon=True).start()
     
     def show_sync_status(self, message, error=False, syncing=False, duration=None):
         """Show sync status in upper right corner"""

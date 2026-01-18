@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from screen_control import ControlScreen
 from screen_browser import BrowserScreen
 from screen_patch_display import PatchDisplayScreen
+from screen_preferences import PreferencesScreen
 from fonts import FontManager
 from process_manager import ProcessManager
 
@@ -118,6 +119,7 @@ class MolipeApp:
         self.screens['control'] = ControlScreen(self.root, self)
         self.screens['browser'] = BrowserScreen(self.root, self)
         self.screens['patch'] = PatchDisplayScreen(self.root, self)
+        self.screens['preferences'] = PreferencesScreen(self.root, self)
     
     def show_screen(self, name):
         """

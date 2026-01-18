@@ -20,7 +20,6 @@ class ControlScreen(tk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
         self.app = app
-        self.updating = False
         
         self.rows = DEFAULT_ROWS
         self.cols_per_row = list(COLS_PER_ROW)
@@ -107,35 +106,26 @@ class ControlScreen(tk.Frame):
                 elif r == 1:
                     if c == 0:
                         # PROJECTS button
-                        btn = self._create_big_button(cell, "▶ PROJECTS", self.on_projects_clicked)
+                        btn = self._create_big_button(cell, "PROJECTS", self.on_projects_clicked)
                         btn.pack(fill="both", expand=True)
-                    elif c == 1:
-                        # UPDATE button (or OFFLINE)
-                        if self.app.has_internet:
-                            btn = self._create_big_button(cell, "↻ UPDATE", self.update_molipe)
-                            btn.pack(fill="both", expand=True)
-                        else:
-                            lbl = tk.Label(
-                                cell, text="OFFLINE",
-                                font=self.app.fonts.big,  # Use BIG font (29pt)
-                                bg="#000000", fg="#303030",
-                                bd=0, relief="flat"
-                            )
-                            lbl.pack(fill="both", expand=True)
                     elif c == 3:
-                        # SHUTDOWN button (moved to 4th column)
-                        btn = self._create_big_button(cell, "⏻ SHUTDOWN", self.shutdown)
+                        # SHUTDOWN button
+                        btn = self._create_big_button(cell, "SHUTDOWN", self.shutdown)
                         btn.pack(fill="both", expand=True)
                 
-                # Row 5 (big font row): SAVE buttons
+                # Row 5 (big font row): SAVE buttons and PREFERENCES
                 elif r == 5:
                     if c == 0:
                         # SAVE button (placeholder)
-                        btn = self._create_big_button(cell, "💾 SAVE", self.save_placeholder)
+                        btn = self._create_big_button(cell, "SAVE", self.save_placeholder)
                         btn.pack(fill="both", expand=True)
                     elif c == 1:
                         # SAVE AS button (placeholder)
-                        btn = self._create_big_button(cell, "💾 SAVE AS", self.save_as_placeholder)
+                        btn = self._create_big_button(cell, "SAVE AS", self.save_as_placeholder)
+                        btn.pack(fill="both", expand=True)
+                    elif c == 3:
+                        # PREFERENCES button (below SHUTDOWN)
+                        btn = self._create_big_button(cell, "PREFERENCES", self.on_preferences_clicked)
                         btn.pack(fill="both", expand=True)
             
             self.cell_frames.append(row_cells)
@@ -171,6 +161,10 @@ class ControlScreen(tk.Frame):
         """Handle PROJECTS button click - always go to browser"""
         self.app.show_screen('browser')
     
+    def on_preferences_clicked(self):
+        """Handle PREFERENCES button click - go to preferences"""
+        self.app.show_screen('preferences')
+    
     def on_patch_clicked(self):
         """Handle PATCH button click - go back to patch display"""
         if self.app.pd_manager.is_running():
@@ -178,11 +172,35 @@ class ControlScreen(tk.Frame):
     
     def save_placeholder(self):
         """SAVE button - placeholder for future functionality"""
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message="Are you sure you want to save?\n\nThis will cause the audio to stop\nbriefly.",
+            timeout=10,
+            title="Save Project"
+        )
+        
+        if not confirmed:
+            print("Save cancelled by user")
+            return
+        
         print("SAVE clicked (placeholder)")
         self.update_status("SAVE - NOT IMPLEMENTED YET")
     
     def save_as_placeholder(self):
         """SAVE AS button - placeholder for future functionality"""
+        # SHOW CONFIRMATION DIALOG
+        confirmed = show_confirmation(
+            parent=self,
+            message="Are you sure you want to save as?\n\nThis will cause the audio to stop\nbriefly.",
+            timeout=10,
+            title="Save As"
+        )
+        
+        if not confirmed:
+            print("Save As cancelled by user")
+            return
+        
         print("SAVE AS clicked (placeholder)")
         self.update_status("SAVE AS - NOT IMPLEMENTED YET")
     
@@ -233,62 +251,6 @@ class ControlScreen(tk.Frame):
         thread = threading.Thread(target=check, daemon=True)
         thread.start()
     
-    def update_molipe(self):
-        """Update molipe from git and restart"""
-        if self.updating:
-            return
-        
-        # SHOW CONFIRMATION DIALOG
-        confirmed = show_confirmation(
-            parent=self,
-            message="Update Molipe from GitHub?\n\nThis will restart Molipe and stop\nany open project.",
-            timeout=10,
-            title="Update System"
-        )
-        
-        if not confirmed:
-            print("Update cancelled by user")
-            return
-        
-        self.updating = True
-        self.update_status("UPDATING...")
-        
-        def do_update():
-            try:
-                result = subprocess.run(
-                    ["git", "pull", "--force"],
-                    cwd=self.app.molipe_root,
-                    capture_output=True,
-                    text=True,
-                    timeout=30
-                )
-                
-                if result.returncode == 0:
-                    # Check if anything was actually updated
-                    if "Already up to date" in result.stdout:
-                        self.after(0, lambda: self.update_status("ALREADY UP TO DATE"))
-                        self.updating = False
-                    else:
-                        # Files were updated - restart the app!
-                        self.after(0, lambda: self.update_status("RESTARTING..."))
-                        import time
-                        time.sleep(1)
-                        
-                        # Restart Python process
-                        import sys
-                        import os
-                        print("UPDATE COMPLETE - RESTARTING APP...")
-                        python = sys.executable
-                        os.execv(python, [python] + sys.argv)
-                else:
-                    self.after(0, lambda: self.update_status("UPDATE FAILED", error=True))
-                    self.updating = False
-            except Exception as e:
-                error_msg = str(e)  # Capture error message before lambda
-                self.after(0, lambda: self.update_status(f"ERROR: {error_msg}", error=True))
-                self.updating = False
-        
-        threading.Thread(target=do_update, daemon=True).start()
     
     def shutdown(self):
         """Shutdown the system"""
