@@ -69,7 +69,7 @@ class PreferencesScreen(tk.Frame):
                 if r == 0 and c == 0:
                     menu_button = tk.Label(
                         cell,
-                        text="////MENU",
+                        text="////<MENU",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.small,
@@ -140,7 +140,7 @@ class PreferencesScreen(tk.Frame):
         print(f"Preferences: {message}")
     
     def update_molipe(self):
-        """Update molipe from git and restart"""
+        """Update molipe from git and restart - NUCLEAR OPTION (always overwrites)"""
         if self.updating:
             return
         
@@ -150,36 +150,75 @@ class PreferencesScreen(tk.Frame):
             
             def do_update():
                 try:
-                    result = subprocess.run(
-                        ["git", "pull", "--force"],
+                    # NUCLEAR OPTION: Always succeeds, always overwrites everything
+                    # Step 1: Fetch all changes from GitHub
+                    print("Fetching from GitHub...")
+                    fetch_result = subprocess.run(
+                        ["git", "fetch", "--all"],
                         cwd=self.app.molipe_root,
                         capture_output=True,
                         text=True,
                         timeout=30
                     )
                     
-                    if result.returncode == 0:
-                        # Check if anything was actually updated
-                        if "Already up to date" in result.stdout:
-                            self.after(0, lambda: self.update_status("ALREADY UP TO DATE"))
-                            self.updating = False
-                            self.after(2000, lambda: self.app.show_screen('preferences'))
-                        else:
-                            # Files were updated - restart the app!
-                            self.after(0, lambda: self.update_status("RESTARTING..."))
-                            import time
-                            time.sleep(1)
-                            
-                            # Restart Python process
-                            print("UPDATE COMPLETE - RESTARTING APP...")
-                            python = sys.executable
-                            os.execv(python, [python] + sys.argv)
-                    else:
-                        self.after(0, lambda: self.update_status("UPDATE FAILED", error=True))
+                    if fetch_result.returncode != 0:
+                        print(f"Fetch error: {fetch_result.stderr}")
+                        self.after(0, lambda: self.update_status("FETCH FAILED", error=True))
                         self.updating = False
                         self.after(2000, lambda: self.app.show_screen('preferences'))
+                        return
+                    
+                    # Step 2: HARD RESET to match GitHub exactly (discards ALL local changes)
+                    print("Hard resetting to origin/main...")
+                    reset_result = subprocess.run(
+                        ["git", "reset", "--hard", "origin/main"],
+                        cwd=self.app.molipe_root,
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    
+                    if reset_result.returncode != 0:
+                        print(f"Reset error: {reset_result.stderr}")
+                        self.after(0, lambda: self.update_status("RESET FAILED", error=True))
+                        self.updating = False
+                        self.after(2000, lambda: self.app.show_screen('preferences'))
+                        return
+                    
+                    # Step 3: Clean untracked files (optional but thorough)
+                    print("Cleaning untracked files...")
+                    subprocess.run(
+                        ["git", "clean", "-fd"],
+                        cwd=self.app.molipe_root,
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    
+                    # Success! Check if anything changed
+                    print(f"Reset output: {reset_result.stdout}")
+                    
+                    if "HEAD is now at" in reset_result.stdout:
+                        # Files were updated - restart the app!
+                        self.after(0, lambda: self.update_status("RESTARTING..."))
+                        import time
+                        time.sleep(1)
+                        
+                        # Restart Python process
+                        print("UPDATE COMPLETE - RESTARTING APP...")
+                        python = sys.executable
+                        os.execv(python, [python] + sys.argv)
+                    else:
+                        # Already up to date
+                        self.after(0, lambda: self.update_status("ALREADY UP TO DATE"))
+                        self.updating = False
+                        self.after(2000, lambda: self.app.show_screen('preferences'))
+                    
                 except Exception as e:
                     error_msg = str(e)
+                    print(f"Update exception: {error_msg}")
+                    import traceback
+                    traceback.print_exc()
                     self.after(0, lambda: self.update_status(f"ERROR: {error_msg}", error=True))
                     self.updating = False
                     self.after(2000, lambda: self.app.show_screen('preferences'))
