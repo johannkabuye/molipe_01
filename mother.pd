@@ -1,4 +1,4 @@
-#N canvas 535 109 482 420 10;
+#N canvas 535 109 650 617 10;
 #X declare -path patch_editor_abs/controller;
 #X declare -path patch_editor_abs;
 #X declare -path patch_editor_abs/test;
@@ -559,7 +559,7 @@
 #X connect 18 0 17 0;
 #X connect 21 0 7 0;
 #X coords 0 -1 1 1 445 90 2 100 100;
-#X restore 9 9 pd patch-editor-do-not-delete;
+#X restore 103 103 pd patch-editor-do-not-delete;
 #N canvas 0 64 1440 567 TO-DO 0;
 #X obj 727 10 cnv 16 350 25 empty empty IN-PROGRESS 20 12 0 25 #ff8300 #404040 0;
 #X obj 1086 9 cnv 16 350 25 empty empty DONE 20 12 0 25 #bbbbbb #404040 0;
@@ -625,7 +625,7 @@
 #X text 726 44 repeater nach mute setzen --------------------------------;
 #X text 726 241 - Scens-Mode einführen? damit zwischen Parametern gefaded werden kann? Dann würde in jeder Text-Datei einfach ein zweiter Faderwert gespeichert werden zwischen denen dann gefaded werden kann.;
 #X text 726 121 ---> hier an den Elektron Scenes orientieren aka für jedes Modul z.B. 6 Spreicherungen ablegen zwischen denen gefaded werden kann...;
-#X restore 9 376 pd TO-DO;
+#X restore 105 519 pd TO-DO;
 #N canvas 0 25 1440 847 network-communicator 0;
 #X obj 104 103 cnv 5 5 5 empty empty DISPLAY-COMMUNICATOR: 0 12 0 10 #fcfcfc #404040 0;
 #X msg 410 138 connect localhost 9001;
@@ -1421,7 +1421,7 @@
 #X connect 321 0 318 0;
 #X connect 323 0 322 0;
 #X coords 0 -1 1 1 220 115 2 100 100;
-#X restore 234 103 pd network-communicator;
-#X obj 130 377 cnv 5 5 5 empty empty KEEP\ THIS\ WINDOW\ OPEN! 0 12 0 25 #ffffff #404040 0;
-#X obj 11 103 patch_loader 1;
-#X obj 234 223 push-mk1;
+#X restore 328 197 pd network-communicator;
+#X obj 105 197 patch_loader 1;
+#X obj 328 317 push-mk1;
+#X coords 0 -1 1 1 450 370 1 100 100;
