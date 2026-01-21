@@ -79,7 +79,7 @@ class ControlScreen(tk.Frame):
                         text="////PATCH",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
-                        font=self.app.fonts.small,  # Use small font (27pt) to match ////MENU
+                        font=self.app.fonts.small,  # Use small font (27pt) to match ////<MENU
                         cursor="hand2"
                     )
                     self.patch_button.bind("<Button-1>", lambda e: self.on_patch_clicked())
@@ -106,6 +106,10 @@ class ControlScreen(tk.Frame):
                     if c == 0:
                         # PROJECTS button
                         btn = self._create_big_button(cell, "PROJECTS", self.on_projects_clicked)
+                        btn.pack(fill="both", expand=True)
+                    elif c == 1:
+                        # START NEW button
+                        btn = self._create_big_button(cell, "START NEW", self.on_start_new_clicked)
                         btn.pack(fill="both", expand=True)
                     elif c == 3:
                         # SHUTDOWN button
@@ -159,6 +163,10 @@ class ControlScreen(tk.Frame):
     def on_projects_clicked(self):
         """Handle PROJECTS button click - always go to browser"""
         self.app.show_screen('browser')
+    
+    def on_start_new_clicked(self):
+        """Handle START NEW button click - go to preset browser"""
+        self.app.show_screen('preset_browser')
     
     def on_preferences_clicked(self):
         """Handle PREFERENCES button click - go to preferences"""
