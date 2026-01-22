@@ -6,6 +6,8 @@ import tkinter as tk
 import os
 import sys
 import threading
+import json
+from datetime import datetime
 from project_duplicator import duplicate_project
 
 # Grid configuration (same as project browser)
@@ -32,6 +34,9 @@ class PresetBrowserScreen(tk.Frame):
         self.current_page = 0
         self.total_pages = 0
         self.selected_preset_index = None  # None = nothing selected
+        
+        # Metadata file path (for timestamp tracking in my_projects)
+        self.metadata_file = None
         
         # UI references
         self.cell_frames = []
@@ -221,6 +226,35 @@ class PresetBrowserScreen(tk.Frame):
             
             self.cell_frames.append(row_cells)
     
+    def load_metadata(self):
+        """Load metadata from .molipe_meta file (same as project browser)"""
+        if not self.metadata_file or not os.path.exists(self.metadata_file):
+            return {}
+        
+        try:
+            with open(self.metadata_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading metadata: {e}")
+            return {}
+    
+    def save_metadata(self, metadata):
+        """Save metadata to .molipe_meta file (same as project browser)"""
+        if not self.metadata_file:
+            return
+        
+        try:
+            with open(self.metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+        except Exception as e:
+            print(f"Error saving metadata: {e}")
+    
+    def update_project_timestamp(self, project_name):
+        """Update timestamp for a project when it's created/opened (same as project browser)"""
+        metadata = self.load_metadata()
+        metadata[project_name] = datetime.now().isoformat()
+        self.save_metadata(metadata)
+    
     def refresh_presets(self):
         """Scan preset_projects directory for presets"""
         self.presets = []
@@ -228,6 +262,10 @@ class PresetBrowserScreen(tk.Frame):
         
         # Scan preset_projects directory (inside molipe_root, same level as my_projects)
         presets_dir = os.path.join(self.app.molipe_root, "preset_projects")
+        
+        # Set metadata file path (points to my_projects metadata file)
+        my_projects_dir = os.path.join(self.app.molipe_root, "my_projects")
+        self.metadata_file = os.path.join(my_projects_dir, ".molipe_meta")
         
         # Check if presets directory exists
         if not os.path.exists(presets_dir):
@@ -455,6 +493,9 @@ class PresetBrowserScreen(tk.Frame):
             if success:
                 print(f"✓ Created new project: {new_name}")
                 self.after(0, lambda: self.update_status("✓ CREATED"))
+                
+                # IMPORTANT: Update timestamp for the new project
+                self.after(0, lambda: self.update_project_timestamp(new_name))
                 
                 # Load the new project
                 new_project_path = os.path.join(my_projects_dir, new_name, "main.pd")
