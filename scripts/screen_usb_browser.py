@@ -1,26 +1,20 @@
 """
 USB Browser Screen - Browse and import projects from USB stick
-Similar to project browser but scans USB mount points
+Exact match to project browser look and feel
 """
 import tkinter as tk
 import os
 import shutil
 from datetime import datetime
 
-# Grid configuration (same as other screens)
+# Grid configuration (same as project browser)
 DEFAULT_ROWS = 11
 COLS_PER_ROW = [4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 8]
 ROW_HEIGHTS = [60, 210, 50, 0, 0, 210, 50, 5, 20, 50, 50]
-
-# USB mount points to check (Patchbox OS typically uses /media/patch/)
-USB_MOUNT_POINTS = [
-    "/media/patch",
-    "/media/usb",
-    "/mnt/usb"
-]
+PROJECTS_PER_PAGE = 8
 
 class USBBrowserScreen(tk.Frame):
-    """Browse and import projects from USB stick"""
+    """Browse and import projects from USB stick (exact match to project browser)"""
     
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
@@ -29,24 +23,26 @@ class USBBrowserScreen(tk.Frame):
         self.rows = DEFAULT_ROWS
         self.cols_per_row = list(COLS_PER_ROW)
         
-        # Browser state
+        # State
         self.usb_path = None
         self.projects = []
-        self.selected_project_index = None
-        self.page = 0
-        self.projects_per_page = 4
+        self.current_page = 0
+        self.total_pages = 0
+        self.selected_project_index = None  # None = nothing selected
         
         # UI references
         self.cell_frames = []
-        self.status_label = None
-        self.project_buttons = []
-        self.import_button = None
+        self.project_labels = []  # Will store tuples of (name_label, meta_label)
         self.page_label = None
+        self.status_label = None
+        self.import_button = None
+        self.prev_button = None
+        self.next_button = None
         
         self._build_ui()
     
     def _build_ui(self):
-        """Build grid-based USB browser UI"""
+        """Build grid-based USB browser UI (matches project browser exactly)"""
         
         # Main grid container
         container = tk.Frame(self, bg="black", bd=0, highlightthickness=0)
@@ -55,6 +51,7 @@ class USBBrowserScreen(tk.Frame):
         container.columnconfigure(0, weight=1, uniform="outer_col")
         
         self.cell_frames.clear()
+        self.project_labels.clear()
         
         # Build 11-row grid
         for r in range(self.rows):
@@ -81,94 +78,146 @@ class USBBrowserScreen(tk.Frame):
                 cell.grid_propagate(False)
                 row_cells.append(cell)
                 
-                # Row 0, Cell 0: MENU button
+                # Row 0, Cell 0: MENU button (exact match to project browser)
                 if r == 0 and c == 0:
-                    menu_button = tk.Label(
+                    menu_btn = tk.Label(
                         cell,
-                        text="////<MENU",
+                        text="////MENU",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.small,
                         cursor="hand2"
                     )
-                    menu_button.bind("<Button-1>", lambda e: self.on_menu_clicked())
-                    menu_button.pack(fill="both", expand=True)
+                    menu_btn.bind("<Button-1>", lambda e: self.go_home())
+                    menu_btn.pack(fill="both", expand=True)
                 
-                # Row 0, Cell 3: Status label
+                # Row 0, Cell 3: Status label (matches sync status position)
                 elif r == 0 and c == 3:
                     self.status_label = tk.Label(
                         cell,
                         text="IMPORT FROM USB",
                         bg="black", fg="#606060",
                         anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
-                        font=self.app.fonts.status
+                        font=self.app.fonts.small
                     )
                     self.status_label.pack(fill="both", expand=True)
                 
-                # Row 1: Project button 0
-                elif r == 1 and c == 0:
-                    btn = self._create_project_button(cell, 0)
-                    self.project_buttons.append(btn)
+                # Row 1: Project cells 0-3 (exact match to project browser)
+                elif r == 1:
+                    # Create a container frame for name + metadata
+                    proj_container = tk.Frame(cell, bg="black", bd=0, highlightthickness=0)
+                    proj_container.pack(fill="both", expand=True, padx=5, pady=5)
+                    proj_container.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Project name label (big font, left-aligned)
+                    proj_name = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#ffffff",
+                        anchor="w", padx=10, pady=5, bd=0, highlightthickness=0,
+                        font=self.app.fonts.big,
+                        cursor="hand2",
+                        wraplength=270,
+                        justify="left"
+                    )
+                    proj_name.pack(fill="x", anchor="nw")
+                    proj_name.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Metadata label (metadata font, grey, left-aligned)
+                    proj_meta = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#606060",
+                        anchor="w", padx=10, pady=5, bd=0, highlightthickness=0,
+                        font=self.app.fonts.metadata,
+                        cursor="hand2",
+                        wraplength=250,
+                        justify="left"
+                    )
+                    proj_meta.pack(fill="x", anchor="nw")
+                    proj_meta.bind("<Button-1>", lambda e, idx=c: self.select_project(idx))
+                    
+                    # Store both labels as a tuple (same as project browser)
+                    self.project_labels.append((proj_name, proj_meta))
                 
-                # Row 1, Column 1: Project button 1
-                elif r == 1 and c == 1:
-                    btn = self._create_project_button(cell, 1)
-                    self.project_buttons.append(btn)
+                # Row 5: Project cells 4-7 (exact match to project browser)
+                elif r == 5:
+                    # Create a container frame for name + metadata
+                    proj_container = tk.Frame(cell, bg="black", bd=0, highlightthickness=0)
+                    proj_container.pack(fill="both", expand=True, padx=5, pady=5)
+                    proj_container.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx+4))
+                    
+                    # Project name label (big font, left-aligned)
+                    proj_name = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#ffffff",
+                        anchor="w", padx=10, pady=5, bd=0, highlightthickness=0,
+                        font=self.app.fonts.big,
+                        cursor="hand2",
+                        wraplength=270,
+                        justify="left"
+                    )
+                    proj_name.pack(fill="x", anchor="nw")
+                    proj_name.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx+4))
+                    
+                    # Metadata label (metadata font, grey, left-aligned)
+                    proj_meta = tk.Label(
+                        proj_container, text="",
+                        bg="black", fg="#606060",
+                        anchor="w", padx=10, pady=5, bd=0, highlightthickness=0,
+                        font=self.app.fonts.metadata,
+                        cursor="hand2",
+                        wraplength=250,
+                        justify="left"
+                    )
+                    proj_meta.pack(fill="x", anchor="nw")
+                    proj_meta.bind("<Button-1>", lambda e, idx=c+4: self.select_project(idx+4))
+                    
+                    # Store both labels as a tuple (same as project browser)
+                    self.project_labels.append((proj_name, proj_meta))
                 
-                # Row 5: Project buttons 2 and 3
-                elif r == 5 and c == 0:
-                    btn = self._create_project_button(cell, 2)
-                    self.project_buttons.append(btn)
-                
-                elif r == 5 and c == 1:
-                    btn = self._create_project_button(cell, 3)
-                    self.project_buttons.append(btn)
-                
-                # Row 8: Page indicator (centered)
+                # Row 8: Page indicator (matches project browser)
                 elif r == 8:
                     if c == 0:
-                        # Page label spanning columns 0-7
                         self.page_label = tk.Label(
                             row_frame,
-                            text="",
-                            font=self.app.fonts.status,
-                            bg="black", fg="#404040",
+                            text="0/0",
+                            font=self.app.fonts.small,
+                            bg="black", fg="#606060",
                             anchor="center"
                         )
                         self.page_label.grid(row=0, column=0, columnspan=8, sticky="nsew")
                 
-                # Row 9: Navigation buttons
+                # Row 9: Navigation buttons (PREV/NEXT like project browser)
                 elif r == 9:
                     if c == 0:
-                        # UP button
-                        up_btn = tk.Label(
-                            cell, text="UP",
+                        # PREV button
+                        self.prev_button = tk.Label(
+                            cell, text="PREV",
                             font=self.app.fonts.button,
-                            bg="#1a1a1a", fg="#ffffff",
+                            bg="black", fg="#ffffff",
                             cursor="hand2", bd=0, relief="flat"
                         )
-                        up_btn.bind("<Button-1>", lambda e: self.page_up())
-                        up_btn.pack(fill="both", expand=True, padx=20, pady=10)
+                        self.prev_button.bind("<Button-1>", lambda e: self.prev_page())
+                        self.prev_button.pack(fill="both", expand=True, padx=20, pady=10)
                     
                     elif c == 1:
-                        # DOWN button
-                        down_btn = tk.Label(
-                            cell, text="DOWN",
+                        # NEXT button
+                        self.next_button = tk.Label(
+                            cell, text="NEXT",
                             font=self.app.fonts.button,
-                            bg="#1a1a1a", fg="#ffffff",
+                            bg="black", fg="#ffffff",
                             cursor="hand2", bd=0, relief="flat"
                         )
-                        down_btn.bind("<Button-1>", lambda e: self.page_down())
-                        down_btn.pack(fill="both", expand=True, padx=20, pady=10)
+                        self.next_button.bind("<Button-1>", lambda e: self.next_page())
+                        self.next_button.pack(fill="both", expand=True, padx=20, pady=10)
                 
-                # Row 10: Action buttons
+                # Row 10: Action button (IMPORT)
                 elif r == 10:
                     if c == 0:
                         # IMPORT button
                         self.import_button = tk.Label(
                             cell, text="IMPORT",
                             font=self.app.fonts.button,
-                            bg="#2c2c2c", fg="#808080",
+                            bg="black", fg="#303030",  # Disabled by default
                             cursor="hand2", bd=0, relief="flat"
                         )
                         self.import_button.bind("<Button-1>", lambda e: self.import_project())
@@ -176,23 +225,7 @@ class USBBrowserScreen(tk.Frame):
             
             self.cell_frames.append(row_cells)
     
-    def _create_project_button(self, parent, index):
-        """Create a project selection button"""
-        btn = tk.Label(
-            parent, text="",
-            font=self.app.fonts.big,
-            bg="#000000", fg="#606060",
-            cursor="hand2", bd=0, relief="flat", padx=20, pady=20
-        )
-        
-        def on_click(e):
-            self.select_project(index)
-        
-        btn.bind("<Button-1>", on_click)
-        btn.pack(fill="both", expand=True)
-        return btn
-    
-    def on_menu_clicked(self):
+    def go_home(self):
         """Return to control panel"""
         self.app.show_screen('control')
     
@@ -202,9 +235,10 @@ class USBBrowserScreen(tk.Frame):
         self.update_display()
     
     def scan_usb(self):
-        """Scan USB mount points for projects (like preset browser)"""
+        """Scan USB mount points for projects (EXACTLY like preset browser scans presets)"""
         self.usb_path = None
         self.projects = []
+        self.selected_project_index = None
         
         # On Patchbox OS, USB sticks mount at /media/patch/[USB-NAME]/
         # Check /media/patch/ for subdirectories (each is a mount)
@@ -238,6 +272,8 @@ class USBBrowserScreen(tk.Frame):
         
         if not self.usb_path:
             self.update_status("NO USB DETECTED", error=True)
+            self.current_page = 0
+            self.total_pages = 0
             return
         
         print(f"Scanning USB: {self.usb_path}")
@@ -281,109 +317,165 @@ class USBBrowserScreen(tk.Frame):
                         })
                     else:
                         print(f"  ✗ No main.pd in {item}")
-                        # Folder exists but no main.pd
+                        # Folder exists but no main.pd - show with warning
                         self.projects.append({
-                            'name': item,
+                            'name': item + " (!)",  # Add warning suffix
                             'path': item_path,
                             'has_main': False
                         })
             
+            # Calculate pages (like project browser)
             if self.projects:
                 valid_count = sum(1 for p in self.projects if p['has_main'])
+                self.total_pages = (len(self.projects) + PROJECTS_PER_PAGE - 1) // PROJECTS_PER_PAGE
                 self.update_status(f"FOUND {valid_count} PROJECT(S)")
                 print(f"Found {valid_count} valid projects (with main.pd)")
             else:
+                self.total_pages = 0
                 self.update_status("NO PROJECTS ON USB", error=True)
                 print("No project folders found on USB")
+            
+            # Reset to first page
+            self.current_page = 0
         
         except Exception as e:
             print(f"Error scanning USB: {e}")
             import traceback
             traceback.print_exc()
             self.update_status("USB READ ERROR", error=True)
+            self.projects = []
+            self.current_page = 0
+            self.total_pages = 0
     
     def update_display(self):
-        """Update project list display"""
-        start_idx = self.page * self.projects_per_page
-        end_idx = start_idx + self.projects_per_page
-        page_projects = self.projects[start_idx:end_idx]
+        """Update project list display (EXACT match to project browser)"""
+        # Calculate start and end indices for current page
+        start_idx = self.current_page * PROJECTS_PER_PAGE
+        end_idx = min(start_idx + PROJECTS_PER_PAGE, len(self.projects))
         
-        # Update project buttons
-        for i, btn in enumerate(self.project_buttons):
-            if i < len(page_projects):
-                project = page_projects[i]
-                name = project['name']
+        # Update page label
+        if self.page_label:
+            page_display = f"{self.current_page + 1}/{self.total_pages}" if self.total_pages > 0 else "0/0"
+            self.page_label.config(text=page_display)
+        
+        # Update each project label (8 projects per page)
+        for i in range(PROJECTS_PER_PAGE):
+            project_idx = start_idx + i
+            
+            # Get the label tuple (name_label, meta_label)
+            name_label, meta_label = self.project_labels[i]
+            
+            # Get parent container for background styling
+            container = name_label.master
+            
+            if project_idx < end_idx:
+                # Show project
+                project = self.projects[project_idx]
+                display_name = project['name']
                 
-                # Show warning if no main.pd
-                if not project['has_main']:
-                    name += " (NO MAIN.PD)"
+                # Metadata: show "from USB" indicator
+                meta_text = "from USB"
                 
-                btn.config(text=name)
+                # Determine if selected
+                is_selected = (self.selected_project_index == project_idx)
                 
-                # Highlight if selected
-                global_idx = start_idx + i
-                if global_idx == self.selected_project_index:
-                    btn.config(bg="#2c2c2c", fg="#ffffff")
+                # Update name label and container background (EXACT match to project browser)
+                if is_selected:
+                    # Selected: yellow text, dark grey background
+                    name_label.config(
+                        text=display_name,
+                        fg="#ffff00",  # Yellow (exactly like project browser)
+                        bg="#1a1a1a",  # Darker grey background
+                        font=self.app.fonts.big
+                    )
+                    # Dark grey background on container and metadata
+                    container.config(bg="#1a1a1a", highlightthickness=0)
+                    meta_label.config(bg="#1a1a1a")  # Match container background
                 else:
-                    btn.config(bg="#000000", fg="#606060")
+                    # Unselected: white text, black background
+                    name_label.config(
+                        text=display_name,
+                        fg="#ffffff",  # White
+                        bg="black",
+                        font=self.app.fonts.big
+                    )
+                    # Black background
+                    container.config(bg="black", highlightthickness=0)
+                    meta_label.config(bg="black")
+                
+                # Update metadata text (always grey text)
+                meta_label.config(text=meta_text, fg="#606060")
+                
             else:
-                # Empty slot
-                btn.config(text="", bg="#000000")
+                # Empty cell
+                name_label.config(text="", fg="#606060", bg="black", font=self.app.fonts.big)
+                meta_label.config(text="", fg="#606060", bg="black")
+                container.config(bg="black", highlightthickness=0)
         
-        # Update page indicator
-        total_pages = (len(self.projects) + self.projects_per_page - 1) // self.projects_per_page
-        if total_pages > 0:
-            current_page = self.page + 1
-            self.page_label.config(text=f"PAGE {current_page} / {total_pages}")
-        else:
-            self.page_label.config(text="")
+        # Update action button
+        self.update_action_button()
         
-        # Update IMPORT button state
-        self.update_import_button()
+        # Update navigation button states
+        self.update_nav_buttons()
     
-    def select_project(self, button_index):
-        """Select a project by button index"""
-        global_index = self.page * self.projects_per_page + button_index
-        
-        if global_index < len(self.projects):
-            if self.selected_project_index == global_index:
-                # Deselect if clicking same project
-                self.selected_project_index = None
+    def update_nav_buttons(self):
+        """Update PREV/NEXT button states (matches project browser)"""
+        if self.prev_button:
+            if self.current_page > 0:
+                self.prev_button.config(fg="#ffffff")  # Enabled (white)
             else:
-                # Select new project
-                self.selected_project_index = global_index
+                self.prev_button.config(fg="#303030")  # Disabled (dark grey)
+        
+        if self.next_button:
+            if self.current_page < self.total_pages - 1:
+                self.next_button.config(fg="#ffffff")  # Enabled (white)
+            else:
+                self.next_button.config(fg="#303030")  # Disabled (dark grey)
+    
+    def update_action_button(self):
+        """Update IMPORT button based on selection (matches project browser)"""
+        if self.selected_project_index is not None:
+            project = self.projects[self.selected_project_index]
+            if project['has_main']:
+                # Valid project - IMPORT enabled (white)
+                if self.import_button:
+                    self.import_button.config(fg="#ffffff")
+            else:
+                # Missing main.pd - IMPORT disabled (dark grey)
+                if self.import_button:
+                    self.import_button.config(fg="#303030")
+        else:
+            # Nothing selected - IMPORT disabled (dark grey)
+            if self.import_button:
+                self.import_button.config(fg="#303030")
+    
+    def select_project(self, display_idx):
+        """Select a project by clicking on it (display_idx is 0-7 on current page)"""
+        start_idx = self.current_page * PROJECTS_PER_PAGE
+        project_idx = start_idx + display_idx
+        
+        if project_idx < len(self.projects):
+            # Toggle selection (exactly like project browser)
+            if self.selected_project_index == project_idx:
+                self.selected_project_index = None  # Deselect
+            else:
+                self.selected_project_index = project_idx  # Select
             
             self.update_display()
     
-    def page_up(self):
+    def prev_page(self):
         """Go to previous page"""
-        if self.page > 0:
-            self.page -= 1
-            self.selected_project_index = None
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.selected_project_index = None  # Clear selection when changing pages
             self.update_display()
     
-    def page_down(self):
+    def next_page(self):
         """Go to next page"""
-        total_pages = (len(self.projects) + self.projects_per_page - 1) // self.projects_per_page
-        if self.page < total_pages - 1:
-            self.page += 1
-            self.selected_project_index = None
+        if self.current_page < self.total_pages - 1:
+            self.current_page += 1
+            self.selected_project_index = None  # Clear selection when changing pages
             self.update_display()
-    
-    def update_import_button(self):
-        """Update IMPORT button state based on selection"""
-        if self.import_button:
-            if self.selected_project_index is not None:
-                project = self.projects[self.selected_project_index]
-                if project['has_main']:
-                    # Valid project - enable import
-                    self.import_button.config(bg="#cc5500", fg="#ffffff")
-                else:
-                    # No main.pd - disable
-                    self.import_button.config(bg="#2c2c2c", fg="#808080")
-            else:
-                # Nothing selected - disable
-                self.import_button.config(bg="#2c2c2c", fg="#808080")
     
     def import_project(self):
         """Import selected project from USB"""
@@ -397,6 +489,10 @@ class USBBrowserScreen(tk.Frame):
             return
         
         project_name = project['name']
+        # Remove " (!)" suffix if present
+        if project_name.endswith(" (!)"):
+            project_name = project_name[:-4]
+        
         source_path = project['path']
         
         # Show confirmation
@@ -411,7 +507,7 @@ class USBBrowserScreen(tk.Frame):
         )
     
     def do_import(self, project_name, source_path):
-        """Actually perform the import"""
+        """Actually perform the import (copies entire folder)"""
         try:
             # Target directory
             target_dir = os.path.join(self.app.molipe_root, "my_projects")
@@ -429,11 +525,11 @@ class USBBrowserScreen(tk.Frame):
             else:
                 self.update_status(f"IMPORTING '{project_name}'...")
             
-            # Copy project folder
+            # Copy entire project folder (all files and subdirectories)
             shutil.copytree(source_path, target_path)
             
             print(f"Import successful: {project_name}")
-            self.update_status("IMPORT COMPLETE")
+            self.update_status("✓ IMPORTED")
             
             # Return to control panel after brief delay
             self.after(1500, lambda: self.app.show_screen('control'))
@@ -445,8 +541,15 @@ class USBBrowserScreen(tk.Frame):
             self.update_status("IMPORT FAILED", error=True)
     
     def update_status(self, message, error=False):
-        """Update status message"""
+        """Update status message (matches project browser)"""
         if self.status_label:
-            color = "#e74c3c" if error else "#606060"
+            # Choose color based on status (like project browser)
+            if error:
+                color = "#e74c3c"  # Red for errors
+            elif message.startswith("✓"):
+                color = "#27ae60"  # Green for success
+            else:
+                color = "#606060"  # Grey for normal
+            
             self.status_label.config(text=message.upper(), fg=color)
         print(f"USB Browser: {message}")
