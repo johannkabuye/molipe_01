@@ -116,15 +116,15 @@ class ControlScreen(tk.Frame):
                         btn = self._create_big_button(cell, "SHUTDOWN", self.shutdown)
                         btn.pack(fill="both", expand=True)
                 
-                # Row 5 (big font row): SAVE buttons and PREFERENCES
+                # Row 5 (big font row): SAVE, IMPORT, and PREFERENCES
                 elif r == 5:
                     if c == 0:
                         # SAVE button (placeholder)
                         btn = self._create_big_button(cell, "SAVE", self.save_placeholder)
                         btn.pack(fill="both", expand=True)
                     elif c == 1:
-                        # SAVE AS button (placeholder)
-                        btn = self._create_big_button(cell, "SAVE AS", self.save_as_placeholder)
+                        # IMPORT button (from USB)
+                        btn = self._create_big_button(cell, "IMPORT", self.on_import_clicked)
                         btn.pack(fill="both", expand=True)
                     elif c == 3:
                         # PREFERENCES button (below SHUTDOWN)
@@ -191,19 +191,9 @@ class ControlScreen(tk.Frame):
             timeout=10
         )
     
-    def save_as_placeholder(self):
-        """SAVE AS button - placeholder for future functionality"""
-        def on_confirm_save_as():
-            print("SAVE AS clicked (placeholder)")
-            self.update_status("SAVE AS - NOT IMPLEMENTED YET")
-            self.app.show_screen('control')
-        
-        self.app.show_confirmation(
-            message="Save project as new copy?\n\nThis will cause the audio to stop\nbriefly.",
-            on_yes=on_confirm_save_as,
-            return_screen='control',
-            timeout=10
-        )
+    def on_import_clicked(self):
+        """Handle IMPORT button click - go to USB browser"""
+        self.app.show_screen('usb_browser')
     
     def on_show(self):
         """Called when this screen becomes visible"""

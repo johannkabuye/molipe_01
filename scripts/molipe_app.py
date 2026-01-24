@@ -18,6 +18,7 @@ from screen_patch_display import PatchDisplayScreen
 from screen_preferences import PreferencesScreen
 from screen_confirmation import ConfirmationScreen
 from screen_preset_browser import PresetBrowserScreen
+from screen_usb_browser import USBBrowserScreen
 from fonts import FontManager
 from process_manager import ProcessManager
 
@@ -124,6 +125,7 @@ class MolipeApp:
         self.screens['preferences'] = PreferencesScreen(self.root, self)
         self.screens['confirmation'] = ConfirmationScreen(self.root, self)
         self.screens['preset_browser'] = PresetBrowserScreen(self.root, self)
+        self.screens['usb_browser'] = USBBrowserScreen(self.root, self)
     
     def show_screen(self, name):
         """
