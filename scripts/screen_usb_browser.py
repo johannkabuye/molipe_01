@@ -202,47 +202,85 @@ class USBBrowserScreen(tk.Frame):
         self.update_display()
     
     def scan_usb(self):
-        """Scan USB mount points for projects"""
+        """Scan USB mount points for projects (like preset browser)"""
         self.usb_path = None
         self.projects = []
         
-        # Check each mount point
-        for mount_point in USB_MOUNT_POINTS:
-            if os.path.exists(mount_point) and os.path.isdir(mount_point):
-                # Check if it's actually mounted (has content)
-                try:
-                    contents = os.listdir(mount_point)
-                    if contents:
-                        self.usb_path = mount_point
-                        break
-                except PermissionError:
-                    continue
+        # On Patchbox OS, USB sticks mount at /media/patch/[USB-NAME]/
+        # Check /media/patch/ for subdirectories (each is a mount)
+        media_patch = "/media/patch"
+        
+        if os.path.exists(media_patch):
+            try:
+                # List all mounts under /media/patch/
+                mounts = [d for d in os.listdir(media_patch) 
+                         if os.path.isdir(os.path.join(media_patch, d))]
+                
+                if mounts:
+                    # Use first mount found
+                    self.usb_path = os.path.join(media_patch, mounts[0])
+                    print(f"Found USB mount: {self.usb_path}")
+            except PermissionError:
+                pass
+        
+        # Fallback: check other common mount points
+        if not self.usb_path:
+            for mount_point in ["/media/usb", "/mnt/usb"]:
+                if os.path.exists(mount_point) and os.path.isdir(mount_point):
+                    try:
+                        # Check if it has content
+                        if os.listdir(mount_point):
+                            self.usb_path = mount_point
+                            print(f"Found USB at: {self.usb_path}")
+                            break
+                    except PermissionError:
+                        continue
         
         if not self.usb_path:
             self.update_status("NO USB DETECTED", error=True)
             return
         
-        # Scan for project folders on USB
+        print(f"Scanning USB: {self.usb_path}")
+        
+        # Scan USB for project folders (EXACTLY like preset browser)
         try:
-            # Look for my_projects folder on USB, or scan root
+            # Look for my_projects folder first (preferred structure)
             projects_dir = os.path.join(self.usb_path, "my_projects")
-            if not os.path.exists(projects_dir):
-                # If no my_projects folder, scan USB root
-                projects_dir = self.usb_path
             
-            for item in sorted(os.listdir(projects_dir)):
+            # If no my_projects folder, scan USB root
+            if not os.path.exists(projects_dir):
+                projects_dir = self.usb_path
+                print(f"No my_projects folder, scanning root: {projects_dir}")
+            else:
+                print(f"Found my_projects folder: {projects_dir}")
+            
+            # Scan for folders with main.pd (EXACTLY like preset browser lines 281-305)
+            items = sorted(os.listdir(projects_dir))
+            print(f"Found {len(items)} items in {projects_dir}")
+            
+            for item in items:
                 item_path = os.path.join(projects_dir, item)
                 
+                # Skip hidden items
+                if item.startswith('.'):
+                    continue
+                
+                # Only check directories
                 if os.path.isdir(item_path):
-                    # Check if it has main.pd (valid project)
+                    # Check if main.pd exists (EXACTLY like preset browser line 291)
                     main_pd = os.path.join(item_path, "main.pd")
+                    
+                    print(f"Checking folder: {item}")
+                    
                     if os.path.exists(main_pd):
+                        print(f"  ✓ Found main.pd in {item}")
                         self.projects.append({
-                            'name': item,
-                            'path': item_path,
+                            'name': item,           # folder name = project name
+                            'path': item_path,      # path to folder (not main.pd)
                             'has_main': True
                         })
                     else:
+                        print(f"  ✗ No main.pd in {item}")
                         # Folder exists but no main.pd
                         self.projects.append({
                             'name': item,
@@ -251,12 +289,17 @@ class USBBrowserScreen(tk.Frame):
                         })
             
             if self.projects:
-                self.update_status(f"FOUND {len(self.projects)} PROJECT(S)")
+                valid_count = sum(1 for p in self.projects if p['has_main'])
+                self.update_status(f"FOUND {valid_count} PROJECT(S)")
+                print(f"Found {valid_count} valid projects (with main.pd)")
             else:
                 self.update_status("NO PROJECTS ON USB", error=True)
+                print("No project folders found on USB")
         
         except Exception as e:
             print(f"Error scanning USB: {e}")
+            import traceback
+            traceback.print_exc()
             self.update_status("USB READ ERROR", error=True)
     
     def update_display(self):
