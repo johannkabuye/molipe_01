@@ -13,6 +13,36 @@ class ProcessManager:
         self.pd_process = None
         self.current_patch = None
     
+    def wait_for_midi_ready(self, timeout=3):
+        """
+        Wait for MIDI devices to be available in ALSA
+        Returns True if MIDI is ready, False on timeout
+        """
+        start_time = time.time()
+        
+        while (time.time() - start_time) < timeout:
+            try:
+                # Check for ALSA MIDI devices
+                result = subprocess.run(
+                    ['aconnect', '-l'],
+                    capture_output=True,
+                    text=True,
+                    timeout=1
+                )
+                
+                # If we see 'client' entries, MIDI devices are enumerated
+                if 'client' in result.stdout.lower():
+                    print("✓ MIDI devices ready")
+                    return True
+                    
+            except Exception:
+                pass
+            
+            time.sleep(0.2)
+        
+        print("⚠ MIDI timeout (continuing anyway)")
+        return False
+    
     def start_pd(self, patch_path):
         """
         Start Pure Data with project's main.pd
@@ -28,6 +58,10 @@ class ProcessManager:
             # Kill any existing PD processes first
             print(f"Killing existing Pure Data instances...")
             self.stop_pd()
+            
+            # *** Wait for MIDI subsystem to be ready ***
+            print("Checking MIDI subsystem...")
+            self.wait_for_midi_ready(timeout=3)
             
             # Get project info
             project_dir = os.path.dirname(patch_path)
@@ -66,8 +100,8 @@ class ProcessManager:
                     bufsize=1
                 )
                 
-                # Give it a moment to start
-                time.sleep(0.5)
+                # Give it time to fully initialize (especially MIDI)
+                time.sleep(1.5)
                 
                 # Check if it's still running
                 if self.pd_process.poll() is not None:
@@ -147,6 +181,44 @@ class ProcessManager:
         if self.current_patch:
             return self.start_pd(self.current_patch)
         return False
+    
+    def diagnose_midi(self):
+        """Print MIDI device status for debugging"""
+        try:
+            print("\n=== MIDI DIAGNOSTIC ===")
+            
+            # Check ALSA MIDI devices
+            result = subprocess.run(
+                ['aconnect', '-l'],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            print("ALSA MIDI devices:")
+            print(result.stdout if result.stdout else "(none)")
+            
+            # Check JACK MIDI ports (if JACK is running)
+            try:
+                result = subprocess.run(
+                    ['jack_lsp', '-t'],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                midi_ports = [line for line in result.stdout.split('\n') if 'midi' in line.lower()]
+                if midi_ports:
+                    print("\nJACK MIDI ports:")
+                    for port in midi_ports:
+                        print(f"  {port}")
+                else:
+                    print("\nJACK MIDI ports: (none)")
+            except:
+                print("\nJACK: (not available)")
+            
+            print("=== END DIAGNOSTIC ===\n")
+            
+        except Exception as e:
+            print(f"Could not run MIDI diagnostics: {e}")
     
     def cleanup(self):
         """Clean shutdown of all processes"""

@@ -41,7 +41,7 @@
 #X restore 105 166 graph;
 #X obj 214 441 tabwrite~ \$0-right;
 #X obj 100 424 t b b;
-#X obj 280 151 hsl 128 15 0 127 0 1 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 2000 1;
+#X obj 280 151 hsl 128 15 0 127 0 1 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 2300 1;
 #X obj 277 199 t f f;
 #X obj 304 225 s \$0-rec-takenumber-s;
 #X msg 100 531 menusave;
@@ -62,7 +62,7 @@
 #X obj 544 330 pack f f;
 #X msg 544 351 open -bytes 3 ../recorded_wavs/mix_take\$1.wav;
 #X obj 579 1 delay 250;
-#X msg 498 464 open -bytes 3 /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/recorded_wavs/mix_take20.wav;
+#X msg 498 464 open -bytes 3;
 #X obj 509 424 pack f s;
 #X obj 498 383 f;
 #X obj 498 404 t b f;
@@ -70,8 +70,8 @@
 #X obj 935 69 loadbang;
 #X obj 935 88 bng 16 250 50 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000;
 #X floatatom 498 364 5 0 0 0 - - - 0;
-#X msg 508 443 set open -bytes 3 \$2/recorded_wavs/mix_take\$1.wav;
 #X obj 554 405 r patch-path-mother;
+#X msg 508 443 set open -bytes 3;
 #X connect 0 0 8 0;
 #X connect 0 1 2 0;
 #X connect 2 0 3 0;
@@ -125,13 +125,13 @@
 #X connect 54 0 55 0;
 #X connect 56 0 21 0;
 #X connect 57 0 25 0;
-#X connect 58 0 65 0;
+#X connect 58 0 66 0;
 #X connect 59 0 60 0;
 #X connect 60 0 57 0;
 #X connect 60 1 58 0;
 #X connect 62 0 63 0;
 #X connect 63 0 61 0;
 #X connect 64 0 59 0;
-#X connect 65 0 57 0;
-#X connect 66 0 58 1;
+#X connect 65 0 58 1;
+#X connect 66 0 57 0;
 #X coords 0 -1 1 1 175 150 2 100 100;

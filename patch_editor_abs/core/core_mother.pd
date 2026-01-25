@@ -73,7 +73,7 @@
 #X text 726 241 - Scens-Mode einführen? damit zwischen Parametern gefaded werden kann? Dann würde in jeder Text-Datei einfach ein zweiter Faderwert gespeichert werden zwischen denen dann gefaded werden kann.;
 #X text 726 121 ---> hier an den Elektron Scenes orientieren aka für jedes Modul z.B. 6 Spreicherungen ablegen zwischen denen gefaded werden kann...;
 #X restore 105 519 pd TO-DO;
-#X obj 339 87 patch_loader 1;
+#X obj 195 196 patch_loader 1;
 #N canvas 0 25 1073 713 upper-left-menu+manual 0;
 #X msg 36 85 \; pd-quick-guide vis \$1;
 #X obj 36 41 r open-quick-guide!;
