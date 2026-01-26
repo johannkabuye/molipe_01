@@ -567,12 +567,14 @@ class PatchDisplayScreen(tk.Frame):
         self._create_loading_ui()
         self.dots_frame = 0
         self.loading_visible = False
+        self.status_polling_id = None  # Track scheduled status polling
         
         self._start_udp_listener()
         self.after(POLL_INTERVAL_MS, self._drain_and_apply)
         
-        # Start status polling for PD startup
-        self.check_pd_status()
+        # Start status polling for PD startup (will be restarted by on_show)
+        # Don't call it here - let on_show() handle it
+        # self.check_pd_status()
     
     def _init_fonts(self) -> None:
         try:
@@ -1169,37 +1171,42 @@ class PatchDisplayScreen(tk.Frame):
     
     def check_pd_status(self):
         """Poll Pure Data status and update UI accordingly"""
+        # Cancel any existing scheduled callback first
+        if self.status_polling_id:
+            self.after_cancel(self.status_polling_id)
+            self.status_polling_id = None
+        
         try:
             status, message = self.app.pd_manager.get_status()
             
             if status == PDStatus.INITIALIZING_MIDI:
                 # Still initializing MIDI
                 self.show_loading_state(message)
-                self.after(200, self.check_pd_status)  # Check again in 200ms
+                self.status_polling_id = self.after(200, self.check_pd_status)  # Check again in 200ms
                 
             elif status == PDStatus.STARTING:
                 # Pure Data is starting
                 self.show_loading_state(message)
-                self.after(200, self.check_pd_status)  # Check again in 200ms
+                self.status_polling_id = self.after(200, self.check_pd_status)  # Check again in 200ms
                 
             elif status == PDStatus.RUNNING:
                 # Pure Data ready!
                 self.show_normal_gui()
-                # Could poll less frequently to detect crashes
-                # self.after(5000, self.check_pd_status)
+                # Stop polling (don't schedule another check)
                 
             elif status == PDStatus.ERROR:
                 # Error occurred
                 self.show_error_state(message)
+                # Stop polling
                 
             elif status == PDStatus.STOPPED:
                 # Shouldn't happen, but handle it
                 self.show_loading_state("Waiting for Pure Data...")
-                self.after(200, self.check_pd_status)
+                self.status_polling_id = self.after(200, self.check_pd_status)
         except Exception as e:
             print(f"Error checking PD status: {e}")
             # Keep trying
-            self.after(500, self.check_pd_status)
+            self.status_polling_id = self.after(500, self.check_pd_status)
     
     def show_loading_state(self, message):
         """Show loading overlay with status message"""
@@ -1240,12 +1247,16 @@ class PatchDisplayScreen(tk.Frame):
         self.loading_dots_label.pack_forget()
     
     def on_show(self):
-        """Called when this screen becomes visible"""
-        if self.app.pd_manager.is_running():
-            patch_name = os.path.basename(self.app.pd_manager.current_patch or "")
-            print(f"Patch display shown - PD running: {patch_name}")
-        else:
-            print("Patch display shown - PD NOT running")
+        """
+        Called when this screen becomes visible
+        
+        CRITICAL: This restarts status polling every time, ensuring:
+        - First load: Shows loading screen
+        - Second load (via confirmation): Shows loading screen again
+        - Any subsequent load: Shows loading screen
+        """
+        print("Patch display shown - starting/restarting status polling...")
+        self.check_pd_status()  # This cancels existing polling and starts fresh
     
     def update_status(self, message, error=False):
         """Update status (for compatibility)"""
