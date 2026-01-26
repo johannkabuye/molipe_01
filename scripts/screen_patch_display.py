@@ -618,7 +618,7 @@ class PatchDisplayScreen(tk.Frame):
         # Loading title
         self.loading_title = tk.Label(
             self.loading_overlay,
-            text="Connecting...",
+            text="LOADING...",
             font=("Sunflower", 36, "bold"),
             fg="#ffffff",
             bg="#000000"
@@ -635,10 +635,10 @@ class PatchDisplayScreen(tk.Frame):
         )
         self.loading_message.pack()
         
-        # Animated dots
+        # Animated stars
         self.loading_dots_label = tk.Label(
             self.loading_overlay,
-            text="●○○○",
+            text="Starts: ****",
             font=("Sunflower", 24),
             fg="#666666",
             bg="#000000"
@@ -1220,10 +1220,8 @@ class PatchDisplayScreen(tk.Frame):
         # Update message
         self.loading_message.config(text=message)
         
-        # Animate dots
-        dots = ["●○○○", "○●○○", "○○●○", "○○○●"]
-        self.loading_dots_label.config(text=dots[self.dots_frame % 4])
-        self.dots_frame += 1
+        # Animate stars (no animation - just show "Starts: ****")
+        self.loading_dots_label.config(text="Starts: ****")
     
     def show_normal_gui(self):
         """Hide loading overlay, show normal patch display"""
