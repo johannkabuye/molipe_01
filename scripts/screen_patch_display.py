@@ -16,6 +16,20 @@ from dataclasses import dataclass
 import tkinter as tk
 from tkinter import font as tkfont
 
+# Import PDStatus for status polling
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from process_manager import PDStatus
+except ImportError:
+    # Fallback if process_manager not updated yet
+    from enum import Enum
+    class PDStatus(Enum):
+        STOPPED = "stopped"
+        INITIALIZING_MIDI = "initializing_midi"
+        STARTING = "starting"
+        RUNNING = "running"
+        ERROR = "error"
+
 # Configuration
 PROTOCOL_VERSION = "1.0"
 HOST = "0.0.0.0"
@@ -549,8 +563,16 @@ class PatchDisplayScreen(tk.Frame):
         
         self.pending_latest: Dict[Tuple, Any] = {}
         
+        # Loading state UI
+        self._create_loading_ui()
+        self.dots_frame = 0
+        self.loading_visible = False
+        
         self._start_udp_listener()
         self.after(POLL_INTERVAL_MS, self._drain_and_apply)
+        
+        # Start status polling for PD startup
+        self.check_pd_status()
     
     def _init_fonts(self) -> None:
         try:
@@ -585,6 +607,41 @@ class PatchDisplayScreen(tk.Frame):
                 size=SMALL_FONT_PT + HEAD_ROW_BONUS_PT,
                 weight="bold"
             )
+    
+    def _create_loading_ui(self):
+        """Create loading screen overlay"""
+        # Loading overlay (shown during PD startup)
+        self.loading_overlay = tk.Frame(self, bg="#000000")
+        
+        # Loading title
+        self.loading_title = tk.Label(
+            self.loading_overlay,
+            text="Connecting...",
+            font=("Sunflower", 36, "bold"),
+            fg="#ffffff",
+            bg="#000000"
+        )
+        self.loading_title.pack(pady=(200, 20))
+        
+        # Status message
+        self.loading_message = tk.Label(
+            self.loading_overlay,
+            text="Initializing MIDI...",
+            font=("Sunflower", 18),
+            fg="#888888",
+            bg="#000000"
+        )
+        self.loading_message.pack()
+        
+        # Animated dots
+        self.loading_dots_label = tk.Label(
+            self.loading_overlay,
+            text="●○○○",
+            font=("Sunflower", 24),
+            fg="#666666",
+            bg="#000000"
+        )
+        self.loading_dots_label.pack(pady=20)
     
     def _init_caches(self) -> None:
         self.last_text = [[None] * self.cols_per_row[r] for r in range(self.rows)]
@@ -1109,6 +1166,78 @@ class PatchDisplayScreen(tk.Frame):
         """MENU button pressed - return to control panel"""
         print("MENU clicked - returning to control panel")
         self.app.show_screen('control')
+    
+    def check_pd_status(self):
+        """Poll Pure Data status and update UI accordingly"""
+        try:
+            status, message = self.app.pd_manager.get_status()
+            
+            if status == PDStatus.INITIALIZING_MIDI:
+                # Still initializing MIDI
+                self.show_loading_state(message)
+                self.after(200, self.check_pd_status)  # Check again in 200ms
+                
+            elif status == PDStatus.STARTING:
+                # Pure Data is starting
+                self.show_loading_state(message)
+                self.after(200, self.check_pd_status)  # Check again in 200ms
+                
+            elif status == PDStatus.RUNNING:
+                # Pure Data ready!
+                self.show_normal_gui()
+                # Could poll less frequently to detect crashes
+                # self.after(5000, self.check_pd_status)
+                
+            elif status == PDStatus.ERROR:
+                # Error occurred
+                self.show_error_state(message)
+                
+            elif status == PDStatus.STOPPED:
+                # Shouldn't happen, but handle it
+                self.show_loading_state("Waiting for Pure Data...")
+                self.after(200, self.check_pd_status)
+        except Exception as e:
+            print(f"Error checking PD status: {e}")
+            # Keep trying
+            self.after(500, self.check_pd_status)
+    
+    def show_loading_state(self, message):
+        """Show loading overlay with status message"""
+        if not self.loading_visible:
+            # Hide normal UI
+            self.container.pack_forget()
+            # Show loading overlay
+            self.loading_overlay.pack(fill="both", expand=True)
+            self.loading_visible = True
+        
+        # Update message
+        self.loading_message.config(text=message)
+        
+        # Animate dots
+        dots = ["●○○○", "○●○○", "○○●○", "○○○●"]
+        self.loading_dots_label.config(text=dots[self.dots_frame % 4])
+        self.dots_frame += 1
+    
+    def show_normal_gui(self):
+        """Hide loading overlay, show normal patch display"""
+        if self.loading_visible:
+            # Hide loading overlay
+            self.loading_overlay.pack_forget()
+            # Show normal UI
+            self.container.pack(fill="both", expand=True)
+            self.loading_visible = False
+            print("✓ Patch display ready - PD running!")
+    
+    def show_error_state(self, error_message):
+        """Show error in loading overlay"""
+        if not self.loading_visible:
+            self.container.pack_forget()
+            self.loading_overlay.pack(fill="both", expand=True)
+            self.loading_visible = True
+        
+        self.loading_title.config(text="Connection Error", fg="#ff4444")
+        self.loading_message.config(text=error_message)
+        self.loading_dots_label.pack_forget()
     
     def on_show(self):
         """Called when this screen becomes visible"""

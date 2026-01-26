@@ -1,25 +1,41 @@
 """
-Process manager for Pure Data - Simplified for integrated main.pd
+Process manager for Pure Data - Threaded version for non-blocking GUI
 """
 import subprocess
 import os
 import sys
 import time
+import threading
+from enum import Enum
+
+class PDStatus(Enum):
+    """Pure Data process status"""
+    STOPPED = "stopped"
+    INITIALIZING_MIDI = "initializing_midi"
+    STARTING = "starting"
+    RUNNING = "running"
+    ERROR = "error"
 
 class ProcessManager:
-    """Manages Pure Data process lifecycle"""
+    """Manages Pure Data process lifecycle with non-blocking startup"""
     
     def __init__(self):
         self.pd_process = None
         self.current_patch = None
+        self.status = PDStatus.STOPPED
+        self.status_message = ""
+        self.startup_thread = None
+    
+    def get_status(self):
+        """
+        Get current status for GUI display
+        Returns: (PDStatus, message_string)
+        """
+        return (self.status, self.status_message)
     
     def ensure_jack_midi_bridge(self):
-        """
-        Ensure JACK MIDI bridge (a2jmidid) is running
-        This is critical on Patchbox OS for MIDI to work
-        """
+        """Ensure JACK MIDI bridge (a2jmidid) is running"""
         try:
-            # Check if a2jmidid is already running
             result = subprocess.run(
                 ['pgrep', '-f', 'a2jmidid'],
                 capture_output=True
@@ -29,18 +45,15 @@ class ProcessManager:
                 print("✓ JACK MIDI bridge already running")
                 return True
             
-            # Not running - start it
             print("Starting JACK MIDI bridge (a2jmidid)...")
             subprocess.Popen(
-                ['a2jmidid', '-e'],  # -e = export hardware MIDI ports
+                ['a2jmidid', '-e'],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
             
-            # Give it time to start
             time.sleep(1.0)
             
-            # Verify it started
             result = subprocess.run(
                 ['pgrep', '-f', 'a2jmidid'],
                 capture_output=True
@@ -58,17 +71,13 @@ class ProcessManager:
             return False
     
     def wait_for_jack_midi_ports(self, timeout=5):
-        """
-        Wait for JACK MIDI ports to be available
-        This is more reliable than checking ALSA alone
-        """
+        """Wait for JACK MIDI ports to be available"""
         start_time = time.time()
         
         print("Waiting for JACK MIDI ports...")
         
         while (time.time() - start_time) < timeout:
             try:
-                # Check for JACK MIDI ports
                 result = subprocess.run(
                     ['jack_lsp'],
                     capture_output=True,
@@ -76,7 +85,6 @@ class ProcessManager:
                     timeout=1
                 )
                 
-                # Look for 'midi' in port names
                 if 'midi' in result.stdout.lower():
                     print("✓ JACK MIDI ports available")
                     return True
@@ -90,15 +98,11 @@ class ProcessManager:
         return False
     
     def wait_for_midi_ready(self, timeout=3):
-        """
-        Deprecated - use ensure_jack_midi_bridge + wait_for_jack_midi_ports
-        Kept for compatibility
-        """
+        """Wait for ALSA MIDI devices to be available"""
         start_time = time.time()
         
         while (time.time() - start_time) < timeout:
             try:
-                # Check for ALSA MIDI devices
                 result = subprocess.run(
                     ['aconnect', '-l'],
                     capture_output=True,
@@ -106,7 +110,6 @@ class ProcessManager:
                     timeout=1
                 )
                 
-                # If we see 'client' entries, MIDI devices are enumerated
                 if 'client' in result.stdout.lower():
                     print("✓ ALSA MIDI devices ready")
                     return True
@@ -119,69 +122,64 @@ class ProcessManager:
         print("⚠ ALSA MIDI timeout (continuing anyway)")
         return False
     
-    def start_pd(self, patch_path):
+    def _startup_worker(self, patch_path):
         """
-        Start Pure Data with project's main.pd
-        (mother.pd functionality is now integrated into main.pd)
-        
-        Args:
-            patch_path: Full path to project's main.pd file
-        
-        Returns:
-            True if successful, False otherwise
+        Background worker thread for PD startup
+        This runs the MIDI initialization and PD startup without blocking the GUI
         """
         try:
-            # Kill any existing PD processes first
-            print(f"Killing existing Pure Data instances...")
+            # Step 1: Kill existing PD
+            self.status = PDStatus.INITIALIZING_MIDI
+            self.status_message = "Stopping previous instance..."
+            print("Killing existing Pure Data instances...")
             self.stop_pd()
             
-            # *** ROBUST MIDI INITIALIZATION SEQUENCE ***
+            # Step 2: MIDI initialization sequence
             print("\n=== MIDI Initialization ===")
             
-            # Step 1: Ensure JACK MIDI bridge is running
+            self.status_message = "Starting MIDI bridge..."
             self.ensure_jack_midi_bridge()
             
-            # Step 2: Wait for ALSA MIDI devices
+            self.status_message = "Checking ALSA MIDI..."
             self.wait_for_midi_ready(timeout=3)
             
-            # Step 3: Wait for JACK MIDI ports (most important)
+            self.status_message = "Waiting for JACK MIDI..."
             self.wait_for_jack_midi_ports(timeout=5)
             
-            # Step 4: Extra safety delay
-            print("Additional MIDI stabilization delay...")
+            self.status_message = "MIDI stabilizing..."
             time.sleep(1.0)
             
             print("=== MIDI Ready ===\n")
             
-            # Get project info
+            # Step 3: Start Pure Data
+            self.status = PDStatus.STARTING
+            self.status_message = "Starting Pure Data..."
+            
             project_dir = os.path.dirname(patch_path)
             project_patch = os.path.basename(patch_path)
             
-            # Verify patch exists
             if not os.path.exists(patch_path):
                 print(f"ERROR: Patch not found: {patch_path}")
-                return False
+                self.status = PDStatus.ERROR
+                self.status_message = "Patch file not found"
+                return
             
             print(f"Starting Pure Data with:")
             print(f"  - project: {project_patch}")
             print(f"  - directory: {project_dir}")
             
-            # Build command based on platform
             if sys.platform.startswith("linux"):
-                # Linux - Open project's main.pd with 8 audio outputs
-                # puredata -nogui -send ";pd dsp 1" -outchannels 8 /path/to/project/main.pd
                 cmd = [
                     'puredata',
-                    '-stderr',              # Show errors
-                    '-nogui',               # No GUI
-                    '-send', ';pd dsp 1',   # Enable audio DSP
-                    '-outchannels', '8',    # 8 audio outputs (HiFiBerry HAT)
-                    patch_path              # Project's main.pd (full path)
+                    '-stderr',
+                    '-nogui',
+                    '-send', ';pd dsp 1',
+                    '-outchannels', '8',
+                    patch_path
                 ]
                 
                 print(f"Command: {' '.join(cmd)}")
                 
-                # Start PD
                 self.pd_process = subprocess.Popen(
                     cmd,
                     stderr=subprocess.PIPE,
@@ -190,22 +188,25 @@ class ProcessManager:
                     bufsize=1
                 )
                 
-                # Give Pure Data time to fully initialize MIDI
+                # Give Pure Data time to initialize MIDI
+                self.status_message = "Pure Data initializing..."
                 print("Waiting for Pure Data MIDI initialization...")
-                time.sleep(3.0)  # Increased from 1.5s - MIDI needs time!
+                time.sleep(3.0)
                 
-                # Check if it's still running
+                # Check if still running
                 if self.pd_process.poll() is not None:
-                    # Process died immediately
                     print("ERROR: Pure Data process died immediately!")
                     stderr_output = self.pd_process.stderr.read()
                     print(f"Error output: {stderr_output}")
-                    return False
+                    self.status = PDStatus.ERROR
+                    self.status_message = "Pure Data crashed"
+                    return
                 
                 print(f"Pure Data started! PID: {self.pd_process.pid}")
                 print(f"  - {project_patch} loaded")
                 
-                # Final verification: Check MIDI is still available
+                # Final MIDI verification
+                self.status_message = "Verifying MIDI..."
                 print("\nFinal MIDI verification...")
                 try:
                     result = subprocess.run(
@@ -218,44 +219,81 @@ class ProcessManager:
                         print("✓ MIDI confirmed available for Pure Data")
                     else:
                         print("⚠ WARNING: JACK MIDI ports not found after PD start!")
-                        print("⚠ If MIDI doesn't work, restart the project.")
                 except:
-                    print("⚠ Could not verify MIDI (JACK not responding)")
+                    print("⚠ Could not verify MIDI")
                 
             else:
-                # macOS - mock for testing
-                print(f"[MOCK PD] Would start Pure Data with:")
-                print(f"  - project: {patch_path}")
+                # macOS mock
+                print(f"[MOCK PD] Would start Pure Data with: {patch_path}")
                 self.pd_process = subprocess.Popen(
                     ['sleep', '9999'],
                     stderr=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL
                 )
             
+            # Success!
             self.current_patch = patch_path
-            return True
+            self.status = PDStatus.RUNNING
+            self.status_message = "Connected"
+            print("\n✓ Pure Data ready!\n")
             
-        except FileNotFoundError as e:
-            print(f"ERROR: puredata command not found! Is Pure Data installed?")
-            print(f"Install with: sudo apt-get install puredata")
-            return False
+        except FileNotFoundError:
+            print(f"ERROR: puredata command not found!")
+            self.status = PDStatus.ERROR
+            self.status_message = "Pure Data not installed"
         except Exception as e:
             print(f"Error starting PD: {e}")
             import traceback
             traceback.print_exc()
-            return False
+            self.status = PDStatus.ERROR
+            self.status_message = f"Error: {str(e)}"
+    
+    def start_pd_async(self, patch_path):
+        """
+        Start Pure Data asynchronously (non-blocking)
+        
+        This returns immediately and runs the startup in a background thread.
+        Check status with get_status() to see when it's ready.
+        
+        Args:
+            patch_path: Full path to project's main.pd file
+        
+        Returns:
+            True (always, since it's async)
+        """
+        # If already starting, don't start again
+        if self.status == PDStatus.INITIALIZING_MIDI or self.status == PDStatus.STARTING:
+            print("Startup already in progress, ignoring duplicate request")
+            return True
+        
+        # Start background thread
+        self.startup_thread = threading.Thread(
+            target=self._startup_worker,
+            args=(patch_path,),
+            daemon=True
+        )
+        self.startup_thread.start()
+        
+        return True
+    
+    def start_pd(self, patch_path):
+        """
+        DEPRECATED: Blocking version (kept for compatibility)
+        Use start_pd_async() for non-blocking startup
+        """
+        print("WARNING: Using blocking start_pd(). Consider start_pd_async() instead.")
+        self._startup_worker(patch_path)
+        return self.status == PDStatus.RUNNING
     
     def stop_pd(self):
         """Stop Pure Data process"""
         try:
-            # Kill all Pure Data instances (Patchbox style: killall puredata)
             subprocess.run(
                 ['killall', 'puredata'],
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL
             )
             
-            # Give it a moment
             time.sleep(0.2)
             
             self.pd_process = None
@@ -269,11 +307,9 @@ class ProcessManager:
         if self.pd_process is None:
             return False
         
-        # Check if process is still alive
         poll = self.pd_process.poll()
         
         if poll is not None:
-            # Process died - print any error output
             try:
                 stderr_output = self.pd_process.stderr.read()
                 if stderr_output:
@@ -285,9 +321,9 @@ class ProcessManager:
         return True
     
     def restart_pd(self):
-        """Restart Pure Data with current patch"""
+        """Restart Pure Data with current patch (async)"""
         if self.current_patch:
-            return self.start_pd(self.current_patch)
+            return self.start_pd_async(self.current_patch)
         return False
     
     def diagnose_midi(self):
@@ -305,7 +341,7 @@ class ProcessManager:
             print("ALSA MIDI devices:")
             print(result.stdout if result.stdout else "(none)")
             
-            # Check JACK MIDI ports (if JACK is running)
+            # Check JACK MIDI ports
             try:
                 result = subprocess.run(
                     ['jack_lsp', '-t'],

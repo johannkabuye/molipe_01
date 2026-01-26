@@ -669,14 +669,12 @@ class BrowserScreen(tk.Frame):
                 project_name = project_name[:-4]
             self.update_project_timestamp(project_name)
             
-            # Start Pure Data
+            # Start Pure Data (async - returns immediately)
             print(f"Loading: {selected_project['name']}")
+            self.app.pd_manager.start_pd_async(main_pd_path)
             
-            if self.app.pd_manager.start_pd(main_pd_path):
-                # Switch to patch display
-                self.after(500, lambda: self.app.show_screen('patch'))
-            else:
-                print("Failed to load project")
+            # Switch to patch display immediately (will show loading state)
+            self.app.show_screen('patch')
         
         # CHECK IF PATCH IS ALREADY RUNNING
         if self.app.pd_manager.is_running():
