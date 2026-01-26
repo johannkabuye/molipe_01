@@ -479,39 +479,61 @@ class PresetBrowserScreen(tk.Frame):
         preset_name = selected_preset['folder_name']
         
         print(f"Starting from preset: {preset_name}")
-        self.update_status("STARTING...")
         
-        # Duplicate preset to my_projects
-        presets_dir = os.path.join(self.app.molipe_root, "preset_projects")
-        my_projects_dir = os.path.join(self.app.molipe_root, "my_projects")
-        
+        # Define the actual start logic
         def do_start():
-            # Use duplicate_project to copy preset to my_projects
-            # Note: We need to modify duplicate_project to accept target_dir
-            success, new_name = duplicate_project(presets_dir, preset_name, target_dir=my_projects_dir)
+            self.update_status("STARTING...")
             
-            if success:
-                print(f"✓ Created new project: {new_name}")
-                self.after(0, lambda: self.update_status("✓ CREATED"))
+            # Duplicate preset to my_projects
+            presets_dir = os.path.join(self.app.molipe_root, "preset_projects")
+            my_projects_dir = os.path.join(self.app.molipe_root, "my_projects")
+            
+            def do_duplicate_and_load():
+                # Use duplicate_project to copy preset to my_projects
+                success, new_name = duplicate_project(presets_dir, preset_name, target_dir=my_projects_dir)
                 
-                # IMPORTANT: Update timestamp for the new project
-                self.after(0, lambda: self.update_project_timestamp(new_name))
-                
-                # Load the new project (async - returns immediately)
-                new_project_path = os.path.join(my_projects_dir, new_name, "main.pd")
-                
-                if os.path.exists(new_project_path):
-                    self.app.pd_manager.start_pd_async(new_project_path)
-                    # Switch to patch display immediately (will show loading screen)
-                    self.after(0, lambda: self.app.show_screen('patch'))
+                if success:
+                    print(f"✓ Created new project: {new_name}")
+                    self.after(0, lambda: self.update_status("✓ CREATED"))
+                    
+                    # IMPORTANT: Update timestamp for the new project
+                    self.after(0, lambda: self.update_project_timestamp(new_name))
+                    
+                    # Load the new project (async - returns immediately)
+                    new_project_path = os.path.join(my_projects_dir, new_name, "main.pd")
+                    
+                    if os.path.exists(new_project_path):
+                        self.app.pd_manager.start_pd_async(new_project_path)
+                        # Switch to patch display immediately (will show loading screen)
+                        self.after(0, lambda: self.app.show_screen('patch'))
+                    else:
+                        print("Failed to find new project main.pd")
+                        self.after(0, lambda: self.update_status("LOAD FAILED"))
                 else:
-                    print("Failed to find new project main.pd")
-                    self.after(0, lambda: self.update_status("LOAD FAILED"))
-            else:
-                print(f"✗ Start failed: {new_name}")
-                self.after(0, lambda: self.update_status("START FAILED"))
+                    print(f"✗ Start failed: {new_name}")
+                    self.after(0, lambda: self.update_status("START FAILED"))
+            
+            threading.Thread(target=do_duplicate_and_load, daemon=True).start()
         
-        threading.Thread(target=do_start, daemon=True).start()
+        # CHECK IF PATCH IS ALREADY RUNNING
+        if self.app.pd_manager.is_running():
+            # Get current patch name
+            current_patch = self.app.pd_manager.current_patch
+            if current_patch:
+                current_name = os.path.basename(os.path.dirname(current_patch))
+            else:
+                current_name = "current patch"
+            
+            # Show confirmation screen
+            self.app.show_confirmation(
+                message=f"Close '{current_name}' and start\n'{preset_name}'?",
+                on_yes=do_start,
+                return_screen='preset_browser',
+                timeout=10
+            )
+        else:
+            # No patch running, just start directly
+            do_start()
     
     def update_status(self, message, duration=3000):
         """Update status label with message (matches project browser)"""
