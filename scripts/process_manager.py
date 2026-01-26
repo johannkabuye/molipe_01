@@ -35,48 +35,27 @@ class ProcessManager:
     
     def ensure_jack_midi_bridge(self):
         """
-        Ensure JACK MIDI bridge (a2jmidid) is running with fresh connections
-        CRITICAL: Always restart to clear stale MIDI connections between projects
+        Check that JACK MIDI bridge is running
+        DON'T restart it - amidiauto service manages this on Patchbox OS
         """
         try:
-            # ALWAYS kill existing a2jmidid first (even if running)
-            # This clears stale MIDI connections from previous project
-            print("Restarting JACK MIDI bridge for fresh connections...")
-            subprocess.run(
-                ['killall', 'a2jmidid'],
-                stderr=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL
-            )
-            
-            # Wait for it to fully die
-            time.sleep(0.5)
-            
-            # Start fresh a2jmidid
-            print("Starting JACK MIDI bridge (a2jmidid)...")
-            subprocess.Popen(
-                ['a2jmidid', '-e'],  # -e = export hardware MIDI ports
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-            
-            # Give it time to start and enumerate devices
-            time.sleep(1.5)  # Increased from 1.0s
-            
-            # Verify it started
+            # Just check if a2jmidid is running
             result = subprocess.run(
                 ['pgrep', '-f', 'a2jmidid'],
                 capture_output=True
             )
             
             if result.returncode == 0:
-                print("✓ JACK MIDI bridge started with fresh connections")
+                print("✓ JACK MIDI bridge running (managed by Patchbox services)")
                 return True
             else:
-                print("⚠ Could not start JACK MIDI bridge")
+                print("⚠ JACK MIDI bridge not running!")
+                print("⚠ Check: systemctl status amidiauto")
+                print("⚠ This service should auto-manage a2jmidid")
                 return False
                 
         except Exception as e:
-            print(f"⚠ Error managing JACK MIDI bridge: {e}")
+            print(f"⚠ Error checking JACK MIDI bridge: {e}")
             return False
     
     def wait_for_jack_midi_ports(self, timeout=5):
@@ -156,7 +135,8 @@ class ProcessManager:
             self.wait_for_jack_midi_ports(timeout=5)
             
             self.status_message = "MIDI stabilizing..."
-            time.sleep(1.0)
+            print("MIDI stabilization (4 seconds like Patchbox)...")
+            time.sleep(4.0)  # Patchbox launch.sh uses 4 seconds
             
             print("=== MIDI Ready ===\n")
             
@@ -295,24 +275,20 @@ class ProcessManager:
         return self.status == PDStatus.RUNNING
     
     def stop_pd(self):
-        """Stop Pure Data process and MIDI bridge"""
+        """Stop Pure Data process (let Patchbox services manage MIDI)"""
         try:
-            # Kill Pure Data
+            # Kill Pure Data only
             subprocess.run(
                 ['killall', 'puredata'],
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL
             )
             
-            # CRITICAL: Also kill a2jmidid to clear stale MIDI connections
-            # This prevents MIDI issues when loading next project
-            subprocess.run(
-                ['killall', 'a2jmidid'],
-                stderr=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL
-            )
+            # DON'T kill a2jmidid!
+            # On Patchbox OS, amidiauto service manages a2jmidid automatically
+            # Killing it causes conflicts with amidiauto
             
-            time.sleep(0.2)
+            time.sleep(0.5)  # Give processes time to stop
             
             self.pd_process = None
             self.current_patch = None
