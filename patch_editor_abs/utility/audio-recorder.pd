@@ -41,7 +41,7 @@
 #X restore 105 166 graph;
 #X obj 214 441 tabwrite~ \$0-right;
 #X obj 100 424 t b b;
-#X obj 280 151 hsl 128 15 0 127 0 1 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 2300 1;
+#X obj 280 151 hsl 128 15 0 127 0 1 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 2500 1;
 #X obj 277 199 t f f;
 #X obj 304 225 s \$0-rec-takenumber-s;
 #X msg 100 531 menusave;
@@ -60,10 +60,10 @@
 #X obj 467 16 r rec/stop-s;
 #X obj 240 50 r rec/stop-s;
 #X obj 544 330 pack f f;
-#X msg 544 351 open -bytes 3 ../recorded_wavs/mix_take\$1.wav;
+#X msg 603 364 open -bytes 3 ../recorded_wavs/mix_take\$1.wav;
 #X obj 579 1 delay 250;
-#X msg 498 464 open -bytes 3;
-#X obj 509 424 pack f s;
+#X msg 498 505 open -bytes 3 ../recordings/25.wav;
+#X obj 525 447 pack f s;
 #X obj 498 383 f;
 #X obj 498 404 t b f;
 #X obj 935 107 s update-path;
@@ -71,7 +71,7 @@
 #X obj 935 88 bng 16 250 50 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000;
 #X floatatom 498 364 5 0 0 0 - - - 0;
 #X obj 554 405 r patch-path-mother;
-#X msg 508 443 set open -bytes 3;
+#X msg 509 473 set open -bytes 3 ../recordings/\$1.wav;
 #X connect 0 0 8 0;
 #X connect 0 1 2 0;
 #X connect 2 0 3 0;
