@@ -34,33 +34,42 @@ class ProcessManager:
         return (self.status, self.status_message)
     
     def ensure_jack_midi_bridge(self):
-        """Ensure JACK MIDI bridge (a2jmidid) is running"""
+        """
+        Ensure JACK MIDI bridge (a2jmidid) is running with fresh connections
+        CRITICAL: Always restart to clear stale MIDI connections between projects
+        """
         try:
-            result = subprocess.run(
-                ['pgrep', '-f', 'a2jmidid'],
-                capture_output=True
+            # ALWAYS kill existing a2jmidid first (even if running)
+            # This clears stale MIDI connections from previous project
+            print("Restarting JACK MIDI bridge for fresh connections...")
+            subprocess.run(
+                ['killall', 'a2jmidid'],
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL
             )
             
-            if result.returncode == 0:
-                print("✓ JACK MIDI bridge already running")
-                return True
+            # Wait for it to fully die
+            time.sleep(0.5)
             
+            # Start fresh a2jmidid
             print("Starting JACK MIDI bridge (a2jmidid)...")
             subprocess.Popen(
-                ['a2jmidid', '-e'],
+                ['a2jmidid', '-e'],  # -e = export hardware MIDI ports
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
             
-            time.sleep(1.0)
+            # Give it time to start and enumerate devices
+            time.sleep(1.5)  # Increased from 1.0s
             
+            # Verify it started
             result = subprocess.run(
                 ['pgrep', '-f', 'a2jmidid'],
                 capture_output=True
             )
             
             if result.returncode == 0:
-                print("✓ JACK MIDI bridge started")
+                print("✓ JACK MIDI bridge started with fresh connections")
                 return True
             else:
                 print("⚠ Could not start JACK MIDI bridge")
@@ -286,10 +295,19 @@ class ProcessManager:
         return self.status == PDStatus.RUNNING
     
     def stop_pd(self):
-        """Stop Pure Data process"""
+        """Stop Pure Data process and MIDI bridge"""
         try:
+            # Kill Pure Data
             subprocess.run(
                 ['killall', 'puredata'],
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL
+            )
+            
+            # CRITICAL: Also kill a2jmidid to clear stale MIDI connections
+            # This prevents MIDI issues when loading next project
+            subprocess.run(
+                ['killall', 'a2jmidid'],
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL
             )
