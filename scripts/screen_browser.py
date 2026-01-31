@@ -446,7 +446,7 @@ class BrowserScreen(tk.Frame):
             self.update_display()
             return
         
-        # Scan for project folders (subfolders with main.pd)
+        # Scan for project folders (must have both main.pd and patch-gui.py)
         try:
             for item in sorted(os.listdir(projects_dir)):
                 item_path = os.path.join(projects_dir, item)
@@ -463,18 +463,32 @@ class BrowserScreen(tk.Frame):
                 if os.path.isdir(item_path):
                     # Check if main.pd exists
                     main_pd = os.path.join(item_path, "main.pd")
+                    patch_gui = os.path.join(item_path, "patch-gui.py")
                     
-                    if os.path.exists(main_pd):
+                    # Valid project needs BOTH main.pd AND patch-gui.py
+                    has_pd = os.path.exists(main_pd)
+                    has_gui = os.path.exists(patch_gui)
+                    
+                    if has_pd and has_gui:
+                        # Valid project
                         self.projects.append({
                             'name': item,
                             'path': main_pd,
+                            'gui_path': patch_gui,
                             'folder_path': item_path
                         })
                     else:
-                        # Show folder but mark as missing main.pd
+                        # Show folder but mark as incomplete
+                        missing = []
+                        if not has_pd:
+                            missing.append("main.pd")
+                        if not has_gui:
+                            missing.append("patch-gui.py")
+                        
                         self.projects.append({
-                            'name': f"{item} (!)",
+                            'name': f"{item} (missing: {', '.join(missing)})",
                             'path': None,
+                            'gui_path': None,
                             'folder_path': item_path
                         })
         except Exception as e:
@@ -664,14 +678,42 @@ class BrowserScreen(tk.Frame):
         def do_load():
             # Update timestamp for this project
             project_name = selected_project['name']
-            # Remove " (!)" suffix if present
-            if project_name.endswith(" (!)"):
-                project_name = project_name[:-4]
+            # Remove " (!)" suffix if present (though this shouldn't happen anymore)
+            if " (missing:" in project_name:
+                project_name = project_name.split(" (missing:")[0]
             self.update_project_timestamp(project_name)
             
             # Start Pure Data (async - returns immediately)
             print(f"Loading: {selected_project['name']}")
             self.app.pd_manager.start_pd_async(main_pd_path)
+            
+            # Dynamically load GUI from project folder
+            gui_path = selected_project['gui_path']
+            if gui_path and os.path.exists(gui_path):
+                try:
+                    # Import the GUI module from project folder
+                    import importlib.util
+                    spec = importlib.util.spec_from_file_location("project_gui", gui_path)
+                    gui_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(gui_module)
+                    
+                    # Destroy old patch screen if it exists
+                    if 'patch' in self.app.screens:
+                        old_screen = self.app.screens['patch']
+                        old_screen.destroy()
+                    
+                    # Create new GUI instance (assumes class is named PatchDisplayScreen)
+                    new_gui = gui_module.PatchDisplayScreen(self.app.root, self.app)
+                    self.app.screens['patch'] = new_gui
+                    
+                    print(f"Loaded custom GUI from: {gui_path}")
+                    
+                except Exception as e:
+                    print(f"Error loading custom GUI: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Fallback to default if custom GUI fails
+                    # (but this shouldn't happen if patch-gui.py is required)
             
             # Switch to patch display immediately (will show loading state)
             self.app.show_screen('patch')

@@ -89,17 +89,9 @@ class ControlScreen(tk.Frame):
                     else:
                         self.patch_button.pack(fill="both", expand=True)
                 
-                # Row 0, Cell 3: Status label (upper right)
+                # Row 0, Cell 3: Empty (status removed - only needed in preferences)
                 elif r == 0 and c == 3:
-                    status_text = "READY" if self.app.has_internet else "OFFLINE MODE"
-                    self.status_label = tk.Label(
-                        cell,
-                        text=status_text,
-                        bg="black", fg="#606060",
-                        anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
-                        font=self.app.fonts.status
-                    )
-                    self.status_label.pack(fill="both", expand=True)
+                    pass  # Empty cell
                 
                 # Row 1 (big font row): Main buttons
                 elif r == 1:
@@ -199,15 +191,6 @@ class ControlScreen(tk.Frame):
         """Called when this screen becomes visible"""
         # Update PATCH button visibility
         self.refresh_button_state()
-        
-        # Update status
-        if self.app.pd_manager.is_running():
-            self.update_status("READY")
-        else:
-            if self.app.has_internet:
-                self.update_status("READY")
-            else:
-                self.update_status("OFFLINE MODE")
     
     def update_status(self, message, error=False):
         """Update status message"""
@@ -247,11 +230,6 @@ class ControlScreen(tk.Frame):
                 if has_internet != self.app.has_internet:
                     self.app.has_internet = has_internet
                     print(f"⚡ GitHub connectivity CHANGED: {'ONLINE' if has_internet else 'OFFLINE'}")
-                    
-                    # Update control panel status (if visible)
-                    if self.app.current_screen == 'control':
-                        status_text = "READY" if has_internet else "OFFLINE MODE"
-                        self.after(0, lambda t=status_text: self.update_status(t))
                     
                     # Update preferences screen UPDATE button AND status label
                     if 'preferences' in self.app.screens:

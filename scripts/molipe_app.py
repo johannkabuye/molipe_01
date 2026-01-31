@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from screen_control import ControlScreen
 from screen_browser import BrowserScreen
-from screen_patch_display import PatchDisplayScreen
+# PatchDisplayScreen is now loaded dynamically from each project's patch-gui.py
 from screen_preferences import PreferencesScreen
 from screen_confirmation import ConfirmationScreen
 from screen_preset_browser import PresetBrowserScreen
@@ -121,7 +121,7 @@ class MolipeApp:
         """Create all screen instances"""
         self.screens['control'] = ControlScreen(self.root, self)
         self.screens['browser'] = BrowserScreen(self.root, self)
-        self.screens['patch'] = PatchDisplayScreen(self.root, self)
+        # 'patch' screen is created dynamically when a project is loaded
         self.screens['preferences'] = PreferencesScreen(self.root, self)
         self.screens['confirmation'] = ConfirmationScreen(self.root, self)
         self.screens['preset_browser'] = PresetBrowserScreen(self.root, self)
