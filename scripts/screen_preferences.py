@@ -162,6 +162,11 @@ class PreferencesScreen(tk.Frame):
         
         # Final connectivity check before showing confirmation
         if not self._check_internet():
+            # Update the app-level flag
+            self.app.has_internet = False
+            # Update button display immediately (turn grey)
+            self._update_button_display()
+            # Show error message
             self.update_status("GITHUB UNREACHABLE", error=True)
             self.after(3000, lambda: self.update_status("PREFERENCES"))
             return
