@@ -219,9 +219,14 @@ class ControlScreen(tk.Frame):
         Used at startup to determine initial connectivity state
         """
         try:
-            socket.create_connection(("github.com", 443), timeout=1)
-            return True
-        except OSError:
+            import socket
+            # Force a new socket connection each time (no caching)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(("github.com", 443))
+            sock.close()
+            return result == 0
+        except Exception:
             return False
     
     def shutdown(self):

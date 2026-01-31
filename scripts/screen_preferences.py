@@ -107,7 +107,10 @@ class PreferencesScreen(tk.Frame):
     def _update_button_display(self):
         """Update the UPDATE button based on current internet connectivity"""
         if not self.update_button_cell:
+            print("Warning: update_button_cell not initialized yet")
             return
+        
+        print(f"Updating UPDATE button: {'WHITE (online)' if self.app.has_internet else 'GREY (offline)'}")
         
         # Clear the cell
         for widget in self.update_button_cell.winfo_children():
@@ -382,15 +385,17 @@ class PreferencesScreen(tk.Frame):
         """
         # Only check if this screen is currently visible
         if self.app.current_screen != 'preferences':
+            print("Connectivity check stopped - not on preferences screen")
             return
         
         # Perform the check
         has_internet = self._check_internet()
+        print(f"Connectivity check: GitHub {'REACHABLE' if has_internet else 'UNREACHABLE'} (was: {'online' if self.app.has_internet else 'offline'})")
         
         # If connectivity changed, update the UPDATE button
         if has_internet != self.app.has_internet:
             self.app.has_internet = has_internet
-            print(f"GitHub connectivity changed: {'ONLINE' if has_internet else 'OFFLINE'}")
+            print(f"âš¡ GitHub connectivity CHANGED: {'ONLINE' if has_internet else 'OFFLINE'}")
             self._update_button_display()
         
         # Schedule next check in 1 second (faster detection)
@@ -411,13 +416,19 @@ class PreferencesScreen(tk.Frame):
             import socket
             # Check GitHub specifically (not just Google DNS)
             # github.com on HTTPS port
-            socket.create_connection(("github.com", 443), timeout=1)
-            return True
-        except OSError:
+            # Force a new socket connection each time (no caching)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(("github.com", 443))
+            sock.close()
+            return result == 0
+        except Exception as e:
+            print(f"GitHub check exception: {e}")
             return False
     
     def on_show(self):
         """Called when this screen becomes visible"""
+        print("Preferences screen shown - starting connectivity monitoring")
         self.update_status("PREFERENCES")
         
         # Start connectivity checking (only while this screen is visible)
