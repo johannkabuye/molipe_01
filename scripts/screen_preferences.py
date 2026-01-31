@@ -19,6 +19,7 @@ class PreferencesScreen(tk.Frame):
         super().__init__(parent, bg="#000000")
         self.app = app
         self.updating = False
+        self.connectivity_check_id = None  # Track connectivity checking
         
         self.rows = DEFAULT_ROWS
         self.cols_per_row = list(COLS_PER_ROW)
@@ -130,6 +131,7 @@ class PreferencesScreen(tk.Frame):
     
     def on_menu_clicked(self):
         """Return to control panel"""
+        self.stop_connectivity_check()
         self.app.show_screen('control')
     
     def update_status(self, message, error=False):
@@ -259,6 +261,46 @@ class PreferencesScreen(tk.Frame):
             timeout=10
         )
     
+    def check_connectivity_while_visible(self):
+        """
+        Check internet connectivity every 2 seconds while preferences screen is visible
+        Only runs when this screen is active - more efficient than constant background checking
+        """
+        # Only check if this screen is currently visible
+        if self.app.current_screen != 'preferences':
+            return
+        
+        # Perform the check
+        has_internet = self._check_internet()
+        
+        # If connectivity changed, rebuild UI to show/hide UPDATE button
+        if has_internet != self.app.has_internet:
+            self.app.has_internet = has_internet
+            print(f"Internet connectivity changed: {'ONLINE' if has_internet else 'OFFLINE'}")
+            self._build_ui()
+            self.update_status("PREFERENCES")  # Reset status after rebuild
+        
+        # Schedule next check in 2 seconds
+        self.connectivity_check_id = self.after(2000, self.check_connectivity_while_visible)
+    
+    def stop_connectivity_check(self):
+        """Stop the connectivity checking loop"""
+        if self.connectivity_check_id:
+            self.after_cancel(self.connectivity_check_id)
+            self.connectivity_check_id = None
+    
+    def _check_internet(self):
+        """Check if internet connection is available (uses same method as control panel)"""
+        try:
+            import socket
+            socket.create_connection(("8.8.8.8", 53), timeout=2)
+            return True
+        except OSError:
+            return False
+    
     def on_show(self):
         """Called when this screen becomes visible"""
         self.update_status("PREFERENCES")
+        
+        # Start connectivity checking (only while this screen is visible)
+        self.check_connectivity_while_visible()

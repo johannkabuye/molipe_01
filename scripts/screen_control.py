@@ -32,9 +32,6 @@ class ControlScreen(tk.Frame):
         self.cell_frames = []
         
         self._build_ui()
-        
-        # Start connectivity monitoring
-        self.check_connectivity_periodically()
     
     def _build_ui(self):
         """Build grid-based control panel"""
@@ -223,25 +220,6 @@ class ControlScreen(tk.Frame):
             return True
         except OSError:
             return False
-    
-    def check_connectivity_periodically(self):
-        """Check internet connectivity every 10 seconds and update app-level status"""
-        def check():
-            while True:
-                import time
-                time.sleep(10)
-                has_internet = self.check_internet()
-                if has_internet != self.app.has_internet:
-                    self.app.has_internet = has_internet
-                    # Update UI if needed
-                    if hasattr(self.app, 'browser_screen'):
-                        # Trigger browser button update if something is selected
-                        if self.app.browser_screen.selected_project_index is not None:
-                            self.app.browser_screen.after(0, self.app.browser_screen.update_action_buttons)
-        
-        thread = threading.Thread(target=check, daemon=True)
-        thread.start()
-    
     
     def shutdown(self):
         """Shutdown the system"""
