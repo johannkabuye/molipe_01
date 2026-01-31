@@ -160,6 +160,12 @@ class PreferencesScreen(tk.Frame):
         if self.updating:
             return
         
+        # Final connectivity check before showing confirmation
+        if not self._check_internet():
+            self.update_status("GITHUB UNREACHABLE", error=True)
+            self.after(3000, lambda: self.update_status("PREFERENCES"))
+            return
+        
         def on_confirm_update():
             self.updating = True
             self.update_status("UPDATING...")
@@ -366,7 +372,7 @@ class PreferencesScreen(tk.Frame):
     
     def check_connectivity_while_visible(self):
         """
-        Check internet connectivity every 2 seconds while preferences screen is visible
+        Check GitHub connectivity every 1 second while preferences screen is visible
         Only runs when this screen is active - more efficient than constant background checking
         """
         # Only check if this screen is currently visible
@@ -379,11 +385,11 @@ class PreferencesScreen(tk.Frame):
         # If connectivity changed, update the UPDATE button
         if has_internet != self.app.has_internet:
             self.app.has_internet = has_internet
-            print(f"Internet connectivity changed: {'ONLINE' if has_internet else 'OFFLINE'}")
+            print(f"GitHub connectivity changed: {'ONLINE' if has_internet else 'OFFLINE'}")
             self._update_button_display()
         
-        # Schedule next check in 2 seconds
-        self.connectivity_check_id = self.after(2000, self.check_connectivity_while_visible)
+        # Schedule next check in 1 second (faster detection)
+        self.connectivity_check_id = self.after(1000, self.check_connectivity_while_visible)
     
     def stop_connectivity_check(self):
         """Stop the connectivity checking loop"""
@@ -392,10 +398,15 @@ class PreferencesScreen(tk.Frame):
             self.connectivity_check_id = None
     
     def _check_internet(self):
-        """Check if internet connection is available (uses same method as control panel)"""
+        """
+        Check if GitHub is reachable (not just generic internet)
+        Uses shorter timeout for faster detection when cable is unplugged
+        """
         try:
             import socket
-            socket.create_connection(("8.8.8.8", 53), timeout=2)
+            # Check GitHub specifically (not just Google DNS)
+            # github.com on HTTPS port
+            socket.create_connection(("github.com", 443), timeout=1)
             return True
         except OSError:
             return False

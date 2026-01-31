@@ -214,9 +214,12 @@ class ControlScreen(tk.Frame):
         print(f"Control Panel: {message}")
     
     def check_internet(self):
-        """Check if internet connection is available"""
+        """
+        Check if GitHub is reachable (not just generic internet)
+        Used at startup to determine initial connectivity state
+        """
         try:
-            socket.create_connection(("8.8.8.8", 53), timeout=2)
+            socket.create_connection(("github.com", 443), timeout=1)
             return True
         except OSError:
             return False
