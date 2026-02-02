@@ -9,7 +9,7 @@
 #X obj 1124 134 loadbang;
 #X obj 938 100 t b b;
 #X obj 105 116 bng 10 50 50 0 \$0-clock-in-s \$0-clock-in-r empty 17 7 0 10 #fcfcfc #dc4c90 #000000;
-#X obj 220 128 cnv 5 5 5 empty \$0-instance-num 7 0 0 0 12 #fcfcfc #404040 0;
+#X obj 220 128 cnv 5 5 5 empty \$0-instance-num 3 0 0 0 12 #fcfcfc #404040 0;
 #X obj 134 137 hradio 15 1 0 8 empty \$0-count-seq empty 0 -10 0 12 #fcfcfc #ce2413 #000000 0;
 #X obj 134 159 vsl 15 30 0 127 0 0 \$0-step-edit0 \$0-r-step-edit0 empty 0 -9 0 10 #dfdfdf #000000 #000000 0 1;
 #X obj 149 159 vsl 15 30 0 127 0 0 \$0-step-edit1 \$0-r-step-edit1 empty 0 -9 0 10 #fcfcfc #000000 #000000 0 1;
@@ -1880,7 +1880,7 @@
 #X obj 124 148 r patch-path;
 #X msg 36 269 write /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/preset_projects/MOLIPE_DRUMS/statesave/patterns/7mono-rhythm-pattern0.txt 2697-pattern, f 31;
 #X obj 447 61 s update-path;
-#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/preset_projects/MOLIPE_DRUMS/statesave/patterns/7mono-rhythm-pattern0.txt 2697-pattern, f 34;
+#X msg 408 281 read -ascii -resize /Users/johannklug/Documents/Bass\ Dieter/2025/Diet/MODULAR_LIVE_\ PERFORMER/preset_projects/MOLIPE_DRUMS/statesave/patterns/3mono-rhythm-pattern0.txt 1662-pattern, f 34;
 #X obj 430 169 pack f f f s;
 #X obj 499 148 r patch-path;
 #X text 767 6 Not done:;
@@ -1959,8 +1959,8 @@
 #X text -214 302 Set Size for Pattern-Array;
 #X obj 101 426 r SAVE-S;
 #X obj 100 489 del 2;
-#X obj 804 197 hsl 128 15 0 127 0 1 \$0-pattern-length-s \$0-pattern-length-r PTRN-LENGTH 133 7 0 10 #fcfcfc #000000 #000000 0 1;
-#X obj 804 232 hsl 128 15 0 127 0 1 \$0-offset-s \$0-offset-r OFFSET+/- 133 7 0 10 #fcfcfc #000000 #000000 5900 1;
+#X obj 804 197 hsl 128 15 0 127 0 1 \$0-pattern-length-s \$0-pattern-length-r PTRN-LENGTH 133 7 0 10 #fcfcfc #000000 #000000 3200 1;
+#X obj 804 232 hsl 128 15 0 127 0 1 \$0-offset-s \$0-offset-r OFFSET+/- 133 7 0 10 #fcfcfc #000000 #000000 4400 1;
 #X text 291 -237 old function:;
 #X obj 1115 666 outlet;
 #X msg 1115 589 60;
@@ -2056,7 +2056,7 @@
 #X obj 746 124 t f b;
 #X floatatom 746 104 5 0 0 0 - - - 0;
 #X obj 791 140 f \$0;
-#X msg 747 205 2697-pattern-groove1;
+#X msg 747 205 1662-pattern-groove1;
 #X connect 0 0 6 0;
 #X connect 2 0 4 0;
 #X connect 4 0 3 0;
@@ -2459,8 +2459,8 @@
 #X text 186 31 (ENCODERS);
 #X restore 107 -70 pd \$0options-old;
 #X obj 308 406 bng 10 250 50 0 \$0-options-button \$0-options-button-r OPTIONS -45 5 0 10 #fcfcfc #000000 #000000;
-#X obj 137 343 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r OFFSET 133 7 0 10 #a86ada #000000 #000000 5900 1;
-#X obj 137 312 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r PTRN-LTH 133 7 0 10 #8f5adf #000000 #000000 0 1;
+#X obj 137 343 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r OFFSET 133 7 0 10 #a86ada #000000 #000000 4400 1;
+#X obj 137 312 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r PTRN-LTH 133 7 0 10 #8f5adf #000000 #000000 1600 1;
 #X obj 137 374 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r RND-VEL 133 7 0 10 #c07cd2 #000000 #000000 0 1;
 #X obj 137 327 hsl 61 8 0 127 0 1 \$0-param-9-s \$0-param-9-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 327 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
@@ -4477,6 +4477,7 @@
 #X obj 1237 664 outlet;
 #X text 1235 685 mod clock out;
 #X obj 7 46 r global-pattern;
+#X obj 837 279 r SEQ\$1;
 #X connect 6 0 69 0;
 #X connect 6 0 34 0;
 #X connect 7 0 34 0;
@@ -4592,4 +4593,5 @@
 #X connect 214 0 215 0;
 #X connect 215 0 203 0;
 #X connect 219 0 72 0;
+#X connect 220 0 186 0;
 #X coords 0 -1 1 1 220 320 2 100 100;

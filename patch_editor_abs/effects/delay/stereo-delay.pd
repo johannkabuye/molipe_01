@@ -2,13 +2,13 @@
 #X obj 1070 22 inlet~;
 #X obj 1105 604 outlet~;
 #X obj 1301 607 outlet~;
-#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r LPASS 133 7 0 10 #f2e6c9 #000000 #000000 12600 1;
-#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r R-RATE 133 7 0 10 #2e6b3f #000000 #000000 600 1;
-#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r DR/WT 133 7 0 10 #d4b06a #000000 #000000 8600 1;
-#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r L-RATE 133 7 0 10 #1f4d2b #000000 #000000 200 1;
-#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r PHASE 133 7 0 10 #c85a2a #000000 #000000 7400 1;
-#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r DEPTH 133 7 0 10 #3a3a3a #000000 #000000 8700 1;
-#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r FDBACK 133 7 0 10 #8fa37a #000000 #000000 11900 1;
+#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r LPASS 133 7 0 10 #f2e6c9 #000000 #000000 10500 1;
+#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r R-RATE 133 7 0 10 #2e6b3f #000000 #000000 5300 1;
+#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r HPASS 133 7 0 10 #d4b06a #000000 #000000 7200 1;
+#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r L-RATE 133 7 0 10 #1f4d2b #000000 #000000 5000 1;
+#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r PHASE 133 7 0 10 #c85a2a #000000 #000000 3600 1;
+#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r DEPTH 133 7 0 10 #3a3a3a #000000 #000000 12700 1;
+#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r FDBACK 133 7 0 10 #8fa37a #000000 #000000 7900 1;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
 #X obj 134 127 cnv 5 5 5 empty \$0-modul-name DELAY 0 0 0 12 #fcfcfc #404040 0;
 #X obj 176 127 cnv 5 5 5 empty \$0-instance-num 6 0 0 0 12 #fcfcfc #404040 0;
@@ -89,9 +89,9 @@
 #X obj 633 563 r \$0-param-8-s;
 #X obj 633 661 s \$0-param-8-t;
 #X obj 137 154 hsl 61 8 0 127 0 1 \$0-param-9-s \$0-param-9-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
-#X obj 204 154 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 200 1;
+#X obj 204 154 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 185 hsl 61 8 0 127 0 1 \$0-param-10-s \$0-param-10-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
-#X obj 204 185 hsl 61 8 0 127 0 1 \$0-param-18-s \$0-param-18-r empty 133 7 0 10 #7c7c7c #000000 #000000 200 1;
+#X obj 204 185 hsl 61 8 0 127 0 1 \$0-param-18-s \$0-param-18-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 216 hsl 61 8 0 127 0 1 \$0-param-11-s \$0-param-11-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 216 hsl 61 8 0 127 0 1 \$0-param-19-s \$0-param-19-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 247 hsl 61 8 0 127 0 1 \$0-param-12-s \$0-param-12-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
@@ -112,7 +112,7 @@
 #X obj 337 287 core_options \$0;
 #X text 336 165 Modul Core:;
 #X text 337 400 Value Display Representation:;
-#N canvas 0 25 1440 847 dsp 1;
+#N canvas 0 25 1440 847 dsp 0;
 #X obj 33 22 inlet~;
 #X obj 111 22 inlet;
 #X obj 176 22 inlet;
@@ -124,8 +124,8 @@
 #X text 323 4 lowpass;
 #X obj 388 23 inlet;
 #X text 386 6 dry/wet;
-#X obj 29 156 hsl 128 15 0 127 0 1 \$0-stereo-delay-rate-left-s \$0-stereo-delay-rate-left-r RATE-LEFT 133 7 0 10 #fcfcfc #000000 #000000 251 1;
-#X obj 29 186 hsl 128 15 0 127 0 1 \$0-stereo-delay-feedback-s \$0-stereo-delay-feedback-r FEEDBACK 133 7 0 10 #fcfcfc #000000 #000000 12000 1;
+#X obj 29 156 hsl 128 15 0 127 0 1 \$0-stereo-delay-rate-left-s \$0-stereo-delay-rate-left-r RATE-LEFT 133 7 0 10 #fcfcfc #000000 #000000 5000 1;
+#X obj 29 186 hsl 128 15 0 127 0 1 \$0-stereo-delay-feedback-s \$0-stereo-delay-feedback-r FEEDBACK 133 7 0 10 #fcfcfc #000000 #000000 7900 1;
 #X obj 271 534 *~ -1;
 #X obj 4 514 *~;
 #X obj 271 510 *~;
@@ -199,7 +199,7 @@
 #X connect 25 0 24 1;
 #X connect 27 0 15 0;
 #X restore 271 207 pd delay1;
-#X obj 29 171 hsl 128 15 0 127 0 1 \$0-stereo-delay-rate-right-s \$0-stereo-delay-rate-right-r RATE-RIGHT 133 7 0 10 #fcfcfc #000000 #000000 684 1;
+#X obj 29 171 hsl 128 15 0 127 0 1 \$0-stereo-delay-rate-right-s \$0-stereo-delay-rate-right-r RATE-RIGHT 133 7 0 10 #fcfcfc #000000 #000000 5300 1;
 #X obj 395 532 *~ -1;
 #X obj 395 510 *~;
 #X obj 396 560 min~ 1;
@@ -213,7 +213,7 @@
 #X obj 309 140 r \$0-stereo-delay-feedback-s;
 #X obj 395 458 lop~;
 #X obj 395 480 lop~;
-#X obj 29 200 hsl 128 15 0 127 0 1 \$0-stereo-delay-lowpass-s \$0-stereo-delay-lowpass-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 12500 1;
+#X obj 29 200 hsl 128 15 0 127 0 1 \$0-stereo-delay-lowpass-s \$0-stereo-delay-lowpass-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 10500 1;
 #X obj 636 316 / 127;
 #X obj 636 365 * 4950;
 #X obj 636 387 + 50;
@@ -625,6 +625,7 @@
 #X text 1397 91 MOD2;
 #X obj 337 307 core_mod_display \$0;
 #X obj 1348 414 r \$0-g;
+#X obj 870 252 r DELAY\$1;
 #X connect 0 0 109 0;
 #X connect 25 0 24 0;
 #X connect 26 0 27 0;
@@ -690,4 +691,5 @@
 #X connect 122 0 124 0;
 #X connect 123 0 125 0;
 #X connect 129 0 109 7;
+#X connect 130 0 105 0;
 #X coords 0 -1 1 1 220 270 2 100 100;

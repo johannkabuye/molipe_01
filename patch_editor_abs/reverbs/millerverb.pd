@@ -117,7 +117,7 @@
 #X obj 391 496 *~;
 #X obj 507 496 *~;
 #X obj 475 496 *~;
-#X obj 131 120 hsl 128 15 0 127 0 1 \$0-millerverb-reverb-s \$0-millerverb-reverb-r REVERB 133 7 0 10 #fcfcfc #000000 #000000 11069 1;
+#X obj 131 120 hsl 128 15 0 127 0 1 \$0-millerverb-reverb-s \$0-millerverb-reverb-r REVERB 133 7 0 10 #fcfcfc #000000 #000000 11226 1;
 #X obj 391 634 delwrite~ \$0-loop1 60;
 #X obj 435 611 delwrite~ \$0-loop2 71.9345;
 #X obj 517 136 delread~ \$0-loop1 60;
@@ -131,7 +131,7 @@
 #X obj 247 423 lop~;
 #X obj 314 393 lop~;
 #X obj 314 423 lop~;
-#X obj 131 136 hsl 128 15 0 127 0 1 \$0-millerverb-lowpass-s \$0-millerverb-lowpass-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 9100 1;
+#X obj 131 136 hsl 128 15 0 127 0 1 \$0-millerverb-lowpass-s \$0-millerverb-lowpass-r LOWPASS 133 7 0 10 #fcfcfc #000000 #000000 10100 1;
 #X obj 157 192 / 127;
 #X obj 157 236 * 4950;
 #X obj 157 258 + 50;
@@ -999,7 +999,7 @@
 #X connect 18 0 13 0;
 #X connect 19 0 15 0;
 #X restore 238 795 pd alias;
-#X obj 808 696 hsl 128 15 0 127 0 1 empty empty empty 133 7 0 10 #fcfcfc #000000 #000000 6500 1;
+#X obj 808 696 hsl 128 15 0 127 0 1 empty empty empty 133 7 0 10 #fcfcfc #000000 #000000 6400 1;
 #X obj 805 716 / 127;
 #X msg 805 665 64;
 #X obj 804 644 loadbang;
@@ -1212,10 +1212,10 @@
 #X restore 1000 545 pd dsp;
 #X f 21;
 #X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r GAIN 133 7 0 10 #6b4bbd #000000 #000000 12700 1;
-#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r LPASS 133 7 0 10 #1f6f8b #000000 #000000 9000 1;
-#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r HPASS 133 7 0 10 #9a5fd6 #000000 #000000 6700 1;
-#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r REVERB 133 7 0 10 #2aa6a6 #000000 #000000 8700 1;
-#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r - 133 7 0 10 #ff9f1c #000000 #000000 12000 1;
+#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r LPASS 133 7 0 10 #1f6f8b #000000 #000000 10100 1;
+#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r HPASS 133 7 0 10 #9a5fd6 #000000 #000000 8000 1;
+#X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r REVERB 133 7 0 10 #2aa6a6 #000000 #000000 12400 1;
+#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r ALIAS 133 7 0 10 #ff9f1c #000000 #000000 0 1;
 #X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r - 133 7 0 10 #2b2b2b #000000 #000000 0 1;
 #X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r DR/WT 133 7 0 10 #3a3f9e #000000 #000000 12700 1;
 #X obj 134 127 cnv 5 5 5 empty \$0-modul-name MILLVERB 0 0 0 12 #fcfcfc #404040 0;
@@ -1294,7 +1294,7 @@
 #X obj 633 565 r \$0-param-8-s;
 #X obj 633 663 s \$0-param-8-t;
 #X obj 137 154 hsl 61 8 0 127 0 1 \$0-param-9-s \$0-param-9-r empty 133 7 0 10 #606060 #000000 #000000 1700 1;
-#X obj 204 154 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 1900 1;
+#X obj 204 154 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 1600 1;
 #X obj 137 185 hsl 61 8 0 127 0 1 \$0-param-10-s \$0-param-10-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 185 hsl 61 8 0 127 0 1 \$0-param-18-s \$0-param-18-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 216 hsl 61 8 0 127 0 1 \$0-param-11-s \$0-param-11-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
@@ -1304,7 +1304,7 @@
 #X obj 137 278 hsl 61 8 0 127 0 1 \$0-param-13-s \$0-param-13-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 278 hsl 61 8 0 127 0 1 \$0-param-21-s \$0-param-21-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 309 hsl 61 8 0 127 0 1 \$0-param-14-s \$0-param-14-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
-#X obj 204 309 hsl 61 8 0 127 0 1 \$0-param-22-s \$0-param-22-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
+#X obj 204 309 hsl 61 8 0 127 0 1 \$0-param-22-s \$0-param-22-r empty 133 7 0 10 #7c7c7c #000000 #000000 3800 1;
 #X obj 137 340 hsl 61 8 0 127 0 1 \$0-param-15-s \$0-param-15-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 340 hsl 61 8 0 127 0 1 \$0-param-23-s \$0-param-23-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 298 108 cnv 5 5 5 empty empty MOD2 0 0 0 8 #fcfcfc #404040 0;
@@ -1338,6 +1338,7 @@
 #X obj 1234 441 * 127;
 #X obj 1237 417 r \$0-e;
 #X obj 1282 418 r \$0-f;
+#X obj 870 252 r MILLVERB\$1;
 #X connect 0 0 111 0;
 #X connect 0 1 112 0;
 #X connect 21 0 20 0;
@@ -1402,4 +1403,5 @@
 #X connect 121 0 0 5;
 #X connect 122 0 121 0;
 #X connect 123 0 0 6;
+#X connect 124 0 99 0;
 #X coords 0 -1 1 1 220 270 2 100 100;

@@ -214,6 +214,7 @@
 #X obj 1214 315 r \$0-f;
 #X obj 1243 288 r \$0-g;
 #X obj 1272 311 r \$0-h;
+#X obj 870 252 r AUDTIO-OUT\$1;
 #X connect 0 0 119 0;
 #X connect 1 0 4 0;
 #X connect 4 0 9 0;
@@ -278,4 +279,5 @@
 #X connect 125 0 119 6;
 #X connect 126 0 119 7;
 #X connect 127 0 119 8;
+#X connect 128 0 92 0;
 #X coords 0 -1 1 1 220 290 2 100 100;

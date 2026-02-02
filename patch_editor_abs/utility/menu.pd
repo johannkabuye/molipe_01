@@ -7075,7 +7075,7 @@
 #X text 663 -137 <-- for now removed from gui - when corrected it will be added again.;
 #X obj 267 356 tgl 45 1 \$0-clock-on-off-s empty PLAY/STOP 0 -7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 1226 539 metro 100;
-#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 5600 1;
+#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 3600 1;
 #X floatatom 845 130 5 0 0 1 BPM - - 10;
 #X obj 1008 590 / 127;
 #X obj 1008 728 t f f;
@@ -7164,7 +7164,7 @@
 #X obj 756 601 s play-r;
 #X obj 1998 692 outlet;
 #X obj 128 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r CLOCK-OUT 133 7 0 10 #e86b0d #000000 #000000 0 1;
-#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 5600 1;
+#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 3600 1;
 #X obj 128 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r CLK-DL-MS 133 7 0 10 #e25511 #000000 #000000 0 1;
 #X obj 103 109 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
 #X obj 125 127 cnv 5 5 5 empty \$0-modul-name MOTHER 0 0 0 12 #fcfcfc #404040 0;
@@ -7316,14 +7316,14 @@
 #X obj 653 187 catch~ hw6;
 #X obj 694 208 catch~ hw7;
 #X obj 734 227 catch~ hw8;
-#X obj 463 387 *~;
+#X obj 459 358 *~;
 #X obj 110 120 vradio 15 1 0 2 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #X obj 346 229 line~;
 #X msg 345 193 \$1 5;
 #X obj 130 127 cnv 5 5 5 empty empty STEREO-OUT 0 0 0 8 #fcfcfc #000000 0;
 #X obj 130 142 cnv 5 5 5 empty empty MULTIPLE\ OUT 0 0 0 8 #fcfcfc #000000 0;
-#X obj 502 389 *~;
-#X obj 543 387 *~;
+#X obj 502 359 *~;
+#X obj 543 373 *~;
 #X obj 582 389 *~;
 #X obj 615 387 *~;
 #X obj 654 389 *~;
@@ -7360,8 +7360,8 @@
 #X connect 6 0 19 0;
 #X connect 7 0 20 0;
 #X connect 8 0 21 0;
-#X connect 9 0 1 0;
 #X connect 9 0 42 0;
+#X connect 9 0 1 0;
 #X connect 10 0 12 0;
 #X connect 10 0 27 0;
 #X connect 10 0 37 0;
@@ -7374,8 +7374,8 @@
 #X connect 11 0 20 1;
 #X connect 11 0 21 1;
 #X connect 12 0 11 0;
-#X connect 15 0 1 1;
 #X connect 15 0 43 0;
+#X connect 15 0 1 1;
 #X connect 16 0 1 2;
 #X connect 17 0 1 3;
 #X connect 18 0 1 4;
@@ -8224,6 +8224,7 @@
 #X coords 0 -1 1 1 220 115 2 100 100;
 #X restore 2021 98 pd network-communicator;
 #X obj 2021 -55 push-mk1;
+#X obj 870 252 r MOTHER\$1;
 #X connect 5 0 93 0;
 #X connect 6 0 90 0;
 #X connect 7 0 9 0;
@@ -8386,4 +8387,5 @@
 #X connect 230 1 232 0;
 #X connect 232 0 231 0;
 #X connect 233 0 223 0;
+#X connect 238 0 175 0;
 #X coords 0 -1 1 1 220 320 2 100 100;

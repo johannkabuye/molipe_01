@@ -1543,6 +1543,8 @@
 #X text 336 165 Modul Core:;
 #X text 337 410 Value Display Representation:;
 #X obj 337 307 core_mod_display \$0;
+#X obj 984 252 r SYKCK\$1;
+#X text 806 252 CUSTOM SAVE RECEIVER-------->;
 #X connect 3 0 23 0;
 #X connect 19 0 20 0;
 #X connect 20 0 21 0;
@@ -1604,4 +1606,5 @@
 #X connect 128 5 48 0;
 #X connect 128 6 49 0;
 #X connect 128 7 50 0;
+#X connect 134 0 129 0;
 #X coords 0 -1 1 1 220 270 2 100 100;

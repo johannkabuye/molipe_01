@@ -476,7 +476,7 @@
 #X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r SAMPLE2 133 7 0 10 #ffd066 #000000 #000000 10800 1;
 #X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r DECAY 133 7 0 10 #ffa8ab #000000 #000000 4700 1;
 #X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r SAMPLE1 133 7 0 10 #ffd84f #000000 #000000 2100 1;
-#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r SMPL_RTE 133 7 0 10 #ff96c1 #000000 #000000 6800 1;
+#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r - 133 7 0 10 #ff96c1 #000000 #000000 6800 1;
 #X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r XFADE 133 7 0 10 #ffc67e #000000 #000000 0 1;
 #X obj 199 109 cnv 5 5 5 empty empty MOD1 0 0 0 8 #fcfcfc #404040 0;
 #X obj 298 108 cnv 5 5 5 empty empty MOD2 0 0 0 8 #fcfcfc #404040 0;
@@ -555,6 +555,7 @@
 #X obj 432 434 i;
 #X obj 432 413 / 2.591;
 #X obj 432 455 + 1;
+#X obj 870 232 r HATS\$1;
 #X connect 3 0 4 0;
 #X connect 4 0 21 0;
 #X connect 5 0 6 0;
@@ -627,4 +628,5 @@
 #X connect 188 0 190 0;
 #X connect 189 0 188 0;
 #X connect 190 0 183 0;
+#X connect 191 0 83 0;
 #X coords 0 -1 1 1 220 270 2 100 100;

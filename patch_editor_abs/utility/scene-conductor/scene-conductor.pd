@@ -68,7 +68,7 @@
 #X obj 1382 473 loadbang;
 #X obj 1382 494 del 100;
 #X msg 1009 49 0;
-#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r LOAD 133 7 0 10 #4fb0a8 #000000 #000000 6300 1;
+#X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r LOAD 133 7 0 10 #4fb0a8 #000000 #000000 0 1;
 #X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r LOAD 133 7 0 10 #5f738f #000000 #000000 0 1;
 #X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r SCENE_A 133 7 0 10 #8fd3a6 #000000 #000000 0 1;
 #X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r GUI-SC 133 7 0 10 #4a4d6a #000000 #000000 0 1;
@@ -191,6 +191,7 @@
 #X obj 965 298 loadbang;
 #X msg 1014 403 1;
 #X obj 965 319 del 150;
+#X obj 870 252 r SCENES\$1;
 #X connect 0 0 39 0;
 #X connect 5 0 36 0;
 #X connect 10 0 38 0;
@@ -279,4 +280,5 @@
 #X connect 168 0 10 0;
 #X connect 169 0 166 0;
 #X connect 169 0 168 0;
+#X connect 170 0 110 0;
 #X coords 0 -1 1 1 220 320 2 100 100;
