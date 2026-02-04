@@ -771,8 +771,8 @@
 #X obj 2358 953 tabread scene1;
 #X msg 2357 895 201;
 #X floatatom 2358 974 5 0 0 0 - - - 0;
-#X obj 1999 996 vradio 16 1 0 2 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
-#X obj 1999 1073 s scene-tester;
+#X obj -96 1073 vradio 16 1 0 2 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0;
+#X obj -96 1150 s scene-tester;
 #X connect 0 0 93 0;
 #X connect 1 0 84 0;
 #X connect 2 0 3 0;

@@ -501,9 +501,41 @@ class PresetBrowserScreen(tk.Frame):
                     
                     # Load the new project (async - returns immediately)
                     new_project_path = os.path.join(my_projects_dir, new_name, "main.pd")
+                    new_gui_path = os.path.join(my_projects_dir, new_name, "patch-gui.py")
                     
                     if os.path.exists(new_project_path):
+                        # Start Pure Data
                         self.app.pd_manager.start_pd_async(new_project_path)
+                        
+                        # Dynamically load GUI from project folder
+                        if os.path.exists(new_gui_path):
+                            def load_gui():
+                                try:
+                                    # Import the GUI module from project folder
+                                    import importlib.util
+                                    spec = importlib.util.spec_from_file_location("project_gui", new_gui_path)
+                                    gui_module = importlib.util.module_from_spec(spec)
+                                    spec.loader.exec_module(gui_module)
+                                    
+                                    # Destroy old patch screen if it exists
+                                    if 'patch' in self.app.screens:
+                                        old_screen = self.app.screens['patch']
+                                        old_screen.destroy()
+                                    
+                                    # Create new GUI instance (assumes class is named PatchDisplayScreen)
+                                    new_gui = gui_module.PatchDisplayScreen(self.app.root, self.app)
+                                    self.app.screens['patch'] = new_gui
+                                    
+                                    print(f"Loaded custom GUI from: {new_gui_path}")
+                                    
+                                except Exception as e:
+                                    print(f"Error loading custom GUI: {e}")
+                                    import traceback
+                                    traceback.print_exc()
+                            
+                            # Load GUI on main thread
+                            self.after(0, load_gui)
+                        
                         # Switch to patch display immediately (will show loading screen)
                         self.after(0, lambda: self.app.show_screen('patch'))
                     else:

@@ -446,7 +446,7 @@ class BrowserScreen(tk.Frame):
             self.update_display()
             return
         
-        # Scan for project folders (must have both main.pd and patch-gui.py)
+        # Scan for project folders (must have main.pd, assume patch-gui.py exists)
         try:
             for item in sorted(os.listdir(projects_dir)):
                 item_path = os.path.join(projects_dir, item)
@@ -463,14 +463,11 @@ class BrowserScreen(tk.Frame):
                 if os.path.isdir(item_path):
                     # Check if main.pd exists
                     main_pd = os.path.join(item_path, "main.pd")
-                    patch_gui = os.path.join(item_path, "patch-gui.py")
                     
-                    # Valid project needs BOTH main.pd AND patch-gui.py
-                    has_pd = os.path.exists(main_pd)
-                    has_gui = os.path.exists(patch_gui)
-                    
-                    if has_pd and has_gui:
-                        # Valid project
+                    if os.path.exists(main_pd):
+                        # Assume patch-gui.py exists alongside main.pd
+                        patch_gui = os.path.join(item_path, "patch-gui.py")
+                        
                         self.projects.append({
                             'name': item,
                             'path': main_pd,
@@ -478,15 +475,9 @@ class BrowserScreen(tk.Frame):
                             'folder_path': item_path
                         })
                     else:
-                        # Show folder but mark as incomplete
-                        missing = []
-                        if not has_pd:
-                            missing.append("main.pd")
-                        if not has_gui:
-                            missing.append("patch-gui.py")
-                        
+                        # Show folder but mark as missing main.pd
                         self.projects.append({
-                            'name': f"{item} (missing: {', '.join(missing)})",
+                            'name': f"{item} (!)",
                             'path': None,
                             'gui_path': None,
                             'folder_path': item_path
