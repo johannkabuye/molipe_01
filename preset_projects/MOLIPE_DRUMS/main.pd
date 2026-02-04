@@ -1,4 +1,4 @@
-#N canvas 0 25 1440 847 10;
+#N canvas 31 25 1440 847 10;
 #X declare -path ../../patch_editor_abs/drums/simple-hats;
 #X declare -path ../../000-SAMPLE-LIBRARY;
 #X declare -path ../../patch_editor_abs;
