@@ -776,9 +776,7 @@ class BrowserScreen(tk.Frame):
                     self.after(0, lambda: self.show_sync_status(f"FAILED", error=True, duration=5000))
             
             threading.Thread(target=do_duplicate, daemon=True).start()
-            
-            # Return to browser
-            self.app.show_screen('browser')
+            # Note: Confirmation screen handles returning to browser
         
         # Show confirmation screen
         self.app.show_confirmation(
@@ -845,9 +843,7 @@ class BrowserScreen(tk.Frame):
                     self.after(0, lambda: self.show_sync_status(f"DELETE FAILED", error=True, duration=5000))
             
             threading.Thread(target=do_delete, daemon=True).start()
-            
-            # Return to browser
-            self.app.show_screen('browser')
+            # Note: Confirmation screen handles returning to browser
         
         # Show confirmation screen
         self.app.show_confirmation(
