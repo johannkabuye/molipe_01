@@ -178,6 +178,9 @@ class PreferencesScreen(tk.Frame):
             self.after(3000, restore_status)
             return
         
+        # Ensure Git remote uses HTTPS (not SSH) for boot reliability
+        self._ensure_https_remote()
+        
         def on_confirm_update():
             print("=== UPDATE CONFIRMED - Starting update process ===")
             self.updating = True
@@ -186,6 +189,36 @@ class PreferencesScreen(tk.Frame):
             def do_update():
                 try:
                     print("=== UPDATE THREAD STARTED ===")
+                    
+                    # === DIAGNOSTIC LOGGING ===
+                    log_file = "/home/patch/git_update_debug.log"
+                    try:
+                        from datetime import datetime
+                        with open(log_file, "a") as f:
+                            f.write("\n" + "="*80 + "\n")
+                            f.write(f"UPDATE at {datetime.now()}\n")
+                            f.write("="*80 + "\n")
+                            f.write(f"HOME={os.environ.get('HOME', 'NOT SET')}\n")
+                            f.write(f"USER={os.environ.get('USER', 'NOT SET')}\n")
+                            f.write(f"CWD={os.getcwd()}\n")
+                            f.write(f"molipe_root={self.app.molipe_root}\n")
+                            
+                            # Quick Git test
+                            test_cmd = subprocess.run(
+                                ["git", "ls-remote", "--heads", "origin"],
+                                cwd=self.app.molipe_root,
+                                capture_output=True,
+                                text=True,
+                                timeout=5
+                            )
+                            f.write(f"git ls-remote: {'OK' if test_cmd.returncode == 0 else 'FAIL'}\n")
+                            if test_cmd.returncode != 0:
+                                f.write(f"stderr: {test_cmd.stderr}\n")
+                        print(f"✓ Diagnostics logged to {log_file}")
+                    except Exception as e:
+                        print(f"Diagnostic logging failed: {e}")
+                    # === END DIAGNOSTIC ===
+                    
                     # ULTRA-NUCLEAR OPTION: Handles ANY git state, ALWAYS overwrites
                     
                     # Step 0a: Check if we need to fix permissions
@@ -289,15 +322,43 @@ class PreferencesScreen(tk.Frame):
                     else:
                         print(f"✓ Remote correctly configured: {remote_result.stdout.strip()}")
                     
+                    # Set Git credential helper to cache (prevents auth prompts)
+                    # This is critical for boot-time updates where there's no terminal
+                    try:
+                        subprocess.run(
+                            ["git", "config", "--global", "credential.helper", "cache --timeout=3600"],
+                            cwd=self.app.molipe_root,
+                            capture_output=True,
+                            timeout=2
+                        )
+                        # Also disable any interactive prompts
+                        subprocess.run(
+                            ["git", "config", "--global", "core.askPass", ""],
+                            cwd=self.app.molipe_root,
+                            capture_output=True,
+                            timeout=2
+                        )
+                        print("✓ Git credentials configured for non-interactive mode")
+                    except Exception as e:
+                        print(f"Warning: Could not configure Git credentials: {e}")
+                        # Continue anyway
+                    
                     # Step 2: Fetch all changes (longer timeout for slow connections)
                     print("Fetching from GitHub...")
                     self.after(0, lambda: self.update_status("DOWNLOADING..."))
+                    
+                    # Set environment to prevent any interactive prompts
+                    fetch_env = os.environ.copy()
+                    fetch_env['GIT_TERMINAL_PROMPT'] = '0'  # Disable credential prompts
+                    fetch_env['GIT_SSH_COMMAND'] = 'ssh -o BatchMode=yes'  # Non-interactive SSH
+                    
                     fetch_result = subprocess.run(
                         ["git", "fetch", "--all", "--prune"],
                         cwd=self.app.molipe_root,
                         capture_output=True,
                         text=True,
-                        timeout=60  # Increased from 30s to 60s
+                        timeout=60,  # Increased from 30s to 60s
+                        env=fetch_env  # Use non-interactive environment
                     )
                     
                     if fetch_result.returncode != 0:
@@ -483,6 +544,62 @@ class PreferencesScreen(tk.Frame):
         except Exception as e:
             print(f"GitHub check exception: {e}")
             return False
+    
+    def _ensure_https_remote(self):
+        """
+        Ensure Git remote uses HTTPS (not SSH) for reliability at boot time
+        
+        SSH remotes require SSH agent to be running, which might not be
+        available when app auto-starts at boot. HTTPS is more reliable.
+        
+        Converts: git@github.com:user/repo.git → https://github.com/user/repo.git
+        """
+        try:
+            # Get current remote URL
+            result = subprocess.run(
+                ["git", "remote", "get-url", "origin"],
+                cwd=self.app.molipe_root,
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            
+            if result.returncode != 0:
+                print("Warning: Could not get Git remote URL")
+                return
+            
+            current_url = result.stdout.strip()
+            print(f"Current Git remote: {current_url}")
+            
+            # Check if it's SSH format
+            if current_url.startswith("git@github.com:"):
+                # Convert to HTTPS
+                # git@github.com:johannkabuye/molipe_01.git → https://github.com/johannkabuye/molipe_01.git
+                https_url = current_url.replace("git@github.com:", "https://github.com/").replace(".git", "")
+                if not https_url.endswith(".git"):
+                    https_url += ".git"
+                
+                print(f"Converting SSH to HTTPS: {current_url} → {https_url}")
+                
+                # Update remote URL
+                subprocess.run(
+                    ["git", "remote", "set-url", "origin", https_url],
+                    cwd=self.app.molipe_root,
+                    capture_output=True,
+                    timeout=2
+                )
+                
+                print("âœ" Git remote converted to HTTPS for boot reliability")
+            
+            elif current_url.startswith("https://"):
+                print("âœ" Git remote already using HTTPS")
+            
+            else:
+                print(f"Warning: Unknown Git remote format: {current_url}")
+        
+        except Exception as e:
+            print(f"Warning: Could not check/update Git remote: {e}")
+            # Don't fail - just continue with existing remote
     
     def on_show(self):
         """Called when this screen becomes visible"""
