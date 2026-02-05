@@ -140,7 +140,7 @@ class ProcessManager:
                 cmd = [
                     'puredata',
                     '-stderr',           # Show errors
-                    '-nogui',            # No GUI
+                    ##'-nogui',            # No GUI
                     '-alsamidi',         # Use ALSA MIDI (like Patchbox)
                     '-mididev', '1',     # MIDI device 1 (like Patchbox)
                     '-channels', '2',    # 2 audio channels
