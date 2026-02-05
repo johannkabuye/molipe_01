@@ -1,4 +1,4 @@
-#N canvas 0 25 1440 847 10;
+#N canvas 226 25 1440 847 10;
 #X declare -path ../../patch_editor_abs/drums/simple-hats;
 #X declare -path ../../000-SAMPLE-LIBRARY;
 #X declare -path ../../patch_editor_abs;
@@ -7758,7 +7758,7 @@
 #X obj 1114 528 basic-lfo 13 3 6;
 #X obj 1568 529 basic-lfo 15 3 8;
 #X obj 450 47 mono-rhythm 1 1 3;
-#X obj 672 48 mono-rhythm 4 1 4;
+#X obj 671 47 mono-rhythm 4 1 4;
 #X obj 894 47 mono-rhythm 5 1 5;
 #X obj 1117 49 mono-rhythm 6 1 6;
 #X obj 1339 48 mono-rhythm 7 1 7;
