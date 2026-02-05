@@ -214,7 +214,7 @@ class PreferencesScreen(tk.Frame):
                             f.write(f"git ls-remote: {'OK' if test_cmd.returncode == 0 else 'FAIL'}\n")
                             if test_cmd.returncode != 0:
                                 f.write(f"stderr: {test_cmd.stderr}\n")
-                        print(f"✓ Diagnostics logged to {log_file}")
+                        print(f"[OK] Diagnostics logged to {log_file}")
                     except Exception as e:
                         print(f"Diagnostic logging failed: {e}")
                     # === END DIAGNOSTIC ===
@@ -231,7 +231,7 @@ class PreferencesScreen(tk.Frame):
                         with open(test_file, 'w') as f:
                             f.write("test")
                         os.remove(test_file)
-                        print("✓ Write access OK - no permission fix needed")
+                        print("[OK] Write access OK - no permission fix needed")
                     except PermissionError:
                         print("⚠ No write access - attempting permission fix...")
                         self.after(0, lambda: self.update_status("FIXING PERMISSIONS..."))
@@ -253,7 +253,7 @@ class PreferencesScreen(tk.Frame):
                                 print(f"Permission fix failed: {chown_result.stderr}")
                                 print("Continuing anyway - update may fail...")
                             else:
-                                print("✓ Permissions fixed")
+                                print("[OK] Permissions fixed")
                         except subprocess.TimeoutExpired:
                             print("Permission fix timed out - continuing anyway")
                         except Exception as e:
@@ -296,7 +296,7 @@ class PreferencesScreen(tk.Frame):
                                 check=True,
                                 timeout=5
                             )
-                            print("✓ Remote added")
+                            print("[OK] Remote added")
                         except subprocess.CalledProcessError as e:
                             print(f"Failed to add remote: {e.stderr}")
                             # Continue anyway - might still work
@@ -314,13 +314,13 @@ class PreferencesScreen(tk.Frame):
                                 check=True,
                                 timeout=5
                             )
-                            print("✓ Remote URL updated")
+                            print("[OK] Remote URL updated")
                         except subprocess.CalledProcessError as e:
                             print(f"Failed to update remote: {e.stderr}")
                             # Continue anyway
                     
                     else:
-                        print(f"✓ Remote correctly configured: {remote_result.stdout.strip()}")
+                        print(f"[OK] Remote correctly configured: {remote_result.stdout.strip()}")
                     
                     # Set Git credential helper to cache (prevents auth prompts)
                     # This is critical for boot-time updates where there's no terminal
@@ -338,7 +338,7 @@ class PreferencesScreen(tk.Frame):
                             capture_output=True,
                             timeout=2
                         )
-                        print("✓ Git credentials configured for non-interactive mode")
+                        print("[OK] Git credentials configured for non-interactive mode")
                     except Exception as e:
                         print(f"Warning: Could not configure Git credentials: {e}")
                         # Continue anyway
@@ -589,10 +589,10 @@ class PreferencesScreen(tk.Frame):
                     timeout=2
                 )
                 
-                print("âœ" Git remote converted to HTTPS for boot reliability")
+                print("Git remote converted to HTTPS for boot reliability")
             
             elif current_url.startswith("https://"):
-                print("âœ" Git remote already using HTTPS")
+                print("Git remote already using HTTPS")
             
             else:
                 print(f"Warning: Unknown Git remote format: {current_url}")
