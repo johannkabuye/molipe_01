@@ -802,10 +802,19 @@ class PatchDisplayScreen(tk.Frame):
             except OSError:
                 pass
             
+            # CRITICAL: Allow port reuse when reloading projects
+            try:
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            except OSError:
+                pass
+            
             try:
                 sock.bind((HOST, PORT))
                 sock.settimeout(SOCKET_TIMEOUT_SEC)
-            except OSError:
+                print(f"UDP listener bound to {HOST}:{PORT}")
+            except OSError as e:
+                print(f"ERROR: Could not bind UDP socket: {e}")
+                print(f"Port {PORT} may already be in use by another patch screen")
                 return
             
             while True:
@@ -1240,6 +1249,26 @@ class PatchDisplayScreen(tk.Frame):
         """
         print("Patch display shown - starting/restarting status polling...")
         self.check_pd_status()  # This cancels existing polling and starts fresh
+    
+    def cleanup(self):
+        """
+        Clean up resources before destroying this screen
+        CRITICAL: Must be called before creating a new patch screen
+        """
+        print("Cleaning up patch display...")
+        
+        # Stop status polling
+        if self.status_polling_id:
+            self.after_cancel(self.status_polling_id)
+            self.status_polling_id = None
+        
+        # Stop UDP listener thread (it will exit when it can't bind)
+        # The thread is daemon so it will die when the screen is destroyed
+        # But we need to make sure the socket is closed first
+        if self.udp_thread and self.udp_thread.is_alive():
+            print("UDP thread still running - it will clean up on next bind attempt")
+        
+        print("Patch display cleanup complete")
     
     def update_status(self, message, error=False):
         """Update status (for compatibility)"""

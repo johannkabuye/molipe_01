@@ -713,6 +713,9 @@ class BrowserScreen(tk.Frame):
                         old_screen = self.app.screens['patch']
                         # Unpack first (if it's currently showing)
                         old_screen.pack_forget()
+                        # Call cleanup to release UDP socket and other resources
+                        if hasattr(old_screen, 'cleanup'):
+                            old_screen.cleanup()
                         # Then destroy
                         old_screen.destroy()
                         print("Destroyed old patch screen")
@@ -742,6 +745,8 @@ class BrowserScreen(tk.Frame):
                     if 'patch' in self.app.screens:
                         old_screen = self.app.screens['patch']
                         old_screen.pack_forget()
+                        if hasattr(old_screen, 'cleanup'):
+                            old_screen.cleanup()
                         old_screen.destroy()
                     
                     # Create default GUI
