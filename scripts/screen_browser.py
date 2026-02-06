@@ -680,13 +680,33 @@ class BrowserScreen(tk.Frame):
             
             # Dynamically load GUI from project folder
             gui_path = selected_project['gui_path']
+            gui_loaded = False
+            
             if gui_path and os.path.exists(gui_path):
                 try:
                     # Import the GUI module from project folder
                     import importlib.util
-                    spec = importlib.util.spec_from_file_location("project_gui", gui_path)
+                    import sys
+                    
+                    # Use unique module name based on project to avoid caching issues
+                    project_name = selected_project['name']
+                    module_name = f"project_gui_{project_name.replace('-', '_').replace(' ', '_')}"
+                    
+                    # Remove old cached module if it exists
+                    if module_name in sys.modules:
+                        del sys.modules[module_name]
+                        print(f"Cleared cached module: {module_name}")
+                    
+                    # Also clear generic "project_gui" if it exists
+                    if "project_gui" in sys.modules:
+                        del sys.modules["project_gui"]
+                    
+                    spec = importlib.util.spec_from_file_location(module_name, gui_path)
                     gui_module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = gui_module  # Register in sys.modules
                     spec.loader.exec_module(gui_module)
+                    
+                    print(f"Loaded module: {module_name} from {gui_path}")
                     
                     # CRITICAL: Destroy and recreate patch screen properly
                     if 'patch' in self.app.screens:
@@ -700,15 +720,38 @@ class BrowserScreen(tk.Frame):
                     # Create new GUI instance (assumes class is named PatchDisplayScreen)
                     new_gui = gui_module.PatchDisplayScreen(self.app.root, self.app)
                     self.app.screens['patch'] = new_gui
+                    gui_loaded = True
                     
-                    print(f"Loaded custom GUI from: {gui_path}")
+                    print(f"Created new patch screen from: {gui_path}")
                     
                 except Exception as e:
                     print(f"Error loading custom GUI: {e}")
                     import traceback
                     traceback.print_exc()
-                    # Fallback to default if custom GUI fails
-                    # (but this shouldn't happen if patch-gui.py is required)
+                    gui_loaded = False
+            else:
+                print(f"WARNING: No patch-gui.py found at: {gui_path}")
+            
+            # Fallback: If no GUI loaded, import default from screen_patch_display
+            if not gui_loaded:
+                print("Using fallback default patch display")
+                try:
+                    from screen_patch_display import PatchDisplayScreen
+                    
+                    # Destroy old screen if exists
+                    if 'patch' in self.app.screens:
+                        old_screen = self.app.screens['patch']
+                        old_screen.pack_forget()
+                        old_screen.destroy()
+                    
+                    # Create default GUI
+                    new_gui = PatchDisplayScreen(self.app.root, self.app)
+                    self.app.screens['patch'] = new_gui
+                    print("Loaded default patch display")
+                except Exception as e:
+                    print(f"CRITICAL: Could not load default GUI either: {e}")
+                    import traceback
+                    traceback.print_exc()
             
             # Switch to patch display (show_screen will pack it)
             self.app.show_screen('patch')
