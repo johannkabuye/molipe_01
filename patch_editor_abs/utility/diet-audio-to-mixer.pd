@@ -119,7 +119,7 @@
 #X obj 204 340 hsl 61 8 0 127 0 1 \$0-param-23-s \$0-param-23-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 355 hsl 128 15 0 127 0 1 \$0-param-8-s \$0-param-8-r HW_8 133 7 0 10 #acacac #000000 #000000 0 1;
 #X obj 337 307 core_mod_display \$0;
-#N canvas 98 88 1127 597 dsp 0;
+#N canvas 98 88 1127 597 dsp 1;
 #X obj 98 394 *~;
 #X obj 113 350 pack 0 50;
 #X obj 113 372 line~;
