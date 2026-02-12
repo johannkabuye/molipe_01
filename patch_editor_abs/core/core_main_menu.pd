@@ -18,7 +18,7 @@
 #X msg 165 365 1;
 #X msg 195 364 0;
 #X obj 166 395 tgl 16 0 empty empty empty 0 -8 0 10 #fcfcfc #000000 #000000 0 1;
-#X obj 166 419 s \$1-modul-active;
+#X obj 166 433 s \$1-modul-active;
 #X text 353 116 The Submenu2 number of the module;
 #X text 317 75 The Submenu number of the module;
 #X text 294 51 the mainmenu number of the module;

@@ -2,7 +2,7 @@
 #X obj 1101 353 outlet~;
 #X obj 120 512 hsl 60 10 0 1 0 0 \$0-h \$0-rh gain -2 -7 0 10 #003880 #fcfcfc #001488 0 0;
 #X obj 100 510 cnv 12 15 13 empty empty 7 1 6 0 12 #202020 #fcfcfc 0;
-#N canvas 153 109 1287 763 bassdrum 0;
+#N canvas 153 109 1287 763 bassdrum 1;
 #X obj 476 628 vline~;
 #X obj 419 644 *~;
 #X obj 477 499 f;
@@ -317,7 +317,7 @@
 #X obj 841 156 lop~ 0.03;
 #X obj 841 186 *~ 20;
 #X text 832 106 "analog" instability;
-#N canvas 0 22 462 312 rh_scalelog 0;
+#N canvas 150 175 462 312 rh_scalelog 0;
 #X obj 20 155 exp;
 #X obj 20 107 *;
 #X obj 20 130 +;
@@ -442,6 +442,7 @@
 #X connect 50 0 77 0;
 #X connect 51 0 45 0;
 #X connect 52 0 3 0;
+#X connect 53 0 54 0;
 #X connect 54 0 73 0;
 #X connect 55 0 56 0;
 #X connect 55 0 83 0;
@@ -489,7 +490,6 @@
 #X connect 88 0 91 0;
 #X connect 90 0 86 0;
 #X connect 91 0 56 2;
-#X connect 92 0 54 0;
 #X connect 93 0 83 2;
 #X connect 94 0 95 0;
 #X connect 95 0 26 0;
