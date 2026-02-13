@@ -4,7 +4,7 @@
 #X obj 1042 410 outlet~;
 #X obj 103 119 cnv 5 5 5 empty empty IN 0 0 0 8 #ffffff #ff8300 0;
 #X obj 134 127 cnv 5 5 5 empty \$0-modul-name CHANNEL 0 0 0 12 #fcfcfc #404040 0;
-#X obj 186 127 cnv 5 5 5 empty \$0-instance-num 1 0 0 0 12 #fcfcfc #404040 0;
+#X obj 186 127 cnv 5 5 5 empty \$0-instance-num 0 0 0 0 12 #fcfcfc #404040 0;
 #X obj 103 382 cnv 5 5 5 empty empty OUT 0 0 0 8 #fcfcfc #000000 0;
 #X obj 209 119 cnv 5 5 5 empty empty MOD1 0 0 0 8 #fcfcfc #404040 0;
 #X text 487 248 <--rename labels here;
@@ -89,12 +89,12 @@
 #X text 336 165 Modul Core:;
 #X text 337 400 Value Display Representation:;
 #X obj 137 232 hsl 128 15 0 127 0 1 \$0-param-4-s \$0-param-4-r SEND1 133 7 0 10 #d48dc1 #000000 #000000 0 1;
-#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r LPASS 133 7 0 10 #a86ada #000000 #000000 12700 1;
-#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r SEND2 133 7 0 10 #e69fad #000000 #000000 9000 1;
+#X obj 137 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r LPASS 133 7 0 10 #a86ada #000000 #000000 0 1;
+#X obj 137 263 hsl 128 15 0 127 0 1 \$0-param-5-s \$0-param-5-r SEND2 133 7 0 10 #e69fad #000000 #000000 0 1;
 #X obj 137 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r HPASS 133 7 0 10 #8f5adf #000000 #000000 0 1;
-#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r DISTRN 133 7 0 10 #f3b08f #000000 #000000 12700 1;
-#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r ALIAS 133 7 0 10 #fbc070 #000000 #000000 9300 1;
-#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r VLUME 133 7 0 10 #c07cd2 #000000 #000000 11300 1;
+#X obj 137 294 hsl 128 15 0 127 0 1 \$0-param-6-s \$0-param-6-r DISTRN 133 7 0 10 #f3b08f #000000 #000000 0 1;
+#X obj 137 325 hsl 128 15 0 127 0 1 \$0-param-7-s \$0-param-7-r ALIAS 133 7 0 10 #fbc070 #000000 #000000 0 1;
+#X obj 137 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r VLUME 133 7 0 10 #c07cd2 #000000 #000000 0 1;
 #X obj 137 154 hsl 61 8 0 127 0 1 \$0-param-9-s \$0-param-9-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 154 hsl 61 8 0 127 0 1 \$0-param-17-s \$0-param-17-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 185 hsl 61 8 0 127 0 1 \$0-param-10-s \$0-param-10-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
@@ -109,7 +109,7 @@
 #X obj 204 309 hsl 61 8 0 127 0 1 \$0-param-22-s \$0-param-22-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
 #X obj 137 340 hsl 61 8 0 127 0 1 \$0-param-15-s \$0-param-15-r empty 133 7 0 10 #606060 #000000 #000000 0 1;
 #X obj 204 340 hsl 61 8 0 127 0 1 \$0-param-23-s \$0-param-23-r empty 133 7 0 10 #7c7c7c #000000 #000000 0 1;
-#X obj 137 355 hsl 128 15 0 127 0 1 \$0-param-8-s \$0-param-8-r DUCKNG 133 7 0 10 #ffcf4f #000000 #000000 12700 1;
+#X obj 137 355 hsl 128 15 0 127 0 1 \$0-param-8-s \$0-param-8-r DUCKNG 133 7 0 10 #ffcf4f #000000 #000000 0 1;
 #X obj 337 307 core_mod_display \$0;
 #N canvas 109 68 1275 804 dsp 0;
 #X obj 111 244 env~;

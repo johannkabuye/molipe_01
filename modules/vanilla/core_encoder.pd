@@ -1,4 +1,5 @@
 #N canvas 6 67 1293 763 10;
+#X declare -path core_encoder;
 #X obj 53 419 push-encoder-reader;
 #X obj 298 414 push-encoder-reader;
 #X obj 536 413 push-encoder-reader;
@@ -266,6 +267,7 @@
 #X msg 637 570 1;
 #X obj 881 556 loadbang;
 #X msg 881 577 1;
+#X obj 51 184 declare -path core_encoder;
 #X connect 0 0 9 0;
 #X connect 1 0 32 0;
 #X connect 2 0 33 0;
