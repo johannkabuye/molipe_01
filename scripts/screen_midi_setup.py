@@ -1,23 +1,23 @@
 """
 MIDI Setup Screen - Select USB MIDI device for Pure Data MIDI-Out 2
-Integrated into Preferences screen workflow
+Full-screen navigation following browser pattern
 """
 import tkinter as tk
 import sys
 import os
 
-# Add scripts directory to path for imports
+# Add scripts directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from midi_device_manager import MIDIDeviceManager
 
-# Grid configuration (same as other screens)
+# Grid configuration (same as browser)
 DEFAULT_ROWS = 11
 COLS_PER_ROW = [4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 8]
 ROW_HEIGHTS = [60, 210, 50, 0, 0, 210, 50, 5, 20, 50, 50]
 
 class MIDISetupScreen(tk.Frame):
-    """MIDI device selection screen"""
+    """MIDI device selection screen - follows browser pattern"""
     
     def __init__(self, parent, app):
         super().__init__(parent, bg="#000000")
@@ -26,18 +26,17 @@ class MIDISetupScreen(tk.Frame):
         self.rows = DEFAULT_ROWS
         self.cols_per_row = list(COLS_PER_ROW)
         
+        # MIDI manager
+        self.midi_manager = MIDIDeviceManager()
+        
         # State
-        self.devices = []  # List of (device_name, port_name, full_id)
-        self.selected_index = None
-        self.current_device = None
+        self.devices = []  # List of device names ["CRAVE", "MicroFreak", etc.]
+        self.current_device = None  # Currently configured device
+        self.selected_index = None  # Currently selected in UI (0-3 for 4 slots)
         
         # UI references
         self.cell_frames = []
-        self.device_list_frame = None
-        self.device_labels = []
-        self.current_label = None
-        self.select_button_cell = None
-        self.clear_button_cell = None
+        self.device_labels = []  # 4 device labels (rows 1, 3, 5, 7)
         self.status_label = None
         
         self._build_ui()
@@ -52,6 +51,7 @@ class MIDISetupScreen(tk.Frame):
         container.columnconfigure(0, weight=1, uniform="outer_col")
         
         self.cell_frames.clear()
+        self.device_labels.clear()
         
         # Build 11-row grid
         for r in range(self.rows):
@@ -78,297 +78,213 @@ class MIDISetupScreen(tk.Frame):
                 cell.grid_propagate(False)
                 row_cells.append(cell)
                 
-                # Row 0, Cell 0: MENU button
+                # Row 0, Cell 0: BACK button (like browser's MENU button)
                 if r == 0 and c == 0:
-                    menu_button = tk.Label(
+                    back_btn = tk.Label(
                         cell,
-                        text="////MENU",
+                        text="////BACK",
                         bg="black", fg="white",
                         anchor="w", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.small,
                         cursor="hand2"
                     )
-                    menu_button.bind("<Button-1>", lambda e: self.on_menu_clicked())
-                    menu_button.pack(fill="both", expand=True)
+                    back_btn.bind("<Button-1>", lambda e: self.go_back())
+                    back_btn.pack(fill="both", expand=True)
                 
                 # Row 0, Cell 3: Status label
                 elif r == 0 and c == 3:
                     self.status_label = tk.Label(
                         cell,
-                        text="MIDI SETUP",
+                        text="SCANNING...",
                         bg="black", fg="#606060",
                         anchor="e", padx=10, pady=0, bd=0, highlightthickness=0,
                         font=self.app.fonts.status
                     )
                     self.status_label.pack(fill="both", expand=True)
                 
-                # Row 1: Current device display
-                elif r == 1:
-                    if c == 0:
-                        # Label
-                        lbl = tk.Label(
-                            cell, text="CURRENT:",
-                            font=self.app.fonts.small,
-                            bg="black", fg="#606060",
-                            anchor="w", padx=40
-                        )
-                        lbl.pack(fill="both", expand=True)
-                    elif c == 1:
-                        # Current device name
-                        self.current_label = tk.Label(
-                            cell, text="(none)",
-                            font=self.app.fonts.small,
-                            bg="black", fg="white",
-                            anchor="w", padx=20
-                        )
-                        self.current_label.pack(fill="both", expand=True)
-                
-                # Row 2: "AVAILABLE DEVICES" label
-                elif r == 2 and c == 0:
-                    lbl = tk.Label(
-                        cell, text="AVAILABLE DEVICES:",
-                        font=self.app.fonts.status,
-                        bg="black", fg="#606060",
-                        anchor="w", padx=40
+                # Rows 1, 3, 5, 7: Device slots (4 total)
+                elif r in [1, 3, 5, 7] and c == 0:
+                    device_index = [1, 3, 5, 7].index(r)
+                    device_label = tk.Label(
+                        cell,
+                        text="",
+                        font=self.app.fonts.big,
+                        bg="#1a1a1a", fg="#606060",
+                        anchor="w", padx=40,
+                        cursor="hand2", bd=0, relief="flat"
                     )
-                    lbl.pack(fill="both", expand=True)
+                    device_label.bind("<Button-1>", lambda e, idx=device_index: self.select_device(idx))
+                    device_label.pack(fill="both", expand=True, padx=40, pady=20)
+                    self.device_labels.append(device_label)
                 
-                # Rows 3-4: Device list (scrollable area)
-                elif r == 3 and c == 0:
-                    # Create scrollable device list frame (spans 2 rows visually)
-                    self.device_list_frame = tk.Frame(cell, bg="black")
-                    self.device_list_frame.pack(fill="both", expand=True, padx=40)
-                
-                # Row 5: Action buttons
-                elif r == 5:
-                    if c == 0:
-                        # UP button
-                        btn = self._create_big_button(cell, "UP", self.on_up_clicked)
-                        btn.pack(fill="both", expand=True)
-                    elif c == 1:
-                        # DOWN button
-                        btn = self._create_big_button(cell, "DOWN", self.on_down_clicked)
-                        btn.pack(fill="both", expand=True)
-                    elif c == 2:
-                        # SELECT button (dynamic)
-                        self.select_button_cell = cell
-                    elif c == 3:
-                        # CLEAR button (dynamic)
-                        self.clear_button_cell = cell
+                # Row 9: Action buttons (CLEAR and SET)
+                elif r == 9:
+                    if c == 6:
+                        # CLEAR button
+                        clear_btn = tk.Label(
+                            cell,
+                            text="CLEAR",
+                            font=self.app.fonts.medium,
+                            bg="#2c2c2c", fg="#ffffff",
+                            cursor="hand2", bd=0, relief="flat"
+                        )
+                        clear_btn.bind("<Button-1>", lambda e: self.clear_device())
+                        clear_btn.pack(fill="both", expand=True, padx=20, pady=10)
+                    
+                    elif c == 7:
+                        # SET button
+                        set_btn = tk.Label(
+                            cell,
+                            text="SET",
+                            font=self.app.fonts.medium,
+                            bg="#cc5500", fg="#ffffff",
+                            cursor="hand2", bd=0, relief="flat"
+                        )
+                        set_btn.bind("<Button-1>", lambda e: self.set_device())
+                        set_btn.pack(fill="both", expand=True, padx=20, pady=10)
             
             self.cell_frames.append(row_cells)
     
-    def _create_big_button(self, parent, text, command):
-        """Create a big button using BIG font (29pt)"""
-        btn = tk.Label(
-            parent, text=text,
-            font=self.app.fonts.big,
-            bg="#000000", fg="#ffffff",
-            cursor="hand2", bd=0, relief="flat", padx=20, pady=20
-        )
-        
-        def on_click(e):
-            print(f"Button clicked: {text}")
-            command()
-        
-        btn.bind("<Button-1>", on_click)
-        return btn
-    
-    def on_show(self):
-        """Called when screen becomes visible - refresh device list"""
-        self.refresh_devices()
-    
-    def refresh_devices(self):
-        """Scan for MIDI devices and update display"""
-        print("Scanning for MIDI devices...")
-        
-        # Get available devices
-        self.devices = get_available_midi_devices()
-        
-        # Get current device
-        self.current_device = get_current_midi_device()
-        
-        # Update current device label
-        if self.current_label:
-            if self.current_device:
-                # Extract device name from full ID (e.g., "CRAVE:CRAVE MIDI 1" → "CRAVE")
-                device_name = self.current_device.split(':')[0] if ':' in self.current_device else self.current_device
-                self.current_label.config(text=device_name, fg="white")
-            else:
-                self.current_label.config(text="(none)", fg="#606060")
-        
-        # Rebuild device list
-        self._rebuild_device_list()
-        
-        # Update action buttons
-        self._update_action_buttons()
-        
-        # Update status
-        if self.devices:
-            self.update_status(f"{len(self.devices)} DEVICE(S) FOUND")
-        else:
-            self.update_status("NO DEVICES FOUND")
-    
-    def _rebuild_device_list(self):
-        """Rebuild the device list display"""
-        if not self.device_list_frame:
-            return
-        
-        # Clear existing labels
-        for widget in self.device_list_frame.winfo_children():
-            widget.destroy()
-        
-        self.device_labels = []
-        
-        if not self.devices:
-            # Show "no devices" message
-            lbl = tk.Label(
-                self.device_list_frame,
-                text="(plug in a USB MIDI device)",
-                font=self.app.fonts.status,
-                bg="black", fg="#404040",
-                anchor="w"
-            )
-            lbl.pack(fill="x", pady=5)
-            self.selected_index = None
-            return
-        
-        # Show device list
-        for i, (device_name, port_name, full_id) in enumerate(self.devices):
-            lbl = tk.Label(
-                self.device_list_frame,
-                text=f"  {device_name}",
-                font=self.app.fonts.small,
-                bg="black", fg="white",
-                anchor="w"
-            )
-            lbl.pack(fill="x", pady=2)
-            self.device_labels.append(lbl)
-        
-        # Select first device by default
-        if self.selected_index is None and self.devices:
-            self.selected_index = 0
-        
-        # Ensure selected_index is valid
-        if self.selected_index is not None and self.selected_index >= len(self.devices):
-            self.selected_index = len(self.devices) - 1
-        
-        # Highlight selected
-        self._update_selection_highlight()
-    
-    def _update_selection_highlight(self):
-        """Update visual highlight of selected device"""
-        for i, lbl in enumerate(self.device_labels):
-            if i == self.selected_index:
-                lbl.config(bg="#2c2c2c", fg="white", text=f"▶ {self.devices[i][0]}")
-            else:
-                lbl.config(bg="black", fg="white", text=f"  {self.devices[i][0]}")
-    
-    def _update_action_buttons(self):
-        """Update SELECT and CLEAR buttons based on state"""
-        # SELECT button
-        if self.select_button_cell:
-            for widget in self.select_button_cell.winfo_children():
-                widget.destroy()
-            
-            if self.devices and self.selected_index is not None:
-                btn = self._create_big_button(self.select_button_cell, "SELECT", self.on_select_clicked)
-                btn.pack(fill="both", expand=True)
-        
-        # CLEAR button
-        if self.clear_button_cell:
-            for widget in self.clear_button_cell.winfo_children():
-                widget.destroy()
-            
-            if self.current_device:
-                btn = self._create_big_button(self.clear_button_cell, "CLEAR", self.on_clear_clicked)
-                btn.pack(fill="both", expand=True)
-    
-    def on_menu_clicked(self):
-        """Return to preferences"""
+    def go_back(self):
+        """Return to preferences screen"""
         self.app.show_screen('preferences')
     
-    def on_up_clicked(self):
-        """Move selection up"""
-        if not self.devices or self.selected_index is None:
-            return
-        
-        self.selected_index = (self.selected_index - 1) % len(self.devices)
-        self._update_selection_highlight()
+    def on_show(self):
+        """Called when screen becomes visible"""
+        print("=== MIDI Setup Screen: on_show called ===")
+        self.scan_devices()
     
-    def on_down_clicked(self):
-        """Move selection down"""
-        if not self.devices or self.selected_index is None:
-            return
+    def scan_devices(self):
+        """Scan for available MIDI devices"""
+        print("Scanning for MIDI devices...")
+        self.update_status("SCANNING...")
         
-        self.selected_index = (self.selected_index + 1) % len(self.devices)
-        self._update_selection_highlight()
+        try:
+            # Get available devices
+            self.devices = self.midi_manager.get_available_devices()
+            print(f"Found devices: {self.devices}")
+            
+            # Get current device
+            self.current_device = self.midi_manager.get_current_device()
+            print(f"Current device: {self.current_device}")
+            
+            # Auto-select current device if it exists
+            if self.current_device and self.current_device in self.devices:
+                self.selected_index = self.devices.index(self.current_device)
+            else:
+                self.selected_index = None
+            
+            # Update display
+            self.update_device_list()
+            
+            # Update status
+            if not self.devices:
+                self.update_status("NO DEVICES FOUND")
+            elif self.current_device:
+                self.update_status(f"ACTIVE: {self.current_device}")
+            else:
+                self.update_status("SELECT DEVICE")
+        
+        except Exception as e:
+            print(f"Error scanning devices: {e}")
+            import traceback
+            traceback.print_exc()
+            self.update_status("ERROR SCANNING", error=True)
     
-    def on_select_clicked(self):
-        """Select current device"""
-        if not self.devices or self.selected_index is None:
+    def update_device_list(self):
+        """Update device list display"""
+        for i, label in enumerate(self.device_labels):
+            if i < len(self.devices):
+                device = self.devices[i]
+                label.config(text=device)
+                
+                # Highlight current device (green)
+                if device == self.current_device:
+                    label.config(bg="#1a4d1a", fg="#00ff00")
+                # Highlight selected device (yellow)
+                elif i == self.selected_index:
+                    label.config(bg="#4d4d1a", fg="#ffff00")
+                # Normal
+                else:
+                    label.config(bg="#1a1a1a", fg="#ffffff")
+            else:
+                # Empty slot
+                label.config(text="", bg="#0a0a0a", fg="#606060")
+    
+    def select_device(self, index):
+        """Select a device from the list"""
+        if index < len(self.devices):
+            self.selected_index = index
+            self.update_device_list()
+            print(f"Selected device {index}: {self.devices[index]}")
+    
+    def set_device(self):
+        """Set the selected device"""
+        if self.selected_index is None or self.selected_index >= len(self.devices):
+            self.update_status("SELECT A DEVICE FIRST", error=True)
             return
         
-        device_name, port_name, full_id = self.devices[self.selected_index]
+        device = self.devices[self.selected_index]
         
+        # Show confirmation
         def on_confirm():
             self.update_status("CONFIGURING...")
             
-            # Set MIDI device (in background thread)
-            import threading
-            def do_config():
-                success, message = set_midi_device(full_id)
+            # Set device
+            success, msg = self.midi_manager.set_midi_device(device)
+            
+            if success:
+                self.current_device = device
+                self.update_status(f"ACTIVE: {device}")
+                self.update_device_list()
                 
-                if success:
-                    self.after(0, lambda: self.update_status(f"SET: {device_name}"))
-                    self.after(0, self.refresh_devices)
-                else:
-                    self.after(0, lambda: self.update_status(f"ERROR: {message}", error=True))
-                    self.after(3000, lambda: self.update_status("MIDI SETUP"))
-            
-            threading.Thread(target=do_config, daemon=True).start()
-            
-            # Return to this screen
-            self.app.show_screen('midi_setup')
+                # Return to preferences after 1.5 seconds
+                self.after(1500, self.go_back)
+            else:
+                self.update_status(f"ERROR: {msg}", error=True)
+                self.after(3000, self.scan_devices)
         
         self.app.show_confirmation(
-            message=f"Set MIDI output to:\n\n{device_name}?",
+            message=f"Set MIDI device to:\n\n{device}?",
             on_yes=on_confirm,
             return_screen='midi_setup',
             timeout=10
         )
     
-    def on_clear_clicked(self):
-        """Clear current MIDI device"""
+    def clear_device(self):
+        """Clear the current MIDI device"""
+        if not self.current_device:
+            self.update_status("NO DEVICE ACTIVE", error=True)
+            return
+        
+        # Show confirmation
         def on_confirm():
             self.update_status("CLEARING...")
             
-            # Clear MIDI device (in background thread)
-            import threading
-            def do_clear():
-                success, message = clear_midi_device()
+            # Clear device
+            success, msg = self.midi_manager.clear_midi_device()
+            
+            if success:
+                self.current_device = None
+                self.selected_index = None
+                self.update_status("CLEARED")
+                self.update_device_list()
                 
-                if success:
-                    self.after(0, lambda: self.update_status("CLEARED"))
-                    self.after(0, self.refresh_devices)
-                else:
-                    self.after(0, lambda: self.update_status(f"ERROR: {message}", error=True))
-                    self.after(3000, lambda: self.update_status("MIDI SETUP"))
-            
-            threading.Thread(target=do_clear, daemon=True).start()
-            
-            # Return to this screen
-            self.app.show_screen('midi_setup')
+                # Return to preferences after 1.5 seconds
+                self.after(1500, self.go_back)
+            else:
+                self.update_status(f"ERROR: {msg}", error=True)
+                self.after(3000, self.scan_devices)
         
         self.app.show_confirmation(
-            message="Clear MIDI output device?",
+            message=f"Disconnect MIDI device:\n\n{self.current_device}?",
             on_yes=on_confirm,
             return_screen='midi_setup',
             timeout=10
         )
     
     def update_status(self, message, error=False):
-        """Update status message"""
+        """Update status label"""
         if self.status_label:
             color = "#e74c3c" if error else "#606060"
             self.status_label.config(text=message.upper(), fg=color)

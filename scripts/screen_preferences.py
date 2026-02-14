@@ -535,7 +535,16 @@ class PreferencesScreen(tk.Frame):
     
     def on_midi_device_clicked(self):
         """Handle MIDI DEVICE button click - go to MIDI setup"""
-        self.app.show_screen('midi_setup')
+        print("=== MIDI DEVICE button clicked ===")
+        print(f"Attempting to show screen: 'midi_setup'")
+        print(f"Available screens: {list(self.app.screens.keys())}")
+        try:
+            self.app.show_screen('midi_setup')
+            print("Successfully called show_screen('midi_setup')")
+        except Exception as e:
+            print(f"ERROR showing MIDI setup screen: {e}")
+            import traceback
+            traceback.print_exc()
     
     def _check_internet(self):
         """
