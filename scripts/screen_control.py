@@ -103,22 +103,18 @@ class ControlScreen(tk.Frame):
                         # START NEW button
                         btn = self._create_big_button(cell, "START NEW", self.on_start_new_clicked)
                         btn.pack(fill="both", expand=True)
+                    elif c == 2:
+                        # IMPORT button (from USB) - moved from row 5
+                        btn = self._create_big_button(cell, "IMPORT", self.on_import_clicked)
+                        btn.pack(fill="both", expand=True)
                     elif c == 3:
                         # SHUTDOWN button
                         btn = self._create_big_button(cell, "SHUTDOWN", self.shutdown)
                         btn.pack(fill="both", expand=True)
                 
-                # Row 5 (big font row): SAVE, IMPORT, and PREFERENCES
+                # Row 5 (big font row): PREFERENCES only
                 elif r == 5:
-                    if c == 0:
-                        # SAVE button (placeholder)
-                        btn = self._create_big_button(cell, "SAVE", self.save_placeholder)
-                        btn.pack(fill="both", expand=True)
-                    elif c == 1:
-                        # IMPORT button (from USB)
-                        btn = self._create_big_button(cell, "IMPORT", self.on_import_clicked)
-                        btn.pack(fill="both", expand=True)
-                    elif c == 3:
+                    if c == 3:
                         # PREFERENCES button (below SHUTDOWN)
                         btn = self._create_big_button(cell, "PREFERENCES", self.on_preferences_clicked)
                         btn.pack(fill="both", expand=True)
@@ -168,20 +164,6 @@ class ControlScreen(tk.Frame):
         """Handle PATCH button click - go back to patch display"""
         if self.app.pd_manager.is_running():
             self.app.show_screen('patch')
-    
-    def save_placeholder(self):
-        """SAVE button - placeholder for future functionality"""
-        def on_confirm_save():
-            print("SAVE clicked (placeholder)")
-            self.update_status("SAVE - NOT IMPLEMENTED YET")
-            self.app.show_screen('control')
-        
-        self.app.show_confirmation(
-            message="Save project?\n\nThis will cause the audio to stop\nbriefly.",
-            on_yes=on_confirm_save,
-            return_screen='control',
-            timeout=10
-        )
     
     def on_import_clicked(self):
         """Handle IMPORT button click - go to USB browser"""

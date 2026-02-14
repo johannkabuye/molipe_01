@@ -102,6 +102,13 @@ class PreferencesScreen(tk.Frame):
                         # EXIT TO DESKTOP button
                         btn = self._create_big_button(cell, "EXIT TO DESKTOP", self.exit_to_desktop)
                         btn.pack(fill="both", expand=True)
+                
+                # Row 5 (big font row): MIDI DEVICE button
+                elif r == 5:
+                    if c == 0:
+                        # MIDI DEVICE button
+                        btn = self._create_big_button(cell, "MIDI DEVICE", self.on_midi_device_clicked)
+                        btn.pack(fill="both", expand=True)
             
             self.cell_frames.append(row_cells)
     
@@ -525,6 +532,10 @@ class PreferencesScreen(tk.Frame):
             return_screen='preferences',
             timeout=10
         )
+    
+    def on_midi_device_clicked(self):
+        """Handle MIDI DEVICE button click - go to MIDI setup"""
+        self.app.show_screen('midi_setup')
     
     def _check_internet(self):
         """

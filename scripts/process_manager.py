@@ -46,7 +46,7 @@ class ProcessManager:
                 timeout=2
             )
             time.sleep(0.2)
-            print("✓ All MIDI connections cleared")
+            print("[OK] All MIDI connections cleared")
         except Exception as e:
             print(f"Warning: Could not disconnect MIDI: {e}")
     
@@ -93,9 +93,9 @@ class ProcessManager:
                         pass  # Connection failed, try next
             
             if connections_made > 0:
-                print(f"✓ Made {connections_made} MIDI input connections")
+                print(f"[OK] Made {connections_made} MIDI input connections")
             else:
-                print("⚠ No MIDI input connections made")
+                print("[WARNING] No MIDI input connections made")
             
             return connections_made > 0
             
@@ -142,7 +142,7 @@ class ProcessManager:
                     '-stderr',           # Show errors
                     ##'-nogui',            # No GUI
                     '-alsamidi',         # Use ALSA MIDI (like Patchbox)
-                    '-mididev', '1',     # MIDI device 1 (like Patchbox)
+                    '-mididev', '1,2,3,4',  # MIDI devices 1-4 (creates 4 MIDI OUT ports)
                     '-channels', '2',    # 2 audio channels
                     '-r', '48000',       # 48kHz sample rate
                     '-outchannels', '8', # 8 audio outputs (HiFiBerry HAT)
@@ -177,7 +177,7 @@ class ProcessManager:
                     self.status_message = "Pure Data crashed"
                     return
                 
-                print(f"✓ Pure Data started (PID: {self.pd_process.pid})")
+                print(f"[OK] Pure Data started (PID: {self.pd_process.pid})")
                 
                 # Step 7: Connect MIDI inputs to Pure Data
                 # This is THE CRITICAL STEP Patchbox does!
@@ -195,7 +195,7 @@ class ProcessManager:
                 self.current_patch = patch_path
                 self.status = PDStatus.RUNNING
                 self.status_message = "Connected"
-                print("✓ Patch fully loaded and ready!\n")
+                print("[OK] Patch fully loaded and ready!\n")
                 
             else:
                 # macOS mock
