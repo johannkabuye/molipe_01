@@ -6,7 +6,7 @@
 #X text 589 -215 <-- for now removed from gui - when corrected it will be added again.;
 #X obj 264 383 tgl 35 1 \$0-clock-on-off-s empty PLAY/STOP 0 -7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 1226 539 metro 100;
-#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 1400 1;
+#X obj 747 145 hsl 128 15 0 127 0 1 \$0-clock-clk-rate-s \$0-clock-clk-rate-r TEMPO 133 7 0 10 #fcfcfc #000000 #000000 4500 1;
 #X floatatom 845 130 5 0 0 1 BPM - - 10;
 #X obj 1008 590 / 127;
 #X obj 1008 728 t f f;
@@ -84,7 +84,7 @@
 #X obj 744 108 cnv 5 5 5 empty empty INTERRNAL-CLOCK 0 12 0 10 #fcfcfc #404040 0;
 #X obj 1614 650 s clock4x;
 #X obj 2012 578 s clock-reset;
-#X obj 1750 881 r clock-to-hw-device-nr;
+#X obj 1837 764 r clock-to-hw-device-nr;
 #X text 1899 880 <- value comes from mother patch;
 #X obj 1006 248 i;
 #X obj 1006 287 s display-message;
@@ -95,7 +95,7 @@
 #X obj 756 601 s play-r;
 #X obj 1998 692 outlet;
 #X obj 128 170 hsl 128 15 0 127 0 1 \$0-param-2-s \$0-param-2-r CLOCK-OUT 133 7 0 10 #e86b0d #000000 #000000 0 1;
-#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 1400 1;
+#X obj 128 139 hsl 128 15 0 127 0 1 \$0-param-1-s \$0-param-1-r BPM 133 7 0 10 #ed8008 #000000 #000000 4500 1;
 #X obj 128 201 hsl 128 15 0 127 0 1 \$0-param-3-s \$0-param-3-r CLK-DL-MS 133 7 0 10 #e25511 #000000 #000000 0 1;
 #X obj 125 127 cnv 5 5 5 empty \$0-modul-name MOTHER 0 0 0 12 #fcfcfc #404040 0;
 #X obj 167 127 cnv 5 5 5 empty \$0-instance-num 0 0 0 0 12 #fcfcfc #404040 0;
@@ -1833,6 +1833,8 @@
 #X obj 7 263 r global-pattern-r;
 #X obj -7 54 del 1000;
 #X obj 353 32 declare -path menu;
+#X obj 1847 817 loadbang;
+#X msg 1847 838 2;
 #X connect 4 0 92 0;
 #X connect 5 0 89 0;
 #X connect 6 0 8 0;
@@ -1913,7 +1915,6 @@
 #X connect 77 0 79 0;
 #X connect 77 0 181 0;
 #X connect 78 0 68 1;
-#X connect 84 0 51 1;
 #X connect 86 0 88 0;
 #X connect 88 0 87 0;
 #X connect 89 0 80 0;
@@ -2001,4 +2002,6 @@
 #X connect 239 0 204 0;
 #X connect 241 0 204 0;
 #X connect 242 0 239 0;
+#X connect 244 0 245 0;
+#X connect 245 0 51 1;
 #X coords 0 -1 1 1 220 320 1 100 100;
